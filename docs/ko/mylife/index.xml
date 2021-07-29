@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Mylives on sixmen.com</title>
     <link>http://sixmen.com/ko/mylife/</link>
     <description>Recent content in Mylives on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 23 Jan 2018 01:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/mylife/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 23 Jan 2018 01:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/mylife/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>가상화폐에 대한 단상</title>
       <link>http://sixmen.com/ko/mylife/2018-01-23-1-gasanghwapyee-daehan-dansang/</link>

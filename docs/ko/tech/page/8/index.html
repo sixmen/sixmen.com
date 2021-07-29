@@ -55,6 +55,47 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-26-1-protect-script-aes-encrypt-decrypt/'>스크립트 보호 - AES 암호화/해독화 하기</a></h2>
+          <p class='posts-date'>26 Dec 2016</p>
+        </div>
+        <div class='panel-body'>
+          <p><!-- raw HTML omitted -->전편<!-- raw HTML omitted -->에 이어
+실제로 파일을 암호화/해독화 해보겠습니다.</p>
+<p>OpenSSL 커맨드 라인 도구를 사용하면 프로그램을 따로 작성하지 않아도 암호화를 할 수 있습니다.</p>
+<p>우선 원본 파일을 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ cat original.txt
+Hello World</code></pre></div>
+<p><code>openssl list-cipher-commands</code>를 실행하면 사용가능한 알고리즘을 보여줍니다.
+그중 AES 알고리즘은 다음과 같습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl list-cipher-commands <span class="p">|</span> grep aes
+aes-128-cbc
+aes-128-ecb
+aes-192-cbc
+aes-192-ecb
+aes-256-cbc
+aes-256-ecb</code></pre></div>
+<p>128, 192, 256은 키의 크기입니다. CBC, ECB는 <a href="https://ko.wikipedia.org/wiki/%EB%B8%94%EB%A1%9D_%EC%95%94%ED%98%B8_%EC%9A%B4%EC%9A%A9_%EB%B0%A9%EC%8B%9D">블록 암호 운용 방식</a>을 나타냅니다. 여기서는 aes-256-cbc로 암호화를 해보겠습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat
+enter aes-256-cbc encryption password:
+Verifying - enter aes-256-cbc encryption password:</code></pre></div>
+<p>해독화는 -d 옵션을 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt
+enter aes-256-cbc decryption password:</code></pre></div>
+<p>암호화를 자동화하려면 암호를 명령에 포함시켜야 합니다. 이를 위해서는 -k 나 -pass 옵션을 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -k <span class="m">1234</span></code></pre></div>
+<p>또는</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -pass pass:1234</code></pre></div>
+<p>암호를 파일에서 읽도록 하려면 -kfile 이나 -pass 옵션을 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -kfile password_file</code></pre></div>
+<p>또는</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -pass file:password_file</code></pre></div>
+<p>다음에는 암호화한 파일을 iOS나 Android에서 해독화하는 방법에 대해서 알아보겠습니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2016-12-23-1-protect-script-encryption-types/'>스크립트 보호 - 암호화 종류</a></h2>
           <p class='posts-date'>23 Dec 2016</p>
         </div>
@@ -62,50 +103,37 @@
           <p>한때 하이브리드 앱이 유행했지만 성능문제로 어느 이상을 커지지는 못했습니다.
 그러던 와중에 React Native가 나오면서 다시 하나의 코드로 여러 플랫폼을 지원하는
 방식이 탄력을 받고 있습니다.</p>
-
 <p>저도 React Native등을 써서 한번의 코딩으로 iOS와 안드로이드 모두를 지원하고 싶은
 생각은 간절하지만, 같이 일하는 기획자가 그렇게 만들어진 앱의 느낌에 만족하지 못하는 고로,
 더 많은 발전이 있기 전에는 React Native로 넘어가지 못할 것 같습니다.</p>
-
 <p>그렇지만 현재 만들고 있는 앱을 네이티브(Swift, Java등)로만 작성하고 있는 것은 아닙니다.
 UI/UX에 상관이 없고 자주 갱신되어야 하는 부분은 JavaScript로 작성해서 앱 업데이트 없이도
 갱신할 수 있도록 하고 있습니다.</p>
-
 <p>그런데 이 스크립트가 나름 앱의 핵심 노하우라고 여기고 있기에 외부에서 보지 못하도록 하고 싶었습니다.
 물론 난독화(uglify)만으로도 분석이 어려워지긴 합니다.
 그래도 간단한 암호화라도 추가 하고 싶어서 조금 찾아봤습니다.</p>
-
-<p>암호화 종류를 살펴보기에 앞서 짚어볼 가장 중요한 점은 '100% 안전한 방법은 없다' 입니다.
+<p>암호화 종류를 살펴보기에 앞서 짚어볼 가장 중요한 점은 &lsquo;100% 안전한 방법은 없다&rsquo; 입니다.
 당연한 것이 이 스크립트는 언젠가 JavaScript 엔진이 이해할 수 있는 형태로 변환되어야 하기 때문입니다.
 다만 적어도 단순히 ipa, apk를 푸는 것만으로 스크립트를 가져가는 것은 방지하고 싶었습니다.</p>
-
-<hr />
-
+<hr>
 <p>암호화는 일단 크게 대칭 방식과 비대칭 방식이 있습니다.</p>
-
 <p>대칭 방식은 암호화화 해독화를 같은 키로 하는 것입니다. 속도가 빠른 대신 키를 양측이 모두
 알고 있어야 하기에 키가 노출될 가능성이 높습니다.
 주요 알고리즘으로 AES가 있습니다.</p>
-
 <p>비대칭 방식은 암호화화 해독화를 다른 키로 하는 것입니다. 속도가 느린 대신 해독화 키(비밀 키)를
 나만 가지고 있기 때문에 노출될 가능성이 적어집니다.
 주요 알고리즘으로 RSA가 있습니다.</p>
-
 <p>반면 보안에 관련된 얘기에서 종종 나오곤 하는 MD5, SHA, HMAC등은 해시를 만들어내는 것으로,
 원문이 변형되지 않았는지(무결성) 검사하기 위함이지 그 자체로 원문을 복원하지는 못합니다.
-다만 '암호가 MD5로 저장되어서 원래 암호를 얻어냈다' 같은 뉴스가 있는 것은 원문(암호)의 크기가
+다만 &lsquo;암호가 MD5로 저장되어서 원래 암호를 얻어냈다&rsquo; 같은 뉴스가 있는 것은 원문(암호)의 크기가
 작기 때문에 높은 확률로 원문이라고 짐작되는 글을 알아냈다라는 것이지, 원문을 복원했다는 것은 아닙니다.</p>
-
-<hr />
-
+<hr>
 <p>처음에는 내 키가 노출되는게 꺼려져서 RSA를 알아봤습니다.
 그런데 RSA는 암호화하려는 데이터가 키보다 작아야 한다는 것을 알게 됐습니다.
 그렇기에 원문 암호화는 AES로 하지만 그 키는 RSA로 암호화하는 방식등을 사용하는 것 같습니다.</p>
-
 <p>그래서 스크립트는 AES로 암호화하기로 했습니다.
 암호화 키는 RSA로 암호화를 하려다가 키를 얻기 위해 앱을 해킹한다면 어떻게 하든
 알아낼 수 있을 것으로 판단해서, 암호화 키는 문자열로 바로 노출되는 것만 막는 정도로 처리하기로 했습니다.</p>
-
 <p>다음에는 실제로 AES로 암호화 하는 방법에 대해서 알아보겠습니다.</p>
 
         </div>
@@ -219,51 +247,6 @@ UI/UX에 상관이 없고 자주 갱신되어야 하는 부분은 JavaScript로 
         </div>
       </div>
       
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2016-12-16-1-ios-calendar/'>iOS에서 년도를 구할 때 비정상적인 값이 나오는 문제</a></h2>
-          <p class='posts-date'>16 Dec 2016</p>
-        </div>
-        <div class='panel-body'>
-          <p>지그재그 앱을 사용하는 사용자를 분석할 때 사용하기 위해서
-최근 업데이트에 나이를 입력받는 화면이 추가되었습니다.</p>
-
-<p>입력은 나이를 받지만 나이는 매년 달라지기 때문에 고정된 값인 태어난 년도로 변환하여 저장하고 있습니다.
-그런데 대부분은 정상적인 년도가 들어오는데 일부 사용자의 태어난 년도가 10이하 또는 2500이상인 문제가 있었습니다.</p>
-
-<p>처음에는 사용자가 게임등을 위해 핸드폰의 시간을 변경해서 발생했다고 생각했습니다.
-하지만 값이 너무 튀었고, 또 그렇게 값이 다양하지는 않았습니다.</p>
-
-<p>그러던 중에 값이 이상한 경우는 모두 iOS라는 사실을 깨달았습니다.
-그래도 짐작가는 것은 없던 차에 값이 2500~2600사이라는 것을 보고 혹시나 해서 'ios year 2500'이라는
-검색어로 검색을 해봤습니다. 그랬더니 <a href="http://forums.imore.com/general-apple-news-discussion/262432-my-ipad-my-set-year-2558-a.html">my iPad my set year is 2558 BE?</a>라는
-문서가 딱 처음에 나왔습니다.</p>
-
-<p>결론적으로 iOS는 그레고리언 달력 외에도 일본력과 불교력을 지원합니다.
-올해가 일본력으로 헤이세이 28년이기 때문에 나이를 20으로 입력하면 태어난 년도가 9가 됩니다.
-불기로는 올해가 2560년이고 태어난 20살은 태어난 년도가 2541이 됩니다.</p>
-
-<p>이것을 깨닫고 다시 태어난 년도가 이상한 사용자의 사용언어를 살펴보니 일본력은 일본어 사용자,
-불교력은 태국어등 사용자로 나왔습니다.
-지극히 한국과 한국어에 특화된 지그재그 서비스라고 생각하고 있었는데 드물지만 외국어 사용자가 있다는 사실이 놀라웠습니다.</p>
-
-<p>기술적으로는</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-swift" data-lang="swift"><span class="kd">let</span> <span class="nv">calendar</span> <span class="p">=</span> <span class="n">Calendar</span><span class="p">.</span><span class="n">current</span> <span class="c1">// &lt;--</span>
-<span class="kd">let</span> <span class="nv">components</span> <span class="p">=</span> <span class="n">calendar</span><span class="p">.</span><span class="n">dateComponents</span><span class="p">([.</span><span class="n">year</span><span class="p">],</span> <span class="n">from</span><span class="p">:</span> <span class="n">Date</span><span class="p">())</span>
-<span class="kd">let</span> <span class="nv">currentYear</span> <span class="p">=</span> <span class="n">components</span><span class="p">.</span><span class="n">year</span> <span class="p">??</span> <span class="mi">2016</span></code></pre></div>
-
-<p>로 되어 있던 것을</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-swift" data-lang="swift"><span class="kd">let</span> <span class="nv">calendar</span> <span class="p">=</span> <span class="n">Calendar</span><span class="p">(</span><span class="n">identifier</span><span class="p">:</span> <span class="p">.</span><span class="n">gregorian</span><span class="p">)</span></code></pre></div>
-
-<p>로 변경했더니 사용자가 설정한 캘린더와 상관없이 기대한 값이 반환되었습니다.</p>
-
-<p>혹시 유사한 증상이 있을 경우 한번 의심해보시면 좋을 것 같습니다.</p>
-
-        </div>
-      </div>
-      
     </div>
 
     
@@ -367,7 +350,7 @@ UI/UX에 상관이 없고 자주 갱신되어야 하는 부분은 JavaScript로 
   <hr>
   <footer>
     <p>
-      &copy; 2014-2019 Sangmin Yoon
+      &copy; 2014-2021 Sangmin Yoon
       <span class='pull-right text-muted'>
         powered by
         <a href='https://gohugo.io/' target='_blank'>Hugo</a>
@@ -394,7 +377,6 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-
 <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
 <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
 

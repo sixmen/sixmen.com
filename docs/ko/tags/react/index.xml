@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>React on sixmen.com</title>
+    <link>http://sixmen.com/ko/tags/react/</link>
+    <description>Recent content in React on sixmen.com</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 29 Jul 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/react/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>React 프로젝트 컴포넌트 구성</title>
+      <link>http://sixmen.com/ko/tech/2021-07-29-1-react-component-organization/</link>
+      <pubDate>Thu, 29 Jul 2021 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2021-07-29-1-react-component-organization/</guid>
+      <description>시작하며 프로젝트가 시작된지 얼마 되지 않은 경우에 소스는 비교적 일관성을 가지고 있습니다. 하지만 시간이 지남에 따라 여러 사람이 참여하고, 비슷한 새로운 프로젝</description>
+    </item>
+    
+  </channel>
+</rss>

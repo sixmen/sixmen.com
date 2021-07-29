@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>기타 on sixmen.com</title>
     <link>http://sixmen.com/ko/tags/%EA%B8%B0%ED%83%80/</link>
     <description>Recent content in 기타 on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 26 Feb 2014 01:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/tags/%EA%B8%B0%ED%83%80/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Wed, 26 Feb 2014 01:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/%EA%B8%B0%ED%83%80/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>sixmen.com 구입</title>
       <link>http://sixmen.com/ko/mylife/2014-02-26-1-sixmencom-guip/</link>

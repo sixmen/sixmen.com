@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>일 on sixmen.com</title>
     <link>http://sixmen.com/ko/tags/%EC%9D%BC/</link>
     <description>Recent content in 일 on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 26 Apr 2012 01:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/tags/%EC%9D%BC/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Thu, 26 Apr 2012 01:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/%EC%9D%BC/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>2012-04-26 개발일지</title>
       <link>http://sixmen.com/ko/mylife/2012-04-26-1-2012-04-26-gaebalilji/</link>

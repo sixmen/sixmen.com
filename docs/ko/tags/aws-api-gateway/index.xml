@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>AWS API Gateway on sixmen.com</title>
     <link>http://sixmen.com/ko/tags/aws-api-gateway/</link>
     <description>Recent content in AWS API Gateway on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 06 Jan 2017 03:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/tags/aws-api-gateway/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Fri, 06 Jan 2017 03:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/aws-api-gateway/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>GitHub 위키 이벤트를 슬랙으로 받기 - 4. GitHub 웹훅 연결하기</title>
       <link>http://sixmen.com/ko/tech/2017-01-06-3-github-wiki-to-slack-setup-github-hook/</link>

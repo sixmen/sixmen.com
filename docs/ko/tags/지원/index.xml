@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>지원 on sixmen.com</title>
     <link>http://sixmen.com/ko/tags/%EC%A7%80%EC%9B%90/</link>
     <description>Recent content in 지원 on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 29 Jun 2014 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/tags/%EC%A7%80%EC%9B%90/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sun, 29 Jun 2014 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/%EC%A7%80%EC%9B%90/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>지원이 첫 걸음마</title>
       <link>http://sixmen.com/ko/mylife/2014-06-29-1-jiwon-1st-step/</link>

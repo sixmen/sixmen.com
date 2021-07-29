@@ -1,22 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
-    <loc>http://sixmen.com/ko/tags/github/</loc>
-    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://sixmen.com/ko/tech/2020-11-06-1-using-github-actions/</loc>
-    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+    <loc>http://sixmen.com/ko/tags/react/</loc>
+    <lastmod>2021-07-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://sixmen.com/ko/tech/2021-07-29-1-react-component-organization/</loc>
+    <lastmod>2021-07-29T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/</loc>
-    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
+    <lastmod>2021-07-29T00:00:00+00:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -27,17 +20,12 @@
                 hreflang="ko"
                 href="http://sixmen.com/ko/tags/"
                 />
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/</loc>
-    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+    <lastmod>2021-07-29T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>http://sixmen.com/ko/</loc>
-    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
+    <lastmod>2021-07-29T00:00:00+00:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -48,1822 +36,1076 @@
                 hreflang="ko"
                 href="http://sixmen.com/ko/"
                 />
-  </url>
-  
-  <url>
+  </url><url>
+    <loc>http://sixmen.com/ko/tags/github/</loc>
+    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://sixmen.com/ko/tech/2020-11-06-1-using-github-actions/</loc>
+    <lastmod>2020-11-06T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/typescript/</loc>
     <lastmod>2020-02-15T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2020-02-15-1-configuration-in-typescript/</loc>
     <lastmod>2020-02-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/aws/</loc>
     <lastmod>2020-02-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/aws-batch/</loc>
     <lastmod>2020-02-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/croquis/</loc>
     <lastmod>2020-02-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/stack/</loc>
     <lastmod>2020-02-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2020-02-11-1-croquis-stack-aws-batch/</loc>
     <lastmod>2020-02-11T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/graphql/</loc>
     <lastmod>2019-05-22T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/microservice/</loc>
     <lastmod>2019-05-22T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EB%A7%88%EC%9D%B4%ED%81%AC%EB%A1%9C%EC%84%9C%EB%B9%84%EC%8A%A4/</loc>
     <lastmod>2019-05-22T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2019-05-22-1-croquis-stack-graphql/</loc>
     <lastmod>2019-05-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/thrift/</loc>
     <lastmod>2019-04-28T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2019-04-28-1-croquis-stack-thrift/</loc>
     <lastmod>2019-04-28T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://sixmen.com/ko/tech/2019-04-27-1-make-slack-bot-using-botkit/</loc>
-    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/botkit/</loc>
     <lastmod>2019-04-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
+    <loc>http://sixmen.com/ko/tech/2019-04-27-1-make-slack-bot-using-botkit/</loc>
+    <lastmod>2019-04-27T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/slack/</loc>
     <lastmod>2019-04-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/rest-api/</loc>
     <lastmod>2018-05-30T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2018-05-30-1-croquis-stack-rest-api/</loc>
     <lastmod>2018-05-30T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/jenkins/</loc>
     <lastmod>2018-02-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2018-02-27-1-jenkins-job-styles/</loc>
     <lastmod>2018-02-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/</loc>
     <lastmod>2018-01-23T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2018-01-23-1-gasanghwapyee-daehan-dansang/</loc>
     <lastmod>2018-01-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-10-15-1-croquis-stack-microservice/</loc>
     <lastmod>2017-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/mithril/</loc>
     <lastmod>2017-04-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/webpack/</loc>
     <lastmod>2017-04-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-04-11-1-webpack-setup-tutorial-with-typescript-and-mithril/</loc>
     <lastmod>2017-04-11T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/</loc>
     <lastmod>2017-04-11T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-04-07-1-croquis-stack-mithril/</loc>
     <lastmod>2017-04-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/nodejs/</loc>
     <lastmod>2017-02-08T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-02-08-1-why-croquis-selects-nodejs/</loc>
     <lastmod>2017-02-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-01-15-1-process-unix-pipe-with-nodejs/</loc>
     <lastmod>2017-01-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/aws-api-gateway/</loc>
     <lastmod>2017-01-06T03:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/aws-lambda/</loc>
     <lastmod>2017-01-06T03:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-01-06-3-github-wiki-to-slack-setup-github-hook/</loc>
     <lastmod>2017-01-06T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-01-06-2-github-wiki-to-slack-aws-api-gateway/</loc>
     <lastmod>2017-01-06T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/aws-kms/</loc>
     <lastmod>2017-01-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-01-06-1-github-wiki-to-slack-protect-secret-using-kms/</loc>
     <lastmod>2017-01-06T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-01-05-1-github-wiki-to-slack-setting-aws-lambda/</loc>
     <lastmod>2017-01-05T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2017-01-04-1-language-comparison-date-current-unix-time/</loc>
     <lastmod>2017-01-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%96%B8%EC%96%B4%EB%B9%84%EA%B5%90/</loc>
     <lastmod>2017-01-04T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-28-1-install-jdk-ubuntu/</loc>
     <lastmod>2016-12-28T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-27-1-protect-script-decrypt-aes-mobile/</loc>
     <lastmod>2016-12-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-26-1-protect-script-aes-encrypt-decrypt/</loc>
     <lastmod>2016-12-26T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-23-1-protect-script-encryption-types/</loc>
     <lastmod>2016-12-23T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-19-1-language-comparison-function-default-argument/</loc>
     <lastmod>2016-12-19T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-16-1-ios-calendar/</loc>
     <lastmod>2016-12-16T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-15-1-match-multiple-patterns/</loc>
     <lastmod>2016-12-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-14-1-language-comparison-regular-expression-capturing-group/</loc>
     <lastmod>2016-12-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-12-1-language-comparison-variable-swap/</loc>
     <lastmod>2016-12-12T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-09-1-language-comparison-string-join/</loc>
     <lastmod>2016-12-09T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2016-12-07-1-language-comparison-string-concatenate/</loc>
     <lastmod>2016-12-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2015-02-28-1-ioswa-andeuroideuui-gaebal-nanidoe-daehan-dansang/</loc>
     <lastmod>2015-02-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2014-12-23-1-iphone-ppi/</loc>
     <lastmod>2014-12-23T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2014-11-12-1-git-ignore-changes/</loc>
     <lastmod>2014-11-12T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2014-09-25-1-split-nginx-log/</loc>
     <lastmod>2014-09-25T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/applewatch/</loc>
     <lastmod>2014-09-10T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/iphone6/</loc>
     <lastmod>2014-09-10T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-09-10-1-aepeul-2014nyeon-9wol-haengsa-gamsang-iphone6-apple-watch/</loc>
     <lastmod>2014-09-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%A7%80%EC%9B%90/</loc>
     <lastmod>2014-06-29T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-06-29-1-jiwon-1st-step/</loc>
     <lastmod>2014-06-29T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EA%B0%80%EC%A1%B1/</loc>
     <lastmod>2014-06-23T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EB%8D%94%EB%9D%BC%EC%9D%B4%EB%B8%8C%EB%9F%AC%EB%A6%AC/</loc>
     <lastmod>2014-06-23T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EB%B8%94%EB%A3%A8%EB%B2%A0%EB%A6%AC%EB%B9%99%EC%88%98/</loc>
     <lastmod>2014-06-23T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%8B%A0%EB%9D%BC%ED%98%B8%ED%85%94/</loc>
     <lastmod>2014-06-23T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-06-23-1-sinrahotel-deo-raibeureori-aepeul-manggo-bingsu-beulruberi-bingsu/</loc>
     <lastmod>2014-06-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%95%A0%ED%94%8C%EB%A7%9D%EA%B3%A0%EB%B9%99%EC%88%98/</loc>
     <lastmod>2014-06-23T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-06-04-1-tupyo-injeung/</loc>
     <lastmod>2014-06-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-05-26-1-jiwon-1st-birthday-movie/</loc>
     <lastmod>2014-05-26T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-05-17-1-ebeoraendeu-cheotgyeongheom-/</loc>
     <lastmod>2014-05-17T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-05-11-1-peuroyagu-gwanram-2014nyeon-5wol-11il-dusan-dae-samseong/</loc>
     <lastmod>2014-05-11T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2014-04-18-1-logrotate/</loc>
     <lastmod>2014-04-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EB%A6%AC%EB%B7%B0/</loc>
     <lastmod>2014-03-07T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-03-07-1-yeonghwa-gyeoulwangguk/</loc>
     <lastmod>2014-03-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-02-27-1-today-jiwon/</loc>
     <lastmod>2014-02-27T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-02-26-1-sixmencom-guip/</loc>
     <lastmod>2014-02-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EA%B8%B0%ED%83%80/</loc>
     <lastmod>2014-02-26T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-02-03-1-oneului-jiwon/</loc>
     <lastmod>2014-02-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2014-01-28-1-chaek-peurangseu-aicheoreom/</loc>
     <lastmod>2014-01-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-12-31-1-2013nyeon-12wol-31il/</loc>
     <lastmod>2013-12-31T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EB%AF%B8%EB%8B%88%EB%A1%9C%EA%B7%B8/</loc>
     <lastmod>2013-12-31T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-12-30-1-2013nyeon-12wol-30il/</loc>
     <lastmod>2013-12-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-12-19-1-2013nyeon-12wol-19il/</loc>
     <lastmod>2013-12-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-11-29-1-2013nyeon-11wol-28il/</loc>
     <lastmod>2013-11-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-10-01-1-201309-ebeonoteu-keonpeoreonseu-chamseok-majimaknal930/</loc>
     <lastmod>2013-10-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/</loc>
     <lastmod>2013-10-01T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%97%90%EB%B2%84%EB%85%B8%ED%8A%B8/</loc>
     <lastmod>2013-10-01T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-09-30-2-201309-ebeonoteu-keonpeoreonseu-chamseok-yeoseotjjaenal929/</loc>
     <lastmod>2013-09-30T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-09-30-1-201309-ebeonoteu-keonpeoreonseu-chamseok-daseotjjaenal928/</loc>
     <lastmod>2013-09-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-09-28-1-201309-ebeonoteu-keonpeoreonseu-chamseok-netjjaenal927/</loc>
     <lastmod>2013-09-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-09-27-1-201309-ebeonoteu-keonpeoreonseu-chamseok-duljjaenal925-setjjaenal926/</loc>
     <lastmod>2013-09-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-09-25-1-201309-ebeonoteu-keonpeoreonseu-chamseok-cheotjjaenal924/</loc>
     <lastmod>2013-09-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-03-26-1-mitudei-girok-2013nyeon-03wol-24il/</loc>
     <lastmod>2013-03-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-02-28-1-mitudei-girok-2013nyeon-02wol-07il/</loc>
     <lastmod>2013-02-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-07-1-201302-silrikon-baelri-bangmun-ilgopjjaenal26-majimak/</loc>
     <lastmod>2013-02-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-06-2-201302-silrikon-baelri-bangmun-yeoseotjjaenal25-boramchan-haru/</loc>
     <lastmod>2013-02-06T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-02-06-1-mitudei-girok-2013nyeon-02wol-05il/</loc>
     <lastmod>2013-02-06T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-05-1-201302-silrikon-baelri-bangmun-daseotjjaenal24-ebeonoteueseoui-cheotjjaenal/</loc>
     <lastmod>2013-02-05T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-04-1-201302-silrikon-baelri-bangmun-nejjaenal23-japdaguri/</loc>
     <lastmod>2013-02-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-03-2-201302-silrikon-baelri-bangmun-setjjaenal22-2-geummungyo-sosalrito-tibyuron/</loc>
     <lastmod>2013-02-03T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-03-1-201302-silrikon-baelri-bangmun-setjjaenal22-1-maekwoldeu/</loc>
     <lastmod>2013-02-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-02-1-201302-silrikon-baelri-bangmun-duljjaenal21-saramdeul-mannam/</loc>
     <lastmod>2013-02-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-01-3-201302-silrikon-baelri-bangmun-cheotjjaenal131-2-nba-gwanram/</loc>
     <lastmod>2013-02-01T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2013-02-01-2-201302-silrikon-baelri-bangmun-cheotjjaenal131-1-chulbal/</loc>
     <lastmod>2013-02-01T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-02-01-1-mitudei-girok-2013nyeon-01wol-31il/</loc>
     <lastmod>2013-02-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2013-01-09-1-mitudei-girok-2013nyeon-01wol-08il/</loc>
     <lastmod>2013-01-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-11-04-1-mitudei-girok-2012nyeon-11wol-03il/</loc>
     <lastmod>2012-11-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-10-21-1-mitudei-girok-2012nyeon-10wol-20il/</loc>
     <lastmod>2012-10-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-10-16-1-mitudei-girok-2012nyeon-10wol-15il/</loc>
     <lastmod>2012-10-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-09-24-1-mitudei-girok-2012nyeon-09wol-22il/</loc>
     <lastmod>2012-09-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-09-22-1-mitudei-girok-2012nyeon-09wol-21il/</loc>
     <lastmod>2012-09-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-09-21-2-mitudei-girok-2012nyeon-09wol-21il/</loc>
     <lastmod>2012-09-21T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-21-1-201209-hawai-yeohaeng-setjjaenal/</loc>
     <lastmod>2012-09-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%ED%95%98%EC%99%80%EC%9D%B4/</loc>
     <lastmod>2012-09-21T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-20-1-201209-hawai-yeohaeng-duljjaenal/</loc>
     <lastmod>2012-09-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-19-5-201209-hawai-yeohaeng-cheotjjaenal-2-suyeong-and-jeonyeok/</loc>
     <lastmod>2012-09-19T05:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-19-4-201209-hawai-yeohaeng-cheotjjaenal-1-hawairo-chulbal/</loc>
     <lastmod>2012-09-19T04:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-19-3-201209-hawai-yeohaeng-junbi/</loc>
     <lastmod>2012-09-19T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-09-19-2-mitudei-girok-2012nyeon-09wol-18il/</loc>
     <lastmod>2012-09-19T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-09-19-1-mitudei-girok-2012nyeon-09wol-17il/</loc>
     <lastmod>2012-09-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-16-4-201102-hotkaido-yeohaeng-majimaknal-baibai/</loc>
     <lastmod>2012-09-16T04:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%ED%99%8B%EC%B9%B4%EC%9D%B4%EB%8F%84/</loc>
     <lastmod>2012-09-16T04:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-16-3-201102-hotkaido-yeohaeng-setjjaenal-3-dasi-igotjeogot/</loc>
     <lastmod>2012-09-16T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-16-2-201102-hotkaido-yeohaeng-setjjaenal-2-satporo-dom/</loc>
     <lastmod>2012-09-16T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-16-1-201102-hotkaido-yeohaeng-setjjaenal-1-igotjeogot-sanchaek/</loc>
     <lastmod>2012-09-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-15-4-201102-hotkaido-yeohaeng-duljjaenal-5-jinggiseukan-and-white-illumination/</loc>
     <lastmod>2012-09-15T04:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-15-3-201102-hotkaido-yeohaeng-duljjaenal-4-deungbulchukje/</loc>
     <lastmod>2012-09-15T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-15-2-201102-hotkaido-yeohaeng-duljjaenal-3-mereuhen-gyocharokkaji/</loc>
     <lastmod>2012-09-15T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2012-09-15-1-201102-hotkaido-yeohaeng-duljjaenal-2-otaru-ganeun-gil/</loc>
     <lastmod>2012-09-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-08-19-1-hayatteu-pulsaideu-bupe/</loc>
     <lastmod>2012-08-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-08-18-1-mitudei-girok-2012nyeon-08wol-17il/</loc>
     <lastmod>2012-08-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-07-21-1-mitudei-girok-2012nyeon-07wol-20il/</loc>
     <lastmod>2012-07-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-07-04-1-mitudei-girok-2012nyeon-07wol-03il/</loc>
     <lastmod>2012-07-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-07-01-1-mitudei-girok-2012nyeon-06wol-30il/</loc>
     <lastmod>2012-07-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-28-1-mitudei-girok-2012nyeon-06wol-26il/</loc>
     <lastmod>2012-06-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-27-1-mitudei-girok-2012nyeon-06wol-26il/</loc>
     <lastmod>2012-06-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-19-1-mitudei-girok-2012nyeon-06wol-18il/</loc>
     <lastmod>2012-06-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-18-1-dojeon-maseuteo-syepeu-mujigaemaeul/</loc>
     <lastmod>2012-06-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%9A%94%EB%A6%AC/</loc>
     <lastmod>2012-06-18T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tech/2012-06-18-1-ssh-without-password/</loc>
     <lastmod>2012-06-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-17-1-mitudei-girok-2012nyeon-06wol-27il/</loc>
     <lastmod>2012-06-17T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-15-1-mitudei-girok-2012nyeon-06wol-13il/</loc>
     <lastmod>2012-06-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-06-07-1-mitudei-girok-2012nyeon-06wol-06il/</loc>
     <lastmod>2012-06-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-30-1-mitudei-girok-2012nyeon-05wol-29il/</loc>
     <lastmod>2012-05-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-29-1-mitudei-girok-2012nyeon-05wol-28il/</loc>
     <lastmod>2012-05-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-27-1-mitudei-girok-2012nyeon-05wol-26il/</loc>
     <lastmod>2012-05-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-25-1-mitudei-girok-2012nyeon-05wol-25il/</loc>
     <lastmod>2012-05-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-24-1-mitudei-girok-2012nyeon-05wol-23il/</loc>
     <lastmod>2012-05-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-21-1-mitudei-girok-2012nyeon-05wol-20il/</loc>
     <lastmod>2012-05-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-17-1-mitudei-girok-2012nyeon-05wol-16il/</loc>
     <lastmod>2012-05-17T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-14-1-mitudei-girok-2012nyeon-05wol-13il/</loc>
     <lastmod>2012-05-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-05-13-1-mitudei-girok-2012nyeon-05wol-12il/</loc>
     <lastmod>2012-05-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-29-1-mitudei-girok-2012nyeon-04wol-28il/</loc>
     <lastmod>2012-04-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-26-1-2012-04-26-gaebalilji/</loc>
     <lastmod>2012-04-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EC%9D%BC/</loc>
     <lastmod>2012-04-26T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-21-1-mitudei-girok-2012nyeon-04wol-20il/</loc>
     <lastmod>2012-04-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-17-1-mitudei-girok-2012nyeon-04wol-16il/</loc>
     <lastmod>2012-04-17T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-16-1-mitudei-girok-2012nyeon-04wol-15il/</loc>
     <lastmod>2012-04-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-12-1-japsang/</loc>
     <lastmod>2012-04-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-08-1-mitudei-girok-2012nyeon-04wol-07il/</loc>
     <lastmod>2012-04-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2012-04-07-1-mitudei-girok-2012nyeon-04wol-06il/</loc>
     <lastmod>2012-04-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-12-24-1-nuni-wateoyo/</loc>
     <lastmod>2011-12-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-12-11-1-mitudei-girok-2011nyeon-12wol-10il/</loc>
     <lastmod>2011-12-11T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-12-09-1-mitudei-girok-2011nyeon-12wol-08il/</loc>
     <lastmod>2011-12-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-11-24-1-mitudei-girok-2011nyeon-11wol-24il/</loc>
     <lastmod>2011-11-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-11-23-1-mitudei-girok-2011nyeon-11wol-23il/</loc>
     <lastmod>2011-11-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-11-22-1-mitudei-girok-2011nyeon-11wol-22il/</loc>
     <lastmod>2011-11-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-11-21-1-mitudei-girok-2011nyeon-11wol-21il/</loc>
     <lastmod>2011-11-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-11-20-1-mitudei-girok-2011nyeon-11wol-20il/</loc>
     <lastmod>2011-11-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-10-29-1-mitudei-girok-2011nyeon-10wol-29il/</loc>
     <lastmod>2011-10-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-10-26-1-mitudei-girok-2011nyeon-10wol-26il/</loc>
     <lastmod>2011-10-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-10-18-1-mitudei-girok-2011nyeon-10wol-18il/</loc>
     <lastmod>2011-10-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-10-09-1-mitudei-girok-2011nyeon-10wol-09il/</loc>
     <lastmod>2011-10-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-10-06-1-mitudei-girok-2011nyeon-10wol-06il/</loc>
     <lastmod>2011-10-06T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-26-1-mitudei-girok-2011nyeon-09wol-26il/</loc>
     <lastmod>2011-09-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-24-1-mitudei-girok-2011nyeon-09wol-24il/</loc>
     <lastmod>2011-09-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-15-1-mitudei-girok-2011nyeon-09wol-15il/</loc>
     <lastmod>2011-09-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-12-1-mitudei-girok-2011nyeon-09wol-12il/</loc>
     <lastmod>2011-09-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-09-1-mitudei-girok-2011nyeon-09wol-09il/</loc>
     <lastmod>2011-09-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-05-1-mitudei-girok-2011nyeon-09wol-05il/</loc>
     <lastmod>2011-09-05T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-09-01-1-mitudei-girok-2011nyeon-09wol-01il/</loc>
     <lastmod>2011-09-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-08-23-1-mitudei-girok-2011nyeon-08wol-23il/</loc>
     <lastmod>2011-08-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-08-20-1-mitudei-girok-2011nyeon-08wol-20il/</loc>
     <lastmod>2011-08-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-08-16-1-mitudei-girok-2011nyeon-08wol-16il/</loc>
     <lastmod>2011-08-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-08-12-1-mitudei-girok-2011nyeon-08wol-12il/</loc>
     <lastmod>2011-08-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-08-08-1-civworld-geim-jongryo/</loc>
     <lastmod>2011-08-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EA%B2%8C%EC%9E%84/</loc>
     <lastmod>2011-08-08T01:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-08-02-1-mitudei-girok-2011nyeon-08wol-02il/</loc>
     <lastmod>2011-08-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-20-2-mitudei-girok-2011nyeon-7wol-20il/</loc>
     <lastmod>2011-07-20T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-20-1-bunnoui-bwipejil/</loc>
     <lastmod>2011-07-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-12-1-mitudei-girok-2011nyeon-7wol-11il/</loc>
     <lastmod>2011-07-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-10-1-mitudei-girok-2011nyeon-7wol-9il/</loc>
     <lastmod>2011-07-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-07-1-mitudei-girok-2011nyeon-7wol-6il/</loc>
     <lastmod>2011-07-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-06-1-mitudei-girok-2011nyeon-7wol-5il/</loc>
     <lastmod>2011-07-06T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-05-1-mitudei-girok-2011nyeon-7wol-4il/</loc>
     <lastmod>2011-07-05T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-07-04-1-mitudei-girok-2011nyeon-7wol-3il/</loc>
     <lastmod>2011-07-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-06-30-1-mitudei-girok-2011nyeon-6wol-29il/</loc>
     <lastmod>2011-06-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-06-19-1-mitudei-girok-2011nyeon-6wol-18il/</loc>
     <lastmod>2011-06-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-06-16-1-mitudei-girok-2011nyeon-6wol-15il/</loc>
     <lastmod>2011-06-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-06-08-1-mitudei-girok-2011nyeon-6wol-7il/</loc>
     <lastmod>2011-06-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-06-07-1-mitudei-girok-2011nyeon-6wol-6il/</loc>
     <lastmod>2011-06-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-06-05-1-mitudei-girok-2011nyeon-6wol-4il/</loc>
     <lastmod>2011-06-05T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-05-28-1-mitudei-girok-2011nyeon-5wol-27il/</loc>
     <lastmod>2011-05-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-05-23-1-mitudei-girok-2011nyeon-5wol-22il/</loc>
     <lastmod>2011-05-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-05-22-1-mitudei-girok-2011nyeon-5wol-21il/</loc>
     <lastmod>2011-05-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-05-16-1-mitudei-girok-2011nyeon-5wol-15il/</loc>
     <lastmod>2011-05-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-05-15-2-migeum-matjip-8beonga8/</loc>
     <lastmod>2011-05-15T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-05-15-1-mitudei-girok-2011nyeon-5wol-14il/</loc>
     <lastmod>2011-05-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-04-04-1-mitudei-girok-2011nyeon-4wol-3il/</loc>
     <lastmod>2011-04-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-04-02-1-mitudei-girok-2011nyeon-4wol-1il/</loc>
     <lastmod>2011-04-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-30-1-mitudei-girok-2011nyeon-3wol-29il/</loc>
     <lastmod>2011-03-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-28-1-mitudei-girok-2011nyeon-3wol-27il/</loc>
     <lastmod>2011-03-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-27-1-mitudei-girok-2011nyeon-3wol-26il/</loc>
     <lastmod>2011-03-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2011-03-26-1-201102-hotkaido-yeohaeng-duljjaenal-1-satporo-paektori/</loc>
     <lastmod>2011-03-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-25-1-mitudei-girok-2011nyeon-3wol-24il/</loc>
     <lastmod>2011-03-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-21-1-mitudei-girok-2011nyeon-3wol-20il/</loc>
     <lastmod>2011-03-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-19-1-mitudei-girok-2011nyeon-3wol-18il/</loc>
     <lastmod>2011-03-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-14-1-mitudei-girok-2011nyeon-3wol-13il/</loc>
     <lastmod>2011-03-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-09-1-mitudei-girok-2011nyeon-3wol-8il/</loc>
     <lastmod>2011-03-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-07-1-mitudei-girok-2011nyeon-3wol-6il/</loc>
     <lastmod>2011-03-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2011-03-06-1-201102-hotkaido-yeohaeng-cheotnal-4-white-illumination-and-jeonyeok/</loc>
     <lastmod>2011-03-06T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-03-1-mitudei-girok-2011nyeon-3wol-2il/</loc>
     <lastmod>2011-03-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-03-01-1-mitudei-girok-2011nyeon-2wol-28il/</loc>
     <lastmod>2011-03-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-27-1-mitudei-girok-2011nyeon-2wol-26il/</loc>
     <lastmod>2011-02-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-25-1-mitudei-girok-2011nyeon-2wol-25il/</loc>
     <lastmod>2011-02-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-24-1-mitudei-girok-2011nyeon-2wol-23il/</loc>
     <lastmod>2011-02-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2011-02-23-1-201102-hotkaido-yeohaeng-cheotnal-3-nunchukje/</loc>
     <lastmod>2011-02-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-21-1-mitudei-girok-2011nyeon-2wol-20il/</loc>
     <lastmod>2011-02-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2011-02-20-2-201102-hotkaido-yeohaeng-cheotnal-2-satporo-and-sukso/</loc>
     <lastmod>2011-02-20T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/travel/2011-02-20-1-201102-hotkaido-yeohaeng-cheotnal-1-hotkaidoro/</loc>
     <lastmod>2011-02-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-13-1-mitudei-girok-2011nyeon-2wol-12il/</loc>
     <lastmod>2011-02-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-11-1-mitudei-girok-2011nyeon-2wol-10il/</loc>
     <lastmod>2011-02-11T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-10-2-htpc-hyeon-sanghwang/</loc>
     <lastmod>2011-02-10T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-10-1-mitudei-girok-2011nyeon-2wol-9il/</loc>
     <lastmod>2011-02-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-09-1-htpc-jangman/</loc>
     <lastmod>2011-02-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-02-02-1-mitudei-girok-2011nyeon-2wol-1il/</loc>
     <lastmod>2011-02-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-01-30-1-mitudei-girok-2011nyeon-1wol-29il/</loc>
     <lastmod>2011-01-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-01-16-1-mitudei-girok-2011nyeon-1wol-15il/</loc>
     <lastmod>2011-01-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-01-13-1-mitudei-girok-2011nyeon-1wol-13il/</loc>
     <lastmod>2011-01-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2011-01-10-1-mitudei-girok-2011nyeon-1wol-9il/</loc>
     <lastmod>2011-01-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-30-1-mitudei-girok-2010nyeon-12wol-30il/</loc>
     <lastmod>2010-12-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-29-1-mitudei-girok-2010nyeon-12wol-28il/</loc>
     <lastmod>2010-12-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-28-1-ilbon-chuljang-yeoseotjjaenal/</loc>
     <lastmod>2010-12-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-27-3-ilbon-chuljang-daseotjjaenal/</loc>
     <lastmod>2010-12-27T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-27-2-ilbon-chuljang-nejjaenal-2/</loc>
     <lastmod>2010-12-27T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-27-1-ilbon-chuljang-nejjaenal-1/</loc>
     <lastmod>2010-12-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-25-1-ilbon-chuljang-setjjaenal/</loc>
     <lastmod>2010-12-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-24-2-ilbon-chuljang-duljjaenal/</loc>
     <lastmod>2010-12-24T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-24-1-ilbon-chuljang-cheotnal/</loc>
     <lastmod>2010-12-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-23-3-mitudei-girok-2010nyeon-12wol-23il/</loc>
     <lastmod>2010-12-23T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/tags/%EB%AC%B8%ED%99%94/</loc>
     <lastmod>2010-12-23T02:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-23-2-myujikeol-jikil-and-haideu/</loc>
     <lastmod>2010-12-23T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-23-1-mitudei-girok-2010nyeon-12wol-23il/</loc>
     <lastmod>2010-12-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-16-1-mitudei-girok-2010nyeon-12wol-16il/</loc>
     <lastmod>2010-12-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-12-11-1-mitudei-girok-2010nyeon-12wol-10il/</loc>
     <lastmod>2010-12-11T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-26-1-nyuseu-jongichaek-guwojugi-aipaedeu-sinpungsok/</loc>
     <lastmod>2010-11-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-23-1-mitudei-girok-2010nyeon-11wol-22il/</loc>
     <lastmod>2010-11-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-22-1-mitudei-girok-2010nyeon-11wol-21il/</loc>
     <lastmod>2010-11-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-21-1-mitudei-girok-2010nyeon-11wol-20il/</loc>
     <lastmod>2010-11-21T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-18-1-mitudei-girok-2010nyeon-11wol-17il/</loc>
     <lastmod>2010-11-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-14-1-mitudei-girok-2010nyeon-11wol-13il/</loc>
     <lastmod>2010-11-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-13-1-mitudei-girok-2010nyeon-11wol-12il/</loc>
     <lastmod>2010-11-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-11-02-1-mitudei-girok-2010nyeon-11wol-1il/</loc>
     <lastmod>2010-11-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-22-1-mitudei-girok-2010nyeon-10wol-21il/</loc>
     <lastmod>2010-10-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-19-1-mitudei-girok-2010nyeon-10wol-18il/</loc>
     <lastmod>2010-10-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-17-1-mitudei-girok-2010nyeon-10wol-16il/</loc>
     <lastmod>2010-10-17T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-10-1-mitudei-girok-2010nyeon-10wol-9il/</loc>
     <lastmod>2010-10-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-03-2-maekbuke-segaeui-unyeongchejemacosx-windows-linux-seolchihagi/</loc>
     <lastmod>2010-10-03T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-03-1-mitudei-girok-2010nyeon-10wol-2il/</loc>
     <lastmod>2010-10-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-10-02-1-maekbuk-patisyeon-nanugi/</loc>
     <lastmod>2010-10-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-19-1-mitudei-girok-2010nyeon-9wol-18il/</loc>
     <lastmod>2010-09-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-13-1-mitudei-girok-2010nyeon-9wol-12il/</loc>
     <lastmod>2010-09-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-11-1-mitudei-girok-2010nyeon-9wol-10il/</loc>
     <lastmod>2010-09-11T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-10-1-mitudei-girok-2010nyeon-9wol-9il/</loc>
     <lastmod>2010-09-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-09-1-mitudei-girok-2010nyeon-9wol-8il/</loc>
     <lastmod>2010-09-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-08-1-mitudei-girok-2010nyeon-9wol-7il/</loc>
     <lastmod>2010-09-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-05-1-mitudei-girok-2010nyeon-9wol-4il/</loc>
     <lastmod>2010-09-05T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-04-1-igeulru-gwanri/</loc>
     <lastmod>2010-09-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-03-1-mitudei-girok-2010nyeon-9wol-2il/</loc>
     <lastmod>2010-09-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-09-02-1-mitudei-girok-2010nyeon-9wol-1il/</loc>
     <lastmod>2010-09-02T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-26-1-mitudei-girok-2010nyeon-8wol-25il/</loc>
     <lastmod>2010-08-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-25-1-mitudei-girok-2010nyeon-8wol-24il/</loc>
     <lastmod>2010-08-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-22-1-mitudei-girok-2010nyeon-8wol-21il/</loc>
     <lastmod>2010-08-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-20-1-mitudei-girok-2010nyeon-8wol-19il/</loc>
     <lastmod>2010-08-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-19-1-mitudei-girok-2010nyeon-8wol-18il/</loc>
     <lastmod>2010-08-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-14-6-teurikateujeon-5/</loc>
     <lastmod>2010-08-14T06:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-14-5-teurikateujeon-4/</loc>
     <lastmod>2010-08-14T05:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-14-4-teurikateujeon-3/</loc>
     <lastmod>2010-08-14T04:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-14-3-teurikateujeon-2/</loc>
     <lastmod>2010-08-14T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-14-2-teurikateujeon-1/</loc>
     <lastmod>2010-08-14T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-14-1-mitudei-girok-2010nyeon-8wol-13il/</loc>
     <lastmod>2010-08-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-13-1-mitudei-girok-2010nyeon-8wol-12il/</loc>
     <lastmod>2010-08-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-09-1-mitudei-girok-2010nyeon-8wol-8il/</loc>
     <lastmod>2010-08-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-08-1-mitudei-girok-2010nyeon-8wol-7il/</loc>
     <lastmod>2010-08-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-08-07-1-mugaenyeom-saiteu-maekseumubi/</loc>
     <lastmod>2010-08-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-07-31-1-mitudei-girok-2010nyeon-7wol-30il/</loc>
     <lastmod>2010-07-31T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-07-29-1-mitudei-girok-2010nyeon-7wol-27il/</loc>
     <lastmod>2010-07-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-07-26-1-mitudei-girok-2010nyeon-7wol-26il/</loc>
     <lastmod>2010-07-26T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-07-20-1-mitudei-girok-2010nyeon-7wol-19il/</loc>
     <lastmod>2010-07-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-18-1-woldeukeop-3d-gamsang/</loc>
     <lastmod>2010-06-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-13-1-mitudei-girok-2010nyeon-6wol-12il/</loc>
     <lastmod>2010-06-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-12-3-maekbuk-seoljeonggi-2/</loc>
     <lastmod>2010-06-12T03:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-12-2-maekbuk-seoljeonggi-1/</loc>
     <lastmod>2010-06-12T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-12-1-mitudei-girok-2010nyeon-6wol-11il/</loc>
     <lastmod>2010-06-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-07-1-mitudei-girok-2010nyeon-6wol-6il/</loc>
     <lastmod>2010-06-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-06-1-mitudei-girok-2010nyeon-6wol-5il/</loc>
     <lastmod>2010-06-06T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-06-03-1-mitudei-girok-2010nyeon-6wol-2il/</loc>
     <lastmod>2010-06-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-30-1-matchum-gwanggo/</loc>
     <lastmod>2010-05-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-24-1-arap-munhwa-chukjeon/</loc>
     <lastmod>2010-05-24T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-23-1-mitudei-girok-2010nyeon-5wol-22il/</loc>
     <lastmod>2010-05-23T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-12-1-mitudei-girok-2010nyeon-5wol-11il/</loc>
     <lastmod>2010-05-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-07-1-ppawa-kka-geurigo-kkakka/</loc>
     <lastmod>2010-05-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-04-2-jungrip/</loc>
     <lastmod>2010-05-04T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-05-04-1-doseogwan/</loc>
     <lastmod>2010-05-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-04-14-1-mitudei-girok-2010nyeon-4wol-13il/</loc>
     <lastmod>2010-04-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-04-12-1-mitudei-girok-2010nyeon-4wol-11il/</loc>
     <lastmod>2010-04-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-04-06-1-mitudei-girok-2010nyeon-4wol-5il/</loc>
     <lastmod>2010-04-06T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-03-28-1-mitudei-girok-2010nyeon-3wol-27il/</loc>
     <lastmod>2010-03-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-03-20-1-mitudei-girok-2010nyeon-3wol-19il/</loc>
     <lastmod>2010-03-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-03-15-1-mitudei-girok-2010nyeon-3wol-14il/</loc>
     <lastmod>2010-03-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-03-10-1-3wolui-nun/</loc>
     <lastmod>2010-03-10T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-02-22-1-oneului-kkoburangmal/</loc>
     <lastmod>2010-02-22T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-02-05-1-cha-jeonggigeomsa/</loc>
     <lastmod>2010-02-05T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-01-31-1-cha-suri/</loc>
     <lastmod>2010-01-31T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-01-27-1-jigeuso-peojeul/</loc>
     <lastmod>2010-01-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-01-11-1-mitudei-girok-2010nyeon-1wol-10il/</loc>
     <lastmod>2010-01-11T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-01-04-2-nuni-watda/</loc>
     <lastmod>2010-01-04T02:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2010-01-04-1-mitudei-girok-2010nyeon-1wol-3il/</loc>
     <lastmod>2010-01-04T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-12-19-1-abata-gwanram/</loc>
     <lastmod>2009-12-19T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-12-18-1-mitudei-girok-2009nyeon-12wol-17il/</loc>
     <lastmod>2009-12-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-12-14-1-mitudei-girok-2009nyeon-12wol-13il/</loc>
     <lastmod>2009-12-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-12-13-1-mitudei-girok-2009nyeon-12wol-12il/</loc>
     <lastmod>2009-12-13T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-11-29-1-sajin-moeum/</loc>
     <lastmod>2009-11-29T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-11-20-1-deudieo-naeil/</loc>
     <lastmod>2009-11-20T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-11-01-1-oneului-manchan/</loc>
     <lastmod>2009-11-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-09-14-1-mitudei-girok-2009nyeon-9wol-13il/</loc>
     <lastmod>2009-09-14T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-09-12-1-mitudei-girok-2009nyeon-9wol-11il/</loc>
     <lastmod>2009-09-12T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-08-27-1-mitudei-girok-2009nyeon-8wol-26il/</loc>
     <lastmod>2009-08-27T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-08-25-1-mitudei-girok-2009nyeon-8wol-24il/</loc>
     <lastmod>2009-08-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-08-16-1-sseommeo-wojeu-gamsangpyeong/</loc>
     <lastmod>2009-08-16T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-07-03-1-mitudei-girok-2009nyeon-7wol-2il/</loc>
     <lastmod>2009-07-03T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-07-01-1-japdam/</loc>
     <lastmod>2009-07-01T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-05-25-1-mitudei-girok-2009nyeon-5wol-24il/</loc>
     <lastmod>2009-05-25T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-05-15-1-5wol-15il-elji-vs-hieorojeu/</loc>
     <lastmod>2009-05-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-05-09-1-mitudei-girok-2009nyeon-5wol-8il/</loc>
     <lastmod>2009-05-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-04-30-1-nomuhyeon-jeondaetongryeong/</loc>
     <lastmod>2009-04-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-04-15-1-mitudei-girok-2009nyeon-4wol-14il/</loc>
     <lastmod>2009-04-15T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-04-09-1-mitudei-girok-2009nyeon-4wol-8il/</loc>
     <lastmod>2009-04-09T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-03-30-1-mitudei-girok-2009nyeon-3wol-29il/</loc>
     <lastmod>2009-03-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-02-28-1-mitudei-girok-2009nyeon-2wol-27il/</loc>
     <lastmod>2009-02-28T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2009-02-08-1-mitudei-girok-2009nyeon-2wol-7il/</loc>
     <lastmod>2009-02-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2008-12-30-1-mitudei-girok-2008nyeon-12wol-29il/</loc>
     <lastmod>2008-12-30T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2008-12-18-1-mitudei-girok-2008nyeon-12wol-17il/</loc>
     <lastmod>2008-12-18T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2008-12-08-1-mitudei-girok-2008nyeon-12wol-7il/</loc>
     <lastmod>2008-12-08T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/mylife/2008-12-07-1-gwasokseukaendeul/</loc>
     <lastmod>2008-12-07T01:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>http://sixmen.com/ko/categories/</loc>
-    <priority>0</priority>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -1875,5 +1117,4 @@
                 href="http://sixmen.com/ko/categories/"
                 />
   </url>
-  
 </urlset>

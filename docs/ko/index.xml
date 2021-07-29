@@ -1,14 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Welcome on sixmen.com</title>
     <link>http://sixmen.com/ko/</link>
     <description>Recent content in Welcome on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 06 Nov 2020 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Thu, 29 Jul 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>React 프로젝트 컴포넌트 구성</title>
+      <link>http://sixmen.com/ko/tech/2021-07-29-1-react-component-organization/</link>
+      <pubDate>Thu, 29 Jul 2021 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2021-07-29-1-react-component-organization/</guid>
+      <description>시작하며 프로젝트가 시작된지 얼마 되지 않은 경우에 소스는 비교적 일관성을 가지고 있습니다. 하지만 시간이 지남에 따라 여러 사람이 참여하고, 비슷한 새로운 프로젝</description>
+    </item>
     
     <item>
       <title>GitHub Actions 활용하기</title>
@@ -385,7 +390,7 @@
       <pubDate>Fri, 18 Apr 2014 00:00:00 +0000</pubDate>
       
       <guid>http://sixmen.com/ko/tech/2014-04-18-1-logrotate/</guid>
-      <description>요약: logrotate를 통해 로그를 분할하기 위해서는, 서버 어플리케이션이 적당한 시그널(주로 SIGUSR1을 사용. Node.js에서는 디버그 모</description>
+      <description>회사에서 서비스를 하는 중에 로그 파일이 너무 커져서, 적당한 크기에서 나눌 방법이 필요해졌습니다. 이런 경우 리눅스에서 주로 쓰는 방법은 logrotate입니</description>
     </item>
     
     <item>

@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on sixmen.com</title>
     <link>http://sixmen.com/en/categories/</link>
     <description>Recent content in Categories on sixmen.com</description>
-    <generator>Hugo -- gohugo.io</generator>
-    
-	<atom:link href="http://sixmen.com/en/categories/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <generator>Hugo -- gohugo.io</generator><atom:link href="http://sixmen.com/en/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

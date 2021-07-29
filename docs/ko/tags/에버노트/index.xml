@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>에버노트 on sixmen.com</title>
     <link>http://sixmen.com/ko/tags/%EC%97%90%EB%B2%84%EB%85%B8%ED%8A%B8/</link>
     <description>Recent content in 에버노트 on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 01 Oct 2013 01:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="http://sixmen.com/ko/tags/%EC%97%90%EB%B2%84%EB%85%B8%ED%8A%B8/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 01 Oct 2013 01:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/%EC%97%90%EB%B2%84%EB%85%B8%ED%8A%B8/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>(2013.09) 에버노트 컨퍼런스 참석 마지막날(9.30)</title>
       <link>http://sixmen.com/ko/travel/2013-10-01-1-201309-ebeonoteu-keonpeoreonseu-chamseok-majimaknal930/</link>

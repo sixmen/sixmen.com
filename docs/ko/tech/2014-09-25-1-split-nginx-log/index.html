@@ -55,44 +55,23 @@
     </div>
 
     <div class='col-xs-12 col-sm-9'>
-      
-
-<p>Nginx 로그 분석을 위해 시간별로 나누고 싶었습니다.
+      <p>Nginx 로그 분석을 위해 시간별로 나누고 싶었습니다.
 스크립트를 짜도 오래 걸리는 일은 아니겠지만, 쉘에서 하는 방법을 한번 찾아봤습니다.</p>
-
 <p>Nginx 로그는 다음과 같은 형태를 가집니다.</p>
-
 <pre><code>xx.xx.xx.xx - - [25/Sep/2014:06:54:29 +0000] &quot;GET /blahblah HTTP/1.1&quot; 200 130 &quot;-&quot; &quot;User-Agent&quot;
-</code></pre>
-
-<p>다음 명령은 공백으로 나눠진 토큰 중 4번째, 즉 시간을 표시합니다.</p>
-
+</code></pre><p>다음 명령은 공백으로 나눠진 토큰 중 4번째, 즉 시간을 표시합니다.</p>
 <pre><code>awk '{ print $4 }' access.log
 awk '{ print substr($4,2) }' access.log # 앞의 [ 제거
-</code></pre>
-
-<p>여기에 split 함수를 써서 날짜와 시간을 얻을 수 있습니다.</p>
-
+</code></pre><p>여기에 split 함수를 써서 날짜와 시간을 얻을 수 있습니다.</p>
 <pre><code>awk '{ split(substr($4,2),array,&quot;[/:]&quot;); print array[1], array[4] }' access.log
-</code></pre>
-
-<p>필요한 정보를 알았으니 각 줄을 적절한 파일에 쓰도록 하면 됩니다.</p>
-
+</code></pre><p>필요한 정보를 알았으니 각 줄을 적절한 파일에 쓰도록 하면 됩니다.</p>
 <pre><code>awk '{ split(substr($4,2),array,&quot;[/:]&quot;); print &gt; (array[1] &quot;-&quot; array[4] &quot;.log&quot;) }' access.log
-</code></pre>
-
-<p>갱신:</p>
-
+</code></pre><p>갱신:</p>
 <p>좀 더 큰 데이터에 해보니 too many open files 에러가 발생합니다.
 awk가 좀 오래된 도구다 보니 열린 파일 수 제한이 낮은 듯 합니다. (MacOSX 기준으로 채 20개를 넘지 못하네요.)</p>
-
-<p>이 경우 파일을 계속 닫아주면 됩니다. 대신 '&gt;&gt;'를 써줘야 정상적으로 추출됩니다.</p>
-
+<p>이 경우 파일을 계속 닫아주면 됩니다. 대신 &lsquo;&raquo;&lsquo;를 써줘야 정상적으로 추출됩니다.</p>
 <pre><code>awk '{ split(substr($4,2),array,&quot;[/:]&quot;); fn = array[1] &quot;-&quot; array[4] &quot;.log&quot;; print &gt;&gt; fn; close(fn) }' access.log
-</code></pre>
-
-<h3 id="참고">참고</h3>
-
+</code></pre><h3 id="참고">참고</h3>
 <ul>
 <li><a href="http://stackoverflow.com/questions/11713978/how-to-split-existing-apache-logfile-by-month/11714105#11714105">How to split existing apache logfile by month?</a></li>
 </ul>
@@ -154,7 +133,7 @@ awk가 좀 오래된 도구다 보니 열린 파일 수 제한이 낮은 듯 합
   <hr>
   <footer>
     <p>
-      &copy; 2014-2019 Sangmin Yoon
+      &copy; 2014-2021 Sangmin Yoon
       <span class='pull-right text-muted'>
         powered by
         <a href='https://gohugo.io/' target='_blank'>Hugo</a>
@@ -181,7 +160,6 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-
 <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
 <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
 

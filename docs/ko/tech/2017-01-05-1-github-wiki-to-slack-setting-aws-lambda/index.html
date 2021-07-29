@@ -58,54 +58,40 @@
       <p>크로키닷컴에서는 GitHub 이벤트(이슈 수정, PR등)를 슬랙으로 확인하고 있습니다.
 그런데 아쉽게도 기본 GitHub 슬랙 앱은 GitHub 위키 이벤트는 처리하지 못합니다.
 그래서 이를 자체적으로 구현하기로 했습니다.</p>
-
 <p>우선 이번글에서는 AWS Lambda를 통해 슬랙으로 메시지 보내는 방법에 대해서 설명합니다.</p>
-
-<hr />
-
+<hr>
 <p>외부에서 슬랙에 메시지를 보내기 위해서는 Incoming WebHooks을 설정해야 합니다.
-슬랙에서 'Apps &amp; integrations' 메뉴를 선택하면, App Directory 화면을 볼 수 있습니다.</p>
-
-<p><img src="/img/ko/tech/2017-01-05-1-01.jpg" alt="App Directory" /></p>
-
+슬랙에서 &lsquo;Apps &amp; integrations&rsquo; 메뉴를 선택하면, App Directory 화면을 볼 수 있습니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-01.jpg" alt="App Directory"></p>
 <p>여기서 Incoming WebHooks을 검색하면 선택하면 설정화면이 표시됩니다.
 Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
-
 <p>메시지를 받을 채널을 선택하고 Add Incoming WebHooks integration을 누르면
 설정이 생성됩니다.</p>
-
-<p><img src="/img/ko/tech/2017-01-05-1-02.jpg" alt="Add Incoming WebHooks integration" /></p>
-
+<p><img src="/img/ko/tech/2017-01-05-1-02.jpg" alt="Add Incoming WebHooks integration"></p>
 <p>설정을 생성한 후에 몇가지 수정을 할 수 있지만, 여기서는 그냥 넘어가겠습니다.
 생성된 설정에서 중요한 것은 Webhook URL 입니다.</p>
-
-<p><img src="/img/ko/tech/2017-01-05-1-03.jpg" alt="Webhook URL" /></p>
-
+<p><img src="/img/ko/tech/2017-01-05-1-03.jpg" alt="Webhook URL"></p>
 <p>밑에 친절하게 예제가 있습니다. 한번 테스트 해보세요.</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ curl -X POST --data-urlencode <span class="s1">&#39;payload={&#34;channel&#34;: &#34;#auto-github&#34;, &#34;username&#34;: &#34;webhookbot&#34;, &#34;text&#34;: &#34;This is posted to #auto-github and comes from a bot named webhookbot.&#34;, &#34;icon_emoji&#34;: &#34;:ghost:&#34;}&#39;</span> https://hooks.slack.com/services/&lt;my-webhook-url&gt;</code></pre></div>
-
-<hr />
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ curl -X POST --data-urlencode <span class="s1">&#39;payload={&#34;channel&#34;: &#34;#auto-github&#34;, &#34;username&#34;: &#34;webhookbot&#34;, &#34;text&#34;: &#34;This is posted to #auto-github and comes from a bot named webhookbot.&#34;, &#34;icon_emoji&#34;: &#34;:ghost:&#34;}&#39;</span> https://hooks.slack.com/services/&lt;my-webhook-url&gt;</code></pre></div>
+<hr>
 <p>위 요청을 Node.js로 작성하면 다음과 같습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
 
-<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
-
-<span class="k">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">);</span>
-<span class="k">const</span> <span class="nx">https</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">https</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">);</span>
 
 <span class="kd">let</span> <span class="nx">hookUrl</span> <span class="o">=</span> <span class="s1">&#39;https://hooks.slack.com/services/&lt;my-webhook-url&gt;&#39;</span><span class="p">;</span>
 
 <span class="kd">function</span> <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
-  <span class="k">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="nx">url</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
+  <span class="kr">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="kr">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="nx">url</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
   <span class="nx">options</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="s1">&#39;POST&#39;</span><span class="p">;</span>
   <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
     <span class="s1">&#39;Content-Length&#39;</span><span class="o">:</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">byteLength</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span>
   <span class="p">};</span>
   <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="k">const</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">https</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">https</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
       <span class="nx">res</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
         <span class="nx">resolve</span><span class="p">({</span>
           <span class="nx">statusCode</span><span class="o">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">statusCode</span>
@@ -117,31 +103,23 @@ Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
   <span class="p">});</span>
 <span class="p">}</span>
 
-<span class="k">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
+<span class="kr">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
   <span class="nx">channel</span><span class="o">:</span> <span class="s1">&#39;#auto-github&#39;</span><span class="p">,</span>
   <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;This is a test message&#39;</span>
 <span class="p">};</span>
 <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
 <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
-<span class="p">});</span>
-</code></pre></div>
-
-<hr />
-
+<span class="p">});</span></code></pre></div>
+<hr>
 <p>위의 코드를 바탕으로 AWS Lambda 함수를 하나 만들면 됩니다.</p>
-
-<p>'Select blueprint' 단계에서 Blank Function을 선택합니다.</p>
-
-<p><img src="/img/ko/tech/2017-01-05-1-04.jpg" alt="Select blueprint" /></p>
-
-<p>'Configure triggers' 단계는 특별히 필요하지 않습니다.</p>
-
-<p>'Configure function' 단계에서 함수 이름을 입력하고, 위의 코드를 입력합니다.
+<p>&lsquo;Select blueprint&rsquo; 단계에서 Blank Function을 선택합니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-04.jpg" alt="Select blueprint"></p>
+<p>&lsquo;Configure triggers&rsquo; 단계는 특별히 필요하지 않습니다.</p>
+<p>&lsquo;Configure function&rsquo; 단계에서 함수 이름을 입력하고, 위의 코드를 입력합니다.
 다만 <code>exports.handler</code> 메소드에서 메시지를 보내도록 수정합니다.</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="nx">exports</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="k">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="nx">exports</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
     <span class="nx">channel</span><span class="o">:</span> <span class="s1">&#39;#auto-github&#39;</span><span class="p">,</span>
     <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;This is a test message&#39;</span>
   <span class="p">};</span>
@@ -151,19 +129,14 @@ Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
   <span class="p">}).</span><span class="k">catch</span><span class="p">((</span><span class="nx">error</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
     <span class="nx">callback</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
   <span class="p">});</span>
-<span class="p">};</span>
-</code></pre></div>
-
-<p><img src="/img/ko/tech/2017-01-05-1-05.jpg" alt="Configuration function 1" /></p>
-
+<span class="p">};</span></code></pre></div>
+<p><img src="/img/ko/tech/2017-01-05-1-05.jpg" alt="Configuration function 1"></p>
 <p>기타 다른 설정은 건드리지 않아도 되지만 Role은 설정해줘야 합니다.
 적절한 Role이 없는 경우 템플릿을 통해 생성할 수 있습니다.
-'KMS decryption permissions'을 선택해서 Role을 생성합니다.</p>
-
-<p><img src="/img/ko/tech/2017-01-05-1-06.jpg" alt="Select role" /></p>
-
-<p>'Next' -&gt; 'Create function'을 선택하면 Lambda 함수가 만들어집니다.
-'Test' 버튼을 눌러 테스트를 하면 설정한 슬랙 채널에 메시지가 오는 것을 볼 수 있습니다.</p>
+&lsquo;KMS decryption permissions&rsquo;을 선택해서 Role을 생성합니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-06.jpg" alt="Select role"></p>
+<p>&lsquo;Next&rsquo; -&gt; &lsquo;Create function&rsquo;을 선택하면 Lambda 함수가 만들어집니다.
+&lsquo;Test&rsquo; 버튼을 눌러 테스트를 하면 설정한 슬랙 채널에 메시지가 오는 것을 볼 수 있습니다.</p>
 
     </div>
 
@@ -247,7 +220,7 @@ Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
   <hr>
   <footer>
     <p>
-      &copy; 2014-2019 Sangmin Yoon
+      &copy; 2014-2021 Sangmin Yoon
       <span class='pull-right text-muted'>
         powered by
         <a href='https://gohugo.io/' target='_blank'>Hugo</a>
@@ -274,7 +247,6 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-
 <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
 <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
 

@@ -55,27 +55,19 @@
     </div>
 
     <div class='col-xs-12 col-sm-9'>
-      
-
-<p>우분투에는 기본적으로 <code>default-jdk</code>라는 패키지를 제공합니다.
+      <p>우분투에는 기본적으로 <code>default-jdk</code>라는 패키지를 제공합니다.
 이 패키지를 설치하면 OpenJDK(<code>openjdk-8-jdk</code>)가 설치됩니다.</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo apt-get install default-jdk</code></pre></div>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo apt-get install default-jdk</code></pre></div>
 <p>그런데 저 같은 경우 Java가 주력이 아니다 보니 OpenJDK를 써도 되는지 확신이 없었습니다.
 그래서 Oracle JDK를 설치하기로 했습니다.</p>
-
 <p>Oracle JDK는 우분투 패키지에는 존재하지 않습니다.
 하지만 <a href="https://launchpad.net/ubuntu/+ppas">우분투 Personal Package Archives</a>에
-<a href="https://launchpad.net/~webupd8team/+archive/ubuntu/java">Oracle JDK 패키지를 제공하는 PPA</a>가 있습니다.<br />
+<a href="https://launchpad.net/~webupd8team/+archive/ubuntu/java">Oracle JDK 패키지를 제공하는 PPA</a>가 있습니다.<br>
 이를 이용해 Oracle JDK를 패키지로 설치할 수 있습니다.</p>
-
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo add-apt-repository ppa:webupd8team/java
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo add-apt-repository ppa:webupd8team/java
 $ sudo apt-get update
 $ sudo apt-get install oracle-java8-installer</code></pre></div>
-
 <h1 id="참고">참고</h1>
-
 <ul>
 <li><a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get">https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get</a></li>
 </ul>
@@ -137,7 +129,7 @@ $ sudo apt-get install oracle-java8-installer</code></pre></div>
   <hr>
   <footer>
     <p>
-      &copy; 2014-2019 Sangmin Yoon
+      &copy; 2014-2021 Sangmin Yoon
       <span class='pull-right text-muted'>
         powered by
         <a href='https://gohugo.io/' target='_blank'>Hugo</a>
@@ -164,7 +156,6 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-
 <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
 <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
 
