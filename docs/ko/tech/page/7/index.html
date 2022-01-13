@@ -55,6 +55,38 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2017-01-06-2-github-wiki-to-slack-aws-api-gateway/'>GitHub 위키 이벤트를 슬랙으로 받기 - 3. AWS API Gateway 생성하기</a></h2>
+          <p class='posts-date'>06 Jan 2017</p>
+        </div>
+        <div class='panel-body'>
+          <p>GitHub 이벤트를 받으려면 GitHub에서 접근가능한 URL이 필요합니다.
+<!-- raw HTML omitted -->이전 글<!-- raw HTML omitted -->에서
+만든 Lambda 함수를 외부에서 접근가능하게 하려면 AWS API Gateway를 사용하면 됩니다.</p>
+<p>API Gateway 콘솔에서 새 API를 생성합니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-2-01.jpg" alt="Create API"></p>
+<p>생성된 직후에는 어떤 메소드도 없습니다.
+GitHub 이벤트는 POST 메소드로 전달되므로 Resources에서 POST 메소드를 하나 생성합니다.</p>
+<p>Actions 메뉴에서 Create Method를 누른 후 POST를 선택하면 메소드가 생성됩니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-2-02.jpg" alt="Created POST Method"></p>
+<p>이 메소드에 우리가 생성한 Lambda 함수를 연결할 수 있습니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-2-03.jpg" alt="Integration with Lambda Function"></p>
+<p>테스트 버튼을 누르면 API 테스트를 할 수 있습니다.
+슬랙에 메시지가 오는지 확인해보세요.</p>
+<p>이제 이 API를 활성화할 차례입니다.
+Actions에서 Deploy API를 선택합니다.
+현재 stage가 없으므로 &lsquo;[New State]&lsquo;를 선택하고 prod라고 이름을 줍니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-2-04.jpg" alt="Setup deploy"></p>
+<p>이제 외부에서 접근가능한 URL이 생성됐습니다.
+해당 URL에 POST 메소드로 접근할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ curl -X POST https://&lt;your-invoke-url&gt;/prod
+null</code></pre></div>
+<p>이번에도 역시 슬랙에 메시지가 표시되면 제대로 설정된 것입니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2017-01-06-1-github-wiki-to-slack-protect-secret-using-kms/'>GitHub 위키 이벤트를 슬랙으로 받기 - 2. AWS KMS를 이용해 키 보호</a></h2>
           <p class='posts-date'>06 Jan 2017</p>
         </div>
@@ -231,130 +263,6 @@ Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
 <p><img src="/img/ko/tech/2017-01-05-1-06.jpg" alt="Select role"></p>
 <p>&lsquo;Next&rsquo; -&gt; &lsquo;Create function&rsquo;을 선택하면 Lambda 함수가 만들어집니다.
 &lsquo;Test&rsquo; 버튼을 눌러 테스트를 하면 설정한 슬랙 채널에 메시지가 오는 것을 볼 수 있습니다.</p>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2017-01-04-1-language-comparison-date-current-unix-time/'>언어 비교 - 현재 유닉스 시간</a></h2>
-          <p class='posts-date'>04 Jan 2017</p>
-        </div>
-        <div class='panel-body'>
-          
-<div class='alert alert-success'>
-  유닉스 시간은 유닉스 Epoch(1970-01-01 00:00:00 +0000 (UTC))로 부터 지난 초 단위 시간을 말합니다.
-</div>
-
-<div class='langsheet'>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>C</div>
-  <div class='panel-body'>
-    <span class='cmd_stdlib'>time_t</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>(<span class='cmd_keyword'>NULL</span>);
-  </div>
-  <div class='panel-footer'>
-    #include &lt;time.h&gt;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>C++</div>
-  <div class='panel-body'>
-    <span class='cmd_stdlib'>time_t</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>(<span class='cmd_keyword'>nullptr</span>);
-  </div>
-  <div class='panel-footer'>
-    #include &lt;ctime&gt;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>CoffeeScript</div>
-  <div class='panel-body'>
-    now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>.<span class='cmd_stdlib'>now</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span><br><span class='cmd_hr'></span><br>now&nbsp;=&nbsp;<span class='cmd_keyword'>new</span>&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Java</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>long</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>System</span>.<span class='cmd_stdlib'>currentTimeMillis</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;<br><span class='cmd_hr'></span><br><span class='cmd_keyword'>long</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_keyword'>new</span>&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;
-  </div>
-  <div class='panel-footer'>
-    import java.util.Date;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>JavaScript</div>
-  <div class='panel-body'>
-    now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>.<span class='cmd_stdlib'>now</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;<br><span class='cmd_hr'></span><br>now&nbsp;=&nbsp;<span class='cmd_keyword'>new</span>&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Kotlin</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>val</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>System</span>.<span class='cmd_stdlib'>currentTimeMillis</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span><br><span class='cmd_hr'></span><br><span class='cmd_keyword'>val</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()/<span class='cmd_number'>1000</span>
-  </div>
-  <div class='panel-footer'>
-    import java.util.Date
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Lua</div>
-  <div class='panel-body'>
-    now&nbsp;=&nbsp;<span class='cmd_stdlib'>os</span>.<span class='cmd_stdlib'>time</span>()
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Objective-C</div>
-  <div class='panel-body'>
-    <span class='cmd_stdlib'>NSTimeInterval</span>&nbsp;now&nbsp;=&nbsp;[[<span class='cmd_stdlib'>NSDate</span>&nbsp;<span class='cmd_stdlib'>date</span>]&nbsp;<span class='cmd_stdlib'>timeIntervalSince1970</span>];
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Perl</div>
-  <div class='panel-body'>
-    $now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>PHP</div>
-  <div class='panel-body'>
-    $now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>();
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Python</div>
-  <div class='panel-body'>
-    <span class='cmd_stdib'>time</span>.<span class='cmd_stdlib'>time</span>()
-  </div>
-  <div class='panel-footer'>
-    import time
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Ruby</div>
-  <div class='panel-body'>
-    now&nbsp;=&nbsp;<span class='cmd_stdlib'>Time</span>.<span class='cmd_stdlib'>now</span>.<span class='cmd_stdlib'>to_i</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Swift</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>let</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>timeIntervalSince1970</span>
-  </div>
-</div>
-
-</div>
 
         </div>
       </div>

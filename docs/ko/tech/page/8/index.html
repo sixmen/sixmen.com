@@ -55,6 +55,130 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2017-01-04-1-language-comparison-date-current-unix-time/'>언어 비교 - 현재 유닉스 시간</a></h2>
+          <p class='posts-date'>04 Jan 2017</p>
+        </div>
+        <div class='panel-body'>
+          
+<div class='alert alert-success'>
+  유닉스 시간은 유닉스 Epoch(1970-01-01 00:00:00 +0000 (UTC))로 부터 지난 초 단위 시간을 말합니다.
+</div>
+
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>time_t</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>(<span class='cmd_keyword'>NULL</span>);
+  </div>
+  <div class='panel-footer'>
+    #include &lt;time.h&gt;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>time_t</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>(<span class='cmd_keyword'>nullptr</span>);
+  </div>
+  <div class='panel-footer'>
+    #include &lt;ctime&gt;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>.<span class='cmd_stdlib'>now</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span><br><span class='cmd_hr'></span><br>now&nbsp;=&nbsp;<span class='cmd_keyword'>new</span>&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>long</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>System</span>.<span class='cmd_stdlib'>currentTimeMillis</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;<br><span class='cmd_hr'></span><br><span class='cmd_keyword'>long</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_keyword'>new</span>&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;
+  </div>
+  <div class='panel-footer'>
+    import java.util.Date;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>.<span class='cmd_stdlib'>now</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;<br><span class='cmd_hr'></span><br>now&nbsp;=&nbsp;<span class='cmd_keyword'>new</span>&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span>;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>val</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>System</span>.<span class='cmd_stdlib'>currentTimeMillis</span>()&nbsp;/&nbsp;<span class='cmd_number'>1000</span><br><span class='cmd_hr'></span><br><span class='cmd_keyword'>val</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>getTime</span>()/<span class='cmd_number'>1000</span>
+  </div>
+  <div class='panel-footer'>
+    import java.util.Date
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    now&nbsp;=&nbsp;<span class='cmd_stdlib'>os</span>.<span class='cmd_stdlib'>time</span>()
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>NSTimeInterval</span>&nbsp;now&nbsp;=&nbsp;[[<span class='cmd_stdlib'>NSDate</span>&nbsp;<span class='cmd_stdlib'>date</span>]&nbsp;<span class='cmd_stdlib'>timeIntervalSince1970</span>];
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    $now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    $now&nbsp;=&nbsp;<span class='cmd_stdlib'>time</span>();
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    <span class='cmd_stdib'>time</span>.<span class='cmd_stdlib'>time</span>()
+  </div>
+  <div class='panel-footer'>
+    import time
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    now&nbsp;=&nbsp;<span class='cmd_stdlib'>Time</span>.<span class='cmd_stdlib'>now</span>.<span class='cmd_stdlib'>to_i</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>let</span>&nbsp;now&nbsp;=&nbsp;<span class='cmd_stdlib'>Date</span>().<span class='cmd_stdlib'>timeIntervalSince1970</span>
+  </div>
+</div>
+
+</div>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2016-12-28-1-install-jdk-ubuntu/'>우부투에 JDK 설치하기</a></h2>
           <p class='posts-date'>28 Dec 2016</p>
         </div>
@@ -172,47 +296,6 @@ aes-128-cbc로 암호화하고 key에 16 바이트(=128 비트)의 키를 주면
 <hr>
 <p>여기까지의 내용을 기반으로 AES 알고리즘을 써서 단순한 스크립트 보호를 해봤습니다.
 더 깊게 들어갈 부분도 있겠지만, AES를 다루는데 도움이 되었으면 합니다.</p>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2016-12-26-1-protect-script-aes-encrypt-decrypt/'>스크립트 보호 - AES 암호화/해독화 하기</a></h2>
-          <p class='posts-date'>26 Dec 2016</p>
-        </div>
-        <div class='panel-body'>
-          <p><!-- raw HTML omitted -->전편<!-- raw HTML omitted -->에 이어
-실제로 파일을 암호화/해독화 해보겠습니다.</p>
-<p>OpenSSL 커맨드 라인 도구를 사용하면 프로그램을 따로 작성하지 않아도 암호화를 할 수 있습니다.</p>
-<p>우선 원본 파일을 준비합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ cat original.txt
-Hello World</code></pre></div>
-<p><code>openssl list-cipher-commands</code>를 실행하면 사용가능한 알고리즘을 보여줍니다.
-그중 AES 알고리즘은 다음과 같습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl list-cipher-commands <span class="p">|</span> grep aes
-aes-128-cbc
-aes-128-ecb
-aes-192-cbc
-aes-192-ecb
-aes-256-cbc
-aes-256-ecb</code></pre></div>
-<p>128, 192, 256은 키의 크기입니다. CBC, ECB는 <a href="https://ko.wikipedia.org/wiki/%EB%B8%94%EB%A1%9D_%EC%95%94%ED%98%B8_%EC%9A%B4%EC%9A%A9_%EB%B0%A9%EC%8B%9D">블록 암호 운용 방식</a>을 나타냅니다. 여기서는 aes-256-cbc로 암호화를 해보겠습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat
-enter aes-256-cbc encryption password:
-Verifying - enter aes-256-cbc encryption password:</code></pre></div>
-<p>해독화는 -d 옵션을 사용합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt
-enter aes-256-cbc decryption password:</code></pre></div>
-<p>암호화를 자동화하려면 암호를 명령에 포함시켜야 합니다. 이를 위해서는 -k 나 -pass 옵션을 사용합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -k <span class="m">1234</span></code></pre></div>
-<p>또는</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -pass pass:1234</code></pre></div>
-<p>암호를 파일에서 읽도록 하려면 -kfile 이나 -pass 옵션을 사용합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -kfile password_file</code></pre></div>
-<p>또는</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -pass file:password_file</code></pre></div>
-<p>다음에는 암호화한 파일을 iOS나 Android에서 해독화하는 방법에 대해서 알아보겠습니다.</p>
 
         </div>
       </div>

@@ -7,6 +7,15 @@
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Thu, 13 Jan 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tech/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Jotai 레시피</title>
+      <link>http://sixmen.com/ko/tech/2022-01-13-2-jotai-recipe/</link>
+      <pubDate>Thu, 13 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2022-01-13-2-jotai-recipe/</guid>
+      <description>이번 글에서는 카카오스타일에서 Jotai를 어떤 식으로 사용하고 있는지 여러가지 패턴에 대해 설명하려고 합니다. 상태 정의하고 사용하기 Jotai의 기본 사용</description>
+    </item>
+    
+    <item>
       <title>프론트엔드 상태 관리에 대한 여정</title>
       <link>http://sixmen.com/ko/tech/2022-01-13-1-frontend-state-management/</link>
       <pubDate>Thu, 13 Jan 2022 00:00:00 +0000</pubDate>
