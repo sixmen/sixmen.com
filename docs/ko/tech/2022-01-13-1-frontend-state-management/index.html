@@ -5,7 +5,7 @@
   <meta charset='utf-8'>
 
   
-  <title>sixmen.com: Tech</title>
+  <title>sixmen.com: 프론트엔드 상태 관리에 대한 여정</title>
   
   
   <meta name='author' content='Sangmin Yoon'>
@@ -45,21 +45,17 @@
   </div>
 </div>
 
-
-
 <div class='container'>
 
-  <div class='row' style='margin-top: 20px;'>
+  <div class='row'>
+    <div class='col-xs-12'>
+      <div class='page-header'>
+        <h1>프론트엔드 상태 관리에 대한 여정</h1>
+      </div>
+    </div>
 
-    <div class='col-sm-10 col-sm-offset-1'>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2022-01-13-1-frontend-state-management/'>프론트엔드 상태 관리에 대한 여정</a></h2>
-          <p class='posts-date'>13 Jan 2022</p>
-        </div>
-        <div class='panel-body'>
-          <p>카카오스타일은 React에서 상태 관리를 위해 최근에 <a href="https://jotai.org/">Jotai</a>를 도입했습니다. Jotai에 대해 소개하기에 앞서 Jotai에 다다르기까지의 과정에 대해 설명해보려고 합니다.</p>
+    <div class='col-xs-12 col-sm-9'>
+      <p>카카오스타일은 React에서 상태 관리를 위해 최근에 <a href="https://jotai.org/">Jotai</a>를 도입했습니다. Jotai에 대해 소개하기에 앞서 Jotai에 다다르기까지의 과정에 대해 설명해보려고 합니다.</p>
 <h2 id="선언형-ui">선언형 UI</h2>
 <p>할일 관리 화면을 상상해봅시다. 초기 웹에서 보편적이였던 jQuery를 사용한다면, 할 일 추가를 위해 다음과 같이 작성할 것 같습니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="kr">const</span> <span class="nx">todos</span> <span class="o">=</span> <span class="p">[];</span>
@@ -377,309 +373,69 @@
 </code></pre></div><p>그냥 정의하면 모든 atom은 전역으로 공유됩니다. 독립된 공간이 필요하다면 Provider로 감싸주면 됩니다. 이번에 만든 어플리케이션은 대부분 Next.js 페이지 단위로 상태를 관리하고 있어서 페이지 컴포넌트를 Provider로 감싸서 사용하고 있습니다.</p>
 <p>다음 글에서는 Jotai 활용에 대해 좀 더 자세히 설명하도록 하겠습니다.</p>
 
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2021-07-31-1-graphql-error-guide/'>GraphQL 에러 처리 규칙</a></h2>
-          <p class='posts-date'>31 Jul 2021</p>
-        </div>
-        <div class='panel-body'>
-          <p>Java로 코드를 작성해보신 분이라면 throws에 의해 컴파일 에러가 발생했을 때 뭔지는 잘 모르겠고 IDE가 제시한 대로 catch로 감싸고 넘어간 경험이 누구에게나 있을 것이라 생각합니다. 그만큼 예외 상황은 잘 이해하고 적절히 처리하기는 쉽지 않은 것 같습니다. 오늘은 카카오스타일이 사용하고 있는 GraphQL에서 에러를 어떻게 전달하고 처리하고 있는지 설명하려고 합니다.</p>
-<h2 id="graphql-에러-형식">GraphQL 에러 형식</h2>
-<p>GraphQL은 다음과 같은 데이터를 반환합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&#34;root_field&#34;</span><span class="p">:</span> <span class="err">...</span>
-  <span class="p">},</span>
-  <span class="nt">&#34;errors&#34;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span> <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;error message&#34;</span><span class="p">,</span> <span class="nt">&#34;locations&#34;</span><span class="p">:</span> <span class="p">[],</span> <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="p">[]</span> <span class="p">}</span>
-  <span class="p">]</span>
-<span class="p">}</span>
-</code></pre></div><p>GraphQL을 처음 접했을 때는 errors가 배열이라는 것을 이해하지 못했습니다. 그래서 다음과 같이 API를 설계하는 실수를 하기도 합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-graphql" data-lang="graphql"><span class="kd">type</span><span class="w"> </span><span class="nc">Mutation</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">  </span><span class="py">authenticate</span><span class="p">(</span><span class="kd">input</span><span class="p">:</span><span class="w"> </span><span class="nc">AuthenticateInput</span><span class="p">!):</span><span class="w"> </span><span class="nc">AuthenticateResult</span><span class="p">!</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="nc">type</span><span class="w"> </span><span class="py">AuthenticateResult</span><span class="w"> </span><span class="p">{</span><span class="w">
-</span><span class="w">  </span><span class="py">success</span><span class="p">:</span><span class="w"> </span><span class="nc">Boolean</span><span class="p">!</span><span class="w">
-</span><span class="w">  </span><span class="py">user_id</span><span class="p">:</span><span class="w"> </span><span class="nc">ID</span><span class="w">
-</span><span class="w">  </span><span class="py">error_code</span><span class="p">:</span><span class="w"> </span><span class="nc">String</span><span class="w">
-</span><span class="w"></span><span class="p">}</span><span class="w">
-</span></code></pre></div><p>errors가 배열인 이유는 명확합니다. GraphQL은 여러 데이터를 한번에 요청할 수 있는데, 그 중 일부 데이터만 반환하는 것이 가능합니다. 반환에 실패에 한 경우 그 이유(데이터 없음, 권한 없음등)를 반환해야 하는데 그 이유가 여러가지 일 수 있는 것이죠.</p>
-<p>현재 카카오스타일은 에러 발생시 errors에 데이터를 채워서 반환합니다. 다만 에러가 여러개인 경우 적절한 처리방법을 알지 못해 첫번째 에러만 유의미하게 처리합니다. API에 따라 null을 반환할 수도 있기 때문에 data 필드가 null인 것을 에러로 처리하지는 않고 errors 배열에 데이터가 하나 이상있으면 에러로 처리합니다. 반대로 errors 배열에 데이터가 있으면 data 필드에 값이 있어도 에러로 처리하고 있습니다.</p>
-<h2 id="message-필드와-에러-코드">message 필드와 에러 코드</h2>
-<p>사용자에게는 사용자 친화적인 에러 메시지를 표시해줘야 합니다. 이 메시지를 어디서 관리해야 하는지도 쟁점입니다.</p>
-<p>같은 상황이여도 사용자마다 다른 메시지가 필요할 수도 있고, UI 이슈라고 보면 클라이언트에서 관리하는게 맞을 것 같기도 합니다만, 클라이언트는 수정이 어렵다라는 이슈가 있습니다. (특히 앱인 경우) 또한 에러 상황마다 일일이 분기 처리를 해야 합니다. 테이블로 메시지를 관리할 수도 있습니다만 어떤 에러 메시지는 고정 메시지가 아닐 수도 있습니다. (예, xxx 상품은 구매할 수 없습니다)</p>
-<p>이런 이유로 에러 메시지는 서버가 관리하고 있습니다. 클라이언트는 대부분의 경우 서버가 보내주는 에러 메시지를 맥락에 대한 이해없이 그대로 보여주는 식으로 동작합니다. 다만 이 경우 다국어 처리에 대한 고민이 필요합니다. 클라이언트가 에러 메시지를 처리하면 클라이언트 언어를 인식해서 적절한 메시지를 표시할 수 있지만, 서버는 클라이언트에게서 언어 정보를 받아서 요청별로 에러 메시지를 다르게 구성하는 처리를 해야 합니다.</p>
-<p>일부 에러 상황은 클라이언트가 특별히 처리를 해야 할 수도 있습니다. (예를 들어 로그인이 안 되어 있다는 에러를 만난 경우 로그인 페이지로 이동) 이런 경우 사용자 친화적인 메시지를 보고 처리하는 것은 무리기 때문에 (특히 언어마다 메시지가 다르다면) 에러 코드도 같이 보내야 합니다.</p>
-<p>GraphQL 에러 형식에서 message 필드에는 사용자 친화적인 메시지를 담고 있습니다. 에러 코드에 대한 표준은 없기 때문에 extensions에 담아서 반환해야 합니다. 다음은 이 형식에 따른 에러 메시지 예입니다</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="nt">&#34;errors&#34;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;로그인을 해주세요.&#34;</span><span class="p">,</span>
-      <span class="nt">&#34;extensions&#34;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="s2">&#34;auth_not_logged_in&#34;</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">],</span>
-  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="kc">null</span>
-<span class="p">}</span>
-</code></pre></div><h2 id="추가-정보">추가 정보</h2>
-<p>에러 메시지와 에러 코드만 있어도 대부분은 문제가 없지만 추가 정보가 필요한 경우가 있습니다. 이런 정보는 extensions에 담고 있습니다.</p>
-<p>에러가 발생할 경우 로그에는 주어진 에러 코드로 에러를 기록합니다. 에러 코드가 있다고 모두 오류 상황은 아니고 프로세스상 일상적으로 발생할 수 밖에 없는 에러가 있기도 합니다. 사용자에게는 에러를 반환하는 것이 맞지만, 모니터링에서는 에러로 취급하지 않을 에러인 경우 ignorable 란 필드를 true 로 설정하고 있습니다.</p>
-<p>어떤 클라이언트/상황에서는 단순히 에러 메시지가 아니라 더 많은 정보를 표시하고 싶을 수도 있습니다. (예를 들어 에러 팝업 타이틀이나, 아이콘, 닫기 버튼 메시지등) 이런 경우를 위해 <code>contents?: { type: string; title: string; message: string; link_title?: string; link_url?: string };</code> 와 같이 스키마를 정해서 소통하는 API도 있습니다. (전반적으로 적용해도 될 것 같지만 아직 표준화가 덜 됐습니다)</p>
-<p>어떤 에러는 부가적인 정보가 필요한 경우가 있습니다. 예를 들어 소셜 로그인시 이미 해당 이메일의 계정이 존재할 수 있습니다. 이메일이 같다고 무조건 로그인을 시키면 안 되고, 대신 사용자에게 이메일이 이미 사용중이니 해당 계정으로 로그인을 시도하도록 유도하기로 했고, 이를 위해 마스킹된 이메일 문자열을 email 필드에 담아서 반환하도록 했습니다.</p>
-<h2 id="http-상태-코드">HTTP 상태 코드</h2>
-<p>GraphQL 스펙은 전달 방식에 대해 정의하고 있지 않지만 일반적으로는 HTTP 프로토콜을 사용합니다. 이때 HTTP 상태 코드를 사용할지 여부도 쟁점입니다.</p>
-<p>처음 GraphQL 서빙을 위해 사용했던 <a href="https://www.npmjs.com/package/express-graphql">express-graphql</a>는 에러시 500 에러를 반환했습니다. 그 다음으로 사용한 <a href="https://www.npmjs.com/package/apollo-server-express">apollo-server-express</a>는 에러 상황에서도 200을 반환해서 약간의 혼란이 있었습니다.</p>
-<p>현재 논의가 진행 중인 <a href="https://github.com/graphql/graphql-over-http">스펙</a>에서는 2xx이 아닌 에러를 반환하는 것으로 진행되고 있습니다만 (부분 성공의 경우는 200이여야 합니다) 카카오스타일에서는 현재 무조건 200을 반환하는 것으로 정했습니다.</p>
-<p>GraphQL 문법에 어긋나는 경우에만 400 에러 등을 반환하고, 내부 리졸버를 정상적으로 수행한 경우에는 200입니다. 비지니스 로직의 실패는 HTTP 상태 코드가 아닌 errors 필드를 보고 판단하게 됩니다.</p>
-<p>다만 앞으로 바뀔 여지가 있기에 HTTP 상태 코드를 의존하지 않는 형태로 클라이언트를 작성하고 있습니다.</p>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2021-07-29-1-react-component-organization/'>React 프로젝트 컴포넌트 구성</a></h2>
-          <p class='posts-date'>29 Jul 2021</p>
-        </div>
-        <div class='panel-body'>
-          <h2 id="시작하며">시작하며</h2>
-<p>프로젝트가 시작된지 얼마 되지 않은 경우에 소스는 비교적 일관성을 가지고 있습니다. 하지만 시간이 지남에 따라 여러 사람이 참여하고, 비슷한 새로운 프로젝트가 만들어지면서 점점 일관성이 떨어지게 됩니다. (문서나 리뷰 과정이 있으면 비교적 낫지만, 완전히 방지하기는 어려운 것 같습니다) 또한 새로운 기술이 생기면서 (예를 들어 React Hook) 기존에 설정한 구조가 전혀 적합하지 않게 되는 경우가 생깁니다.</p>
-<p>그런 의미에서 주기적으로 프로젝트 구성에 관한 가이드를 주기적으로 점검하고 갱신할 필요성이 있습니다. 이번 글에서는 2021년 7월 현재 React 프로젝트의 컴포넌트 구성에 대한 가이드를 설명하려고 합니다. (항상 예외 상황이 있기 마련이고, 이에 따른 변형을 허용하기에 가이드라는 용어를 쓰고 있습니다.)</p>
-<p>React 자체는 UI 구성을 위한 <strong>라이브러리</strong>이기 때문에 구성에 아무 제약이 없습니다. 반면 카카오스타일의 일부 프로젝트에서는 Next.js를 쓰고 있는데, 이는 <strong>프레임워크</strong>이기 때문에 여러가지 규칙이 있습니다. 전체적인 통일성을 위해 Next.js를 사용하지 않는 프로젝트에서도 Next.js와 유사한 구성을 하도록 가이드를 정했습니다.</p>
-<h2 id="라우트">라우트</h2>
-<p>Next.js 에서는 라우트를 pages 디렉토리에서 정하고 있습니다. 다만 카카오스타일에서는 pages를 프로젝트 루트에 두지 않고, src 밑에 모아두는 것을 선택했습니다. 비 Next.js 프로젝트에서도 마찬가지로 pages 밑에 두지만, 라우트 연결은 수동으로 해야 합니다.</p>
-<p>다음은 비 Next.js에서의 라우트 설정 예입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="kr">import</span> <span class="p">{</span> <span class="nx">BrowserRouter</span> <span class="kr">as</span> <span class="nx">Router</span><span class="p">,</span> <span class="nx">Switch</span><span class="p">,</span> <span class="nx">Route</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;react-router-dom&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">HomePage</span> <span class="kr">from</span> <span class="s1">&#39;pages&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">LoginPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/login&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">SignupPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/signup&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">QnaQuestionMainPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/qna/questions&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">QnaQuestionNewPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/qna/questions/new&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">QnaQuestionDetailPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/qna/questions/[question_id]&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">ChatRoomMainPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/chat/rooms&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">ChatRoomDetailPage</span> <span class="kr">from</span> <span class="s1">&#39;pages/chat/rooms/[room_id]&#39;</span><span class="p">;</span>
-
-<span class="kd">function</span> <span class="nx">App() {</span>
-  <span class="k">return</span> <span class="p">(</span>
-    <span class="p">&lt;</span><span class="nt">Router</span><span class="p">&gt;</span>
-      <span class="p">&lt;</span><span class="nt">Switch</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">exact</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">HomePage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">exact</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/login&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">LoginPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">exact</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/signup&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">SignupPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">exact</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/qna/questions&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">QnaQuestionMainPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">exact</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/qna/questions/new&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">QnaQuestionNewPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/qna/questions/:question_id&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">QnaQuestionDetailPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">exact</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/chat/rooms&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">ChatRoomMainPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">Route</span> <span class="na">path</span><span class="o">=</span><span class="s">&#39;/chat/rooms/:room_id&#39;</span><span class="p">&gt;</span>
-          <span class="p">&lt;</span><span class="nt">ChatRoomDetailPage</span> <span class="p">/&gt;</span>
-        <span class="p">&lt;/</span><span class="nt">Route</span><span class="p">&gt;</span>
-      <span class="p">&lt;/</span><span class="nt">Switch</span><span class="p">&gt;</span>
-    <span class="p">&lt;/</span><span class="nt">Router</span><span class="p">&gt;</span>
-  <span class="p">);</span>
-<span class="p">}</span>
-
-<span class="kr">export</span> <span class="k">default</span> <span class="nx">App</span><span class="p">;</span>
-</code></pre></div><p>Next.js에서는 같은 위치에 페이지 파일이 있으면 자동으로 라우트 설정이 됩니다.</p>
-<h2 id="페이지를-실제-구성하는-컴포넌트">페이지를 실제 구성하는 컴포넌트</h2>
-<p>간단한 뷰는 페이지 파일에 넣을 수 있겠지만 복잡한 경우 여러 컴포넌트로 나누어야 하는데 이를 pages 밑에 두면 Next.js 라우트로 인식되므로 별개의 위치에 둬야 합니다. 따라서 이를 components 디렉토리에 두기로 했습니다. 이때 RESTful한 주소를 갖도록 위치한 페이지와 달리 도메인별로 묶어서 구성합니다.</p>
-<p>QnaQuestionMainPage(<code>/pages/qna/questions/index.tsx</code>)에 대응하는 컴포넌트는 <code>/components/qna/question/main/index.tsx</code>에 위치하고, ChatRoomDetailPage(<code>/pages/chat/rooms/[room_id]/index.tsx</code>)에 대응하는 컴포넌트는 <code>/components/chat/room/detail/index.tsx</code>에 위치합니다. 컴포넌트 이름은 각각 QnaQuestionMain과 ChatRoomDetail입니다. 파일명을 컴포넌트 이름과 일치시킬지 여부를 내부에서 논의할 결과 진입점은 index.tsx로 통일하는 것으로 결정했습니다.</p>
-<p>예를 들어 QnaQuestionMainPage는 대략 다음과 같은 형태가 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="kr">import</span> <span class="p">{</span> <span class="nx">FC</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;react&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">QnaQuestionMain</span> <span class="kr">from</span> <span class="s1">&#39;components/qna/question/main&#39;</span><span class="p">;</span>
-
-<span class="kr">const</span> <span class="nx">QnaQuestionMainPage</span>: <span class="kt">FC</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">&lt;</span><span class="nt">QnaQuestionMain</span> <span class="p">/&gt;;</span>
-<span class="p">};</span>
-
-<span class="kr">export</span> <span class="k">default</span> <span class="nx">QnaQuestionMainPage</span><span class="p">;</span>
-</code></pre></div><h2 id="데이터-가져오기">데이터 가져오기</h2>
-<p>Next.js 프로젝트와 비 Next.js 프로젝트는 데이터를 가져오는 시점이 다릅니다. Next.js는 클라이언트에 내보내기 전에 React와 무관하게 데이터를 가져오는데 반해, 비 Next.js 프로젝트는 클라이언트 로딩이 끝난 후 데이터를 가져와야 합니다. 어느 경우에든 비슷하게 구성하기 위해 데이터 가져오는 것을 fetchData라는 함수로 분리해 컴포넌트쪽에 둡니다. 각 컴포넌트는 상위 페이지로 부터 데이터를 props로 받아옵니다. 이렇게 구성하면 컴포넌트에 대한 스토리북 구성시 데이터를 다르게 부여하기 편하다라는 장점도 있습니다. 단점으로는 데이터가 고정이 아닌 경우(예를 들어 필터 설정, 정렬 옵션등에 의해 페이지 이동 없이 바뀌어야 하는 경우), 상위 페이지로 이를 전달하는 방법을 고민해 봐야 한다는 점이 있습니다.</p>
-<p>다음은 위 규칙에 따라 구성한 컴포넌트 내용입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="kr">interface</span> <span class="nx">Question</span> <span class="p">{</span>
-  <span class="nx">id</span>: <span class="kt">string</span><span class="p">;</span>
-  <span class="nx">title</span>: <span class="kt">string</span><span class="p">;</span>
-  <span class="nx">date</span>: <span class="kt">number</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="kr">export</span> <span class="kr">interface</span> <span class="nx">Props</span> <span class="p">{</span>
-  <span class="nx">total_count</span>: <span class="kt">number</span><span class="p">;</span>
-  <span class="nx">question_list</span>: <span class="kt">Question</span><span class="p">[];</span>
-<span class="p">}</span>
-
-<span class="kr">const</span> <span class="nx">QnaQuestionMain</span>: <span class="kt">FC</span><span class="p">&lt;</span><span class="nt">Props</span><span class="p">&gt;</span> <span class="o">=</span> <span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">(</span>
-    <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
-      <span class="p">{</span><span class="nx">props</span><span class="p">.</span><span class="nx">question_list</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">question</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(</span>
-        <span class="p">&lt;</span><span class="nt">QuestionView</span> <span class="na">question</span><span class="o">=</span><span class="p">{</span><span class="nx">question</span><span class="p">}</span> <span class="na">key</span><span class="o">=</span><span class="p">{</span><span class="nx">question</span><span class="p">.</span><span class="nx">id</span><span class="p">}</span> <span class="p">/&gt;</span>
-      <span class="p">))}</span>
-    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-  <span class="p">);</span>
-<span class="p">};</span>
-
-<span class="kr">export</span> <span class="k">default</span> <span class="nx">QnaQuestionMain</span><span class="p">;</span>
-
-<span class="kr">export</span> <span class="kr">async</span> <span class="kd">function</span> <span class="nx">fetchData</span><span class="p">(</span><span class="nx">context</span>: <span class="kt">GetServerSidePropsContext</span> <span class="o">|</span> <span class="kc">undefined</span><span class="p">)</span><span class="o">:</span> <span class="nx">Promise</span><span class="p">&lt;</span><span class="nt">Props</span><span class="p">&gt;</span> <span class="p">{</span>
-  <span class="kr">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetch</span><span class="p">(...);</span>
-  <span class="k">return</span> <span class="p">{</span>
-    <span class="nx">total_count</span>: <span class="kt">result.total_count</span><span class="p">,</span>
-    <span class="nx">question_list</span>: <span class="kt">result.question_list</span><span class="p">,</span>
-  <span class="p">};</span>
-<span class="p">}</span>
-</code></pre></div><p>Next.js 프로젝트에서는 getServerSideProps 메소드에서 fetchData를 호출합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="kr">import</span> <span class="kr">type</span> <span class="p">{</span> <span class="nx">GetServerSideProps</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;next&#39;</span><span class="p">;</span>
-<span class="kr">import</span> <span class="nx">QnaQuestionMain</span><span class="p">,</span> <span class="p">{</span> <span class="nx">fetchData</span><span class="p">,</span> <span class="nx">Props</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;components/qna/question/main&#39;</span><span class="p">;</span>
-
-<span class="kr">export</span> <span class="kr">const</span> <span class="nx">getServerSideProps</span>: <span class="kt">GetServerSideProps</span><span class="p">&lt;</span><span class="nt">Props</span><span class="p">&gt;</span> <span class="o">=</span> <span class="kr">async</span> <span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">{</span>
-    <span class="nx">props</span>: <span class="kt">await</span> <span class="nx">fetchData</span><span class="p">(</span><span class="nx">context</span><span class="p">),</span>
-  <span class="p">};</span>
-<span class="p">};</span>
-
-<span class="kr">const</span> <span class="nx">QnaQuestionMainPage</span>: <span class="kt">FC</span><span class="p">&lt;</span><span class="nt">Props</span><span class="p">&gt;</span> <span class="o">=</span> <span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">&lt;</span><span class="nt">QnaQuestionMain</span> <span class="p">{</span><span class="na">...props</span><span class="p">}</span> <span class="p">/&gt;;</span>
-<span class="p">};</span>
-
-<span class="kr">export</span> <span class="k">default</span> <span class="nx">QnaQuestionMainPage</span><span class="p">;</span>
-</code></pre></div><p>반면 비 Next.js 프로젝트에서는 useEffect 안에서 호출합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="kr">import</span> <span class="nx">QnaQuestionMain</span><span class="p">,</span> <span class="p">{</span> <span class="nx">fetchData</span><span class="p">,</span> <span class="nx">Props</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;components/qna/question/main&#39;</span><span class="p">;</span>
-
-<span class="kr">const</span> <span class="nx">QnaQuestionMainPage</span>: <span class="kt">FC</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="kr">const</span> <span class="p">[</span><span class="nx">props</span><span class="p">,</span> <span class="nx">setProps</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">&lt;</span><span class="nt">Props</span><span class="p">&gt;({</span> <span class="nx">total_count</span>: <span class="kt">0</span><span class="p">,</span> <span class="nx">question_list</span><span class="o">:</span> <span class="p">[]</span> <span class="p">});</span>
-
-  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="kr">const</span> <span class="nx">run</span> <span class="o">=</span> <span class="kr">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="nx">setProps</span><span class="p">(</span><span class="k">await</span> <span class="nx">fetchData</span><span class="p">());</span>
-    <span class="p">};</span>
-    <span class="nx">run</span><span class="p">();</span>
-  <span class="p">},</span> <span class="p">[]);</span>
-
-  <span class="k">return</span> <span class="p">&lt;</span><span class="nt">QnaQuestionMain</span> <span class="p">{</span><span class="na">...props</span><span class="p">}</span> <span class="p">/&gt;;</span>
-<span class="p">};</span>
-
-<span class="kr">export</span> <span class="k">default</span> <span class="nx">QnaQuestionMainPage</span><span class="p">;</span>
-</code></pre></div><h2 id="자잘한-규칙">자잘한 규칙</h2>
-<p>컴포넌트를 내보낼 때는 default export를 사용하고 있습니다. 이렇게 하면 내부적으로 컴포넌트 이름을 바꿔도 사용하는 쪽에 영향이 없다는 장점이 있습니다. (예를 들어 jotai를 적용하면서 Provider로 감쌀 필요가 있었습니다) 다만 정의하는 쪽과 사용하는 쪽의 이름을 다르게 줄 수 있어서 찾기 어려워지는 단점도 있습니다. (이는 컴포넌트 이름을 잘 부여하고 주의깊게 사용하면 되긴 합니다) 여기에 스토리북에서 컴포넌트 Props를 제대로 인식하지 못하는 작은 문제도 있습니다. (default export를 사용하고 파일 이름이 컴포넌트와 다른 index.tsx일 경우 발생)</p>
-<p>한 페이지 컴포넌트를 작게 쪼갠 경우 그 컴포넌트 사이에는 상대 경로로 참조하면 되지만, pages → components 처럼 멀리 떨어진 컴포넌트를 참조할 경우에는 절대 경로로 참조하는게 좋습니다. 이렇게 구성해야 파일을 <code>/pages/qna/questions/index.tsx</code> 에서 <code>/pages/questions/index.tsx</code>로 옮겨도 import 변경이 필요없습니다. 상대 경로로 참조 가능한 범위에 대해서는 사람마다 다르게 판단하기도 합니다.</p>
-<p>절대 경로로는 src 밑의 디렉토리들(예 components, pages, hooks)을 사용하고 있습니다. 저는 <code>@/components/qna/question/main</code> 형태를 제안했는데, <code>components/qna/question/main</code>를 쓰는 것으로 정해졌습니다.</p>
-
-        </div>
-      </div>
-      
     </div>
 
-    
-<div class='col-xs-12 text-center'>
+    <div class='col-xs-12 col-sm-3'>
+      <div class='post-date'>
+        <i class='glyphicon glyphicon-pencil'></i>
+        <span>13 January 2022</span>
+      </div>
+
+      
+
+<ul class='tag_box inline'>
+  <li><i class='glyphicon glyphicon-tags'></i></li>
   
-  <ul class='pagination'>
-    
-    <li class='disabled'><span>&laquo; 처음</span></li>
-    <li class='disabled'><span>&lt; 이전</span></li>
-    
-
-    
-
-    
-    
-    
-    
-    <li class='active'><span>1</span></li>
-    
-    
-    
-    
-    
-    <li><a href='/ko/tech/page/2/'>2</a></li>
-    
-    
-    
-    
-    
-    <li><a href='/ko/tech/page/3/'>3</a></li>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    <li class='disabled'><span>&hellip;</span></li>
-    
-
-    
-    <li><a href='/ko/tech/page/2/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/13/'>끝 &raquo;</a></li>
-    
-  </ul>
+  <li><a href='/ko/tags/frontend'>
+      Frontend
+      <span>1</span>
+    </a></li>
   
-</div>
+  <li><a href='/ko/tags/jotai'>
+      Jotai
+      <span>1</span>
+    </a></li>
+  
+</ul>
 
+    </div>
+
+    <div class='col-xs-12'>
+      <hr>
+
+      <ul class='pager'>
+        
+        <li class='previous'><a href='/ko/tech/2021-07-31-1-graphql-error-guide/' title='GraphQL 에러 처리 규칙'>&larr; 이전
+            글</a></li>
+        
+        
+        <li class='next disabled'><a>다음 글 &rarr;</a>
+          
+      </ul>
+      <hr>
+      <div class='text-center'>
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "sixmen-blog" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+    </div>
   </div>
 
 </div>

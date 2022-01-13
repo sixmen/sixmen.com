@@ -137,7 +137,7 @@ config 모듈은 필요한 기능을 제공했지만, 오타 등의 이유로 �
 
 <span class="kr">export</span> <span class="k">default</span> <span class="nx">Config</span><span class="p">;</span></code></pre></div>
 <p>처음 정의 시 port의 타입이 달랐는데(string vs number) 이제는 다음과 같은 컴파일 오류가 발생합니다.</p>
-<pre><code>config/test.ts(5,3): error TS2322: Type '{ host: string; port: string; }' is not assignable to type 'DeepPartial&lt;{ host: string; port: number; user: string; password: string; }&gt;'.
+<pre tabindex="0"><code>config/test.ts(5,3): error TS2322: Type '{ host: string; port: string; }' is not assignable to type 'DeepPartial&lt;{ host: string; port: number; user: string; password: string; }&gt;'.
   Types of property 'port' are incompatible.
     Type 'string' is not assignable to type 'number | undefined'.
 </code></pre><p>저희는 이런 식으로 설정을 정의해서 잘 사용하고 있습니다. 다만 아쉬운 점이 아예 없지는 않습니다.

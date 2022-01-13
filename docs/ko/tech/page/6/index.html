@@ -55,6 +55,73 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2017-01-15-1-process-unix-pipe-with-nodejs/'>Node.js로 유닉스 파이프 처리하기</a></h2>
+          <p class='posts-date'>15 Jan 2017</p>
+        </div>
+        <div class='panel-body'>
+          <p>크로키에서는 로그를 JSON 문자열로 만들어 일자별(혹은 시간별)로 묶은 후
+gzip으로 압축해서 저장하고 있습니다.
+그런데 이미 만들어진 로그를 수정해야 하는 일이 생겼습니다.</p>
+<p>예를 들면</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="p">{</span><span class="s2">&#34;date&#34;</span><span class="o">:</span><span class="s2">&#34;Fri Jan 15 2016 00:00:01 GMT+0000 (UTC)&#34;</span><span class="p">,</span><span class="s2">&#34;path&#34;</span><span class="o">:</span><span class="s2">&#34;/foobar&#34;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&#34;date&#34;</span><span class="o">:</span><span class="s2">&#34;Fri Jan 15 2016 00:00:03 GMT+0000 (UTC)&#34;</span><span class="p">,</span><span class="s2">&#34;path&#34;</span><span class="o">:</span><span class="s2">&#34;/croquis&#34;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&#34;date&#34;</span><span class="o">:</span><span class="s2">&#34;Fri Jan 15 2016 00:00:10 GMT+0000 (UTC)&#34;</span><span class="p">,</span><span class="s2">&#34;path&#34;</span><span class="o">:</span><span class="s2">&#34;/awesome&#34;</span><span class="p">}</span></code></pre></div>
+<p>였던 데이터를</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="p">{</span><span class="s2">&#34;date&#34;</span><span class="o">:</span><span class="s2">&#34;2016-01-15T00:00:01.000Z&#34;</span><span class="p">,</span><span class="s2">&#34;path&#34;</span><span class="o">:</span><span class="s2">&#34;/foobar&#34;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&#34;date&#34;</span><span class="o">:</span><span class="s2">&#34;2016-01-15T00:00:03.000Z&#34;</span><span class="p">,</span><span class="s2">&#34;path&#34;</span><span class="o">:</span><span class="s2">&#34;/croquis&#34;</span><span class="p">}</span>
+<span class="p">{</span><span class="s2">&#34;date&#34;</span><span class="o">:</span><span class="s2">&#34;2016-01-15T00:00:10.000Z&#34;</span><span class="p">,</span><span class="s2">&#34;path&#34;</span><span class="o">:</span><span class="s2">&#34;/awesome&#34;</span><span class="p">}</span></code></pre></div>
+<p>처럼 바꿔야 했습니다.</p>
+<p>로그 전체를 읽어와서 줄별로 변환하고 다시 기록하면 되는 일이지만
+로그가 커서 잘 동작하지 않았습니다.</p>
+<p>그래서 유닉스의 파이프 형태로 처리하기로 했습니다.</p>
+<p>위의 작업을 하는 Node.js 프로그램은 다음과 같습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kr">const</span> <span class="nx">byline</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;byline&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">stream</span> <span class="o">=</span> <span class="nx">byline</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">);</span>
+<span class="nx">stream</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">line</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span>
+  <span class="nx">data</span><span class="p">.</span><span class="nx">date</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">date</span><span class="p">).</span><span class="nx">toISOString</span><span class="p">();</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+<span class="p">});</span></code></pre></div>
+<p><a href="https://github.com/jahewson/node-byline">byline</a>은 스트림을 줄별로 처리할 수 있게 해주는 모듈입니다.
+줄별로 들어온 JSON 문자열을 파싱하고 원하는 처리를 한 후 다시 쓰기만 하는 단순한 코드입니다.
+이 프로그램을 유닉스 파이프라인에 넣으면 원하는 결과를 얻을 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ gunzip -c original/01.data.gz <span class="p">|</span> node convert.js <span class="p">|</span> gzip &gt; converted/01.data.gz</code></pre></div>
+<h3 id="보너스">보너스</h3>
+<p>이 작업을 순수히 Node.js만 가지고도 할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kr">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">stream</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;stream&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">zlib</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;zlib&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">byline</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;byline&#39;</span><span class="p">);</span>
+
+<span class="kr">class</span> <span class="nx">Convert</span> <span class="kr">extends</span> <span class="nx">stream</span><span class="p">.</span><span class="nx">Transform</span> <span class="p">{</span>
+  <span class="nx">constructor</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">super</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="nx">_transform</span><span class="p">(</span><span class="nx">line</span><span class="p">,</span> <span class="nx">encoding</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">date</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">date</span><span class="p">).</span><span class="nx">toISOString</span><span class="p">();</span>
+    <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;\n&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">fs</span><span class="p">.</span><span class="nx">createReadStream</span><span class="p">(</span><span class="s1">&#39;original/01.data.gz&#39;</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">zlib</span><span class="p">.</span><span class="nx">createGunzip</span><span class="p">())</span>
+  <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">byline</span><span class="p">())</span>
+  <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="k">new</span> <span class="nx">Convert</span><span class="p">())</span>
+  <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">zlib</span><span class="p">.</span><span class="nx">createGzip</span><span class="p">())</span>
+  <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span><span class="p">(</span><span class="s1">&#39;converted/01.data.gz&#39;</span><span class="p">));</span></code></pre></div>
+<p>하지만 파이프의 특성상 하나의 프로그램이 하나의 작업만
+할 수록 응용하기가 편해집니다.
+예를 들어 파일이 로컬에 있는게 아니고 S3에 있다면
+유닉스 파이프로는 다음과 같이 바꾸면 됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ aws s3 cp s3://mybucket/stream.txt - <span class="p">|</span> gunzip <span class="p">|</span> node convert.js <span class="p">|</span> gzip &gt; converted/01.data.gz</code></pre></div>
+<p>Node.js로도 작성할 수 있지만 훨씬 많은 코드를 작성해야겠죠.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2017-01-06-3-github-wiki-to-slack-setup-github-hook/'>GitHub 위키 이벤트를 슬랙으로 받기 - 4. GitHub 웹훅 연결하기</a></h2>
           <p class='posts-date'>06 Jan 2017</p>
         </div>
@@ -181,96 +248,6 @@ null</code></pre></div>
         </div>
       </div>
       
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2017-01-06-1-github-wiki-to-slack-protect-secret-using-kms/'>GitHub 위키 이벤트를 슬랙으로 받기 - 2. AWS KMS를 이용해 키 보호</a></h2>
-          <p class='posts-date'>06 Jan 2017</p>
-        </div>
-        <div class='panel-body'>
-          <p><!-- raw HTML omitted -->이전 글<!-- raw HTML omitted -->에서는
-AWS Lambda 함수를 생성해서 슬랙에 메시지를 보내는데 성공했습니다.
-그런데 이때 사용하는 훅 URL이 그대로 코드에 들어가 있는게 마음에 걸립니다.
-이 URL을 알면 외부에서 우리 슬랙 채널에 스팸을 보낼 수 있습니다.</p>
-<p>이번 글에서는 AWS KMS(Key Management Service)를 이용해서 이 URL을 보호하는 방법에 대해서 얘기합니다.</p>
-<p>AWS Lambda 생성시 blueprint에 slack-echo-command를 선택하면 이미 URL을 보호하는 절차에 대해서 설명하고 있습니다.</p>
-<blockquote>
-<p>To encrypt your secrets use the following steps:</p>
-<ol>
-<li>
-<p>Create or use an existing KMS Key - <a href="http://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html">http://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html</a></p>
-</li>
-<li>
-<p>Click the &ldquo;Enable Encryption Helpers&rdquo; checkbox</p>
-</li>
-<li>
-<p>Paste &lt;COMMAND_TOKEN&gt; into the kmsEncryptedToken environment variable and click encrypt</p>
-</li>
-</ol>
-</blockquote>
-<p>하나씩 따라해 봅시다.</p>
-<p>AWS IAM 화면에 들어가면 Encryption keys 메뉴가 있습니다.
-다른 메뉴와는 달리 여기는 지역 선택이 필터 부분에 있습니다. 여기서 원하는 지역을 선택하고 &lsquo;Create Key&rsquo;를 선택합니다.</p>
-<p><img src="/img/ko/tech/2017-01-06-1-01.jpg" alt="Create key"></p>
-<p>Alias만 입력하고 나머지는 특별히 선택하지 않아도 됩니다.</p>
-<p>키가 생성되면 생성한 Lambda 함수로 이동합니다.
-코드 섹션 밑에 보면 &lsquo;Enable encryption helpers&rsquo; 체크박스가 있습니다.
-활성화하고 &lsquo;Encryption key&rsquo;에 생성한 키를 설정합니다.</p>
-<p>&lsquo;Environment variables&rsquo;에 훅 URL을 넣고 &lsquo;Encrypt&rsquo;를 누르면 URL이 암호화됩니다.</p>
-<p><img src="/img/ko/tech/2017-01-06-1-02.jpg" alt="Before encrypt"></p>
-<p><img src="/img/ko/tech/2017-01-06-1-03.jpg" alt="After encrypt"></p>
-<p>변경사항을 저장하면 암호화된 URL이 표시됩니다.</p>
-<p><img src="/img/ko/tech/2017-01-06-1-04.jpg" alt="Encrypted URL"></p>
-<p>이제 이 값을 이용하도록 Lambda 코드를 수정합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
-
-<span class="kr">const</span> <span class="nx">AWS</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;aws-sdk&#39;</span><span class="p">);</span>
-<span class="kr">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">);</span>
-<span class="kr">const</span> <span class="nx">https</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">hookUrl</span><span class="p">;</span>
-
-<span class="kd">function</span> <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// ... 이전과 같음
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="kd">function</span> <span class="nx">decryptHookUrl</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">hookUrl</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="kr">const</span> <span class="nx">kms</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">AWS</span><span class="p">.</span><span class="nx">KMS</span><span class="p">();</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="kr">const</span> <span class="nx">blob</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">encryptedHookUrl</span><span class="p">,</span> <span class="s1">&#39;base64&#39;</span><span class="p">);</span>
-      <span class="nx">kms</span><span class="p">.</span><span class="nx">decrypt</span><span class="p">({</span> <span class="nx">CiphertextBlob</span><span class="o">:</span> <span class="nx">blob</span> <span class="p">},</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-          <span class="k">return</span> <span class="nx">reject</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
-        <span class="p">}</span>
-        <span class="nx">hookUrl</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">Plaintext</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">);</span>
-        <span class="nx">resolve</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
-      <span class="p">});</span>
-    <span class="p">});</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="nx">exports</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-  <span class="nx">decryptHookUrl</span><span class="p">()</span>
-  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="kr">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="nx">channel</span><span class="o">:</span> <span class="s1">&#39;#auto-github&#39;</span><span class="p">,</span>
-      <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;This is a test message&#39;</span>
-    <span class="p">};</span>
-    <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-      <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">response</span><span class="p">);</span>
-    <span class="p">});</span>
-  <span class="p">}).</span><span class="k">catch</span><span class="p">((</span><span class="nx">error</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-    <span class="nx">callback</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
-  <span class="p">});</span>
-<span class="p">};</span></code></pre></div>
-<p>저장하고 테스트를 실행하면 이전과 같이 슬랙 채널에서 메시지를 볼 수 있습니다.</p>
-
-        </div>
-      </div>
-      
     </div>
 
     
@@ -352,6 +329,11 @@ AWS Lambda 함수를 생성해서 슬랙에 메시지를 보내는데 성공했�
     
     
     
+    
+    
+    
+    
+    
 
     
     
@@ -360,7 +342,7 @@ AWS Lambda 함수를 생성해서 슬랙에 메시지를 보내는데 성공했�
 
     
     <li><a href='/ko/tech/page/7/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/12/'>끝 &raquo;</a></li>
+    <li><a href='/ko/tech/page/13/'>끝 &raquo;</a></li>
     
   </ul>
   

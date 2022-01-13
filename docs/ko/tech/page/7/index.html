@@ -55,6 +55,96 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2017-01-06-1-github-wiki-to-slack-protect-secret-using-kms/'>GitHub 위키 이벤트를 슬랙으로 받기 - 2. AWS KMS를 이용해 키 보호</a></h2>
+          <p class='posts-date'>06 Jan 2017</p>
+        </div>
+        <div class='panel-body'>
+          <p><!-- raw HTML omitted -->이전 글<!-- raw HTML omitted -->에서는
+AWS Lambda 함수를 생성해서 슬랙에 메시지를 보내는데 성공했습니다.
+그런데 이때 사용하는 훅 URL이 그대로 코드에 들어가 있는게 마음에 걸립니다.
+이 URL을 알면 외부에서 우리 슬랙 채널에 스팸을 보낼 수 있습니다.</p>
+<p>이번 글에서는 AWS KMS(Key Management Service)를 이용해서 이 URL을 보호하는 방법에 대해서 얘기합니다.</p>
+<p>AWS Lambda 생성시 blueprint에 slack-echo-command를 선택하면 이미 URL을 보호하는 절차에 대해서 설명하고 있습니다.</p>
+<blockquote>
+<p>To encrypt your secrets use the following steps:</p>
+<ol>
+<li>
+<p>Create or use an existing KMS Key - <a href="http://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html">http://docs.aws.amazon.com/kms/latest/developerguide/create-keys.html</a></p>
+</li>
+<li>
+<p>Click the &ldquo;Enable Encryption Helpers&rdquo; checkbox</p>
+</li>
+<li>
+<p>Paste &lt;COMMAND_TOKEN&gt; into the kmsEncryptedToken environment variable and click encrypt</p>
+</li>
+</ol>
+</blockquote>
+<p>하나씩 따라해 봅시다.</p>
+<p>AWS IAM 화면에 들어가면 Encryption keys 메뉴가 있습니다.
+다른 메뉴와는 달리 여기는 지역 선택이 필터 부분에 있습니다. 여기서 원하는 지역을 선택하고 &lsquo;Create Key&rsquo;를 선택합니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-1-01.jpg" alt="Create key"></p>
+<p>Alias만 입력하고 나머지는 특별히 선택하지 않아도 됩니다.</p>
+<p>키가 생성되면 생성한 Lambda 함수로 이동합니다.
+코드 섹션 밑에 보면 &lsquo;Enable encryption helpers&rsquo; 체크박스가 있습니다.
+활성화하고 &lsquo;Encryption key&rsquo;에 생성한 키를 설정합니다.</p>
+<p>&lsquo;Environment variables&rsquo;에 훅 URL을 넣고 &lsquo;Encrypt&rsquo;를 누르면 URL이 암호화됩니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-1-02.jpg" alt="Before encrypt"></p>
+<p><img src="/img/ko/tech/2017-01-06-1-03.jpg" alt="After encrypt"></p>
+<p>변경사항을 저장하면 암호화된 URL이 표시됩니다.</p>
+<p><img src="/img/ko/tech/2017-01-06-1-04.jpg" alt="Encrypted URL"></p>
+<p>이제 이 값을 이용하도록 Lambda 코드를 수정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
+
+<span class="kr">const</span> <span class="nx">AWS</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;aws-sdk&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">https</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">);</span>
+
+<span class="kd">let</span> <span class="nx">hookUrl</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// ... 이전과 같음
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">decryptHookUrl</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">hookUrl</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">kms</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">AWS</span><span class="p">.</span><span class="nx">KMS</span><span class="p">();</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">blob</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">encryptedHookUrl</span><span class="p">,</span> <span class="s1">&#39;base64&#39;</span><span class="p">);</span>
+      <span class="nx">kms</span><span class="p">.</span><span class="nx">decrypt</span><span class="p">({</span> <span class="nx">CiphertextBlob</span><span class="o">:</span> <span class="nx">blob</span> <span class="p">},</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nx">reject</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nx">hookUrl</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">Plaintext</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">);</span>
+        <span class="nx">resolve</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
+      <span class="p">});</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">decryptHookUrl</span><span class="p">()</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nx">channel</span><span class="o">:</span> <span class="s1">&#39;#auto-github&#39;</span><span class="p">,</span>
+      <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;This is a test message&#39;</span>
+    <span class="p">};</span>
+    <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">response</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">}).</span><span class="k">catch</span><span class="p">((</span><span class="nx">error</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">callback</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">};</span></code></pre></div>
+<p>저장하고 테스트를 실행하면 이전과 같이 슬랙 채널에서 메시지를 볼 수 있습니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2017-01-05-1-github-wiki-to-slack-setting-aws-lambda/'>GitHub 위키 이벤트를 슬랙으로 받기 - 1. AWS Lambda 설정</a></h2>
           <p class='posts-date'>05 Jan 2017</p>
         </div>
@@ -269,32 +359,6 @@ Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
         </div>
       </div>
       
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2016-12-28-1-install-jdk-ubuntu/'>우부투에 JDK 설치하기</a></h2>
-          <p class='posts-date'>28 Dec 2016</p>
-        </div>
-        <div class='panel-body'>
-          <p>우분투에는 기본적으로 <code>default-jdk</code>라는 패키지를 제공합니다.
-이 패키지를 설치하면 OpenJDK(<code>openjdk-8-jdk</code>)가 설치됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo apt-get install default-jdk</code></pre></div>
-<p>그런데 저 같은 경우 Java가 주력이 아니다 보니 OpenJDK를 써도 되는지 확신이 없었습니다.
-그래서 Oracle JDK를 설치하기로 했습니다.</p>
-<p>Oracle JDK는 우분투 패키지에는 존재하지 않습니다.
-하지만 <a href="https://launchpad.net/ubuntu/+ppas">우분투 Personal Package Archives</a>에
-<a href="https://launchpad.net/~webupd8team/+archive/ubuntu/java">Oracle JDK 패키지를 제공하는 PPA</a>가 있습니다.<br>
-이를 이용해 Oracle JDK를 패키지로 설치할 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo add-apt-repository ppa:webupd8team/java
-$ sudo apt-get update
-$ sudo apt-get install oracle-java8-installer</code></pre></div>
-<h1 id="참고">참고</h1>
-<ul>
-<li><a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get">https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get</a></li>
-</ul>
-
-        </div>
-      </div>
-      
     </div>
 
     
@@ -376,6 +440,11 @@ $ sudo apt-get install oracle-java8-installer</code></pre></div>
     
     
     
+    
+    
+    
+    
+    
 
     
     
@@ -384,7 +453,7 @@ $ sudo apt-get install oracle-java8-installer</code></pre></div>
 
     
     <li><a href='/ko/tech/page/8/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/12/'>끝 &raquo;</a></li>
+    <li><a href='/ko/tech/page/13/'>끝 &raquo;</a></li>
     
   </ul>
   
