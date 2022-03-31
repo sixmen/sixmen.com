@@ -82,15 +82,15 @@ logrotate에서는 postrotate 옵션으로 이를 표현합니다. 다음은 Ubu
   [ ! -f /run/nginx.pid ] || kill -USR1 `cat /run/nginx.pid`
 endscript
 </code></pre><p>다음은 이 방법이 적용된 서버 코드입니다. Node.js를 사용하고 CoffeeScript로 작성되어 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="nv">logstream = </span><span class="kc">undefined</span>
-<span class="nv">openLogFile = </span><span class="nf">-&gt;</span>
-  <span class="nx">logstream</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span> <span class="k">if</span> <span class="nx">logstream</span>
-  <span class="nv">logstream = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span> <span class="s">&#34;log&#34;</span><span class="p">,</span> <span class="nv">flags: </span><span class="s">&#39;a+&#39;</span><span class="p">,</span> <span class="nv">mode: </span><span class="s">&#39;0644&#39;</span><span class="p">,</span> <span class="nv">encoding: </span><span class="s">&#39;utf8&#39;</span>
-<span class="nx">openLogFile</span><span class="p">()</span>
-
-<span class="c1"># 시그널을 받으면 로그 파일을 다시 연다
-</span><span class="c1"></span><span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGUSR2&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
-  <span class="nx">openLogFile</span><span class="p">()</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nv">logstream = </span><span class="kc">undefined</span>
+</span></span><span class="line"><span class="cl"><span class="nv">openLogFile = </span><span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">logstream</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span> <span class="k">if</span> <span class="nx">logstream</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">logstream = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span> <span class="s">&#34;log&#34;</span><span class="p">,</span> <span class="nv">flags: </span><span class="s">&#39;a+&#39;</span><span class="p">,</span> <span class="nv">mode: </span><span class="s">&#39;0644&#39;</span><span class="p">,</span> <span class="nv">encoding: </span><span class="s">&#39;utf8&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">openLogFile</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 시그널을 받으면 로그 파일을 다시 연다
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGUSR2&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">openLogFile</span><span class="p">()</span></span></span></code></pre></div>
 <p>SIGUSR1은 Node.js가 디버그 모드 진입용으로 사용하고 있습니다. 그래서 대신 SIGUSR2를 사용했습니다.</p>
 
     </div>
@@ -122,7 +122,7 @@ endscript
       <div class='text-center'>
         <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

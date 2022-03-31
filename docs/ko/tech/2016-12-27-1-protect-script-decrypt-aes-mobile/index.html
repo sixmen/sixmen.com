@@ -60,7 +60,7 @@
 <hr>
 <p>iOS에서 AES 해독화를 하기 위해서는 CommonCrypto 라이브러리를 사용합니다.
 Swift에서 사용하기 위해서 Bridging-Header.h에 다음을 포함하면 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="cp">#import &lt;CommonCrypto/CommonCryptor.h&gt;</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="line"><span class="cl"><span class="cp">#import &lt;CommonCrypto/CommonCryptor.h&gt;</span></span></span></code></pre></div>
 <p>암호화/해독화는 CCCrypt 함수를 사용하면 됩니다.
 그런데 함수 원형을 보면 key와 iv(Initialization vector)란 인자가 보입니다.
 OpenSSL을 써서 암호화 할때는 보지 못한 것입니다.
@@ -68,36 +68,36 @@ OpenSSL을 써서 암호화 할때는 보지 못한 것입니다.
 <p>찾아보니 OpenSSL은 암호에서 key와 iv를 유도해서 사용한다고 합니다
 (<a href="https://en.wikipedia.org/wiki/PBKDF2">PBKDF2</a> 참고).
 -p 옵션을 사용하면 이 정보를 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -k <span class="m">1234</span> -p
-<span class="nv">salt</span><span class="o">=</span>FBA42868201CC0ED
-<span class="nv">key</span><span class="o">=</span>A8C174B6F635A7770CE3AE18FCB7290E7E09F289D1187CE0E28A842E07057EDA
-<span class="nv">iv</span> <span class="o">=</span>7B3E50E41A9F2A33A568F4C34D2C129C</code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -k <span class="m">1234</span> -p
+</span></span><span class="line"><span class="cl"><span class="nv">salt</span><span class="o">=</span>FBA42868201CC0ED
+</span></span><span class="line"><span class="cl"><span class="nv">key</span><span class="o">=</span>A8C174B6F635A7770CE3AE18FCB7290E7E09F289D1187CE0E28A842E07057EDA
+</span></span><span class="line"><span class="cl"><span class="nv">iv</span> <span class="o">=</span>7B3E50E41A9F2A33A568F4C34D2C129C</span></span></code></pre></div>
 <p>이제 해독화를 해봅니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="c1">// 암호화된 데이터 준비</span>
-<span class="kd">let</span> <span class="nv">url</span> <span class="p">=</span> <span class="n">Bundle</span><span class="p">.</span><span class="n">main</span><span class="p">.</span><span class="n">url</span><span class="p">(</span><span class="n">forResource</span><span class="p">:</span> <span class="s">&#34;encrypted&#34;</span><span class="p">,</span> <span class="n">withExtension</span><span class="p">:</span> <span class="s">&#34;dat&#34;</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nv">encrypted_data</span> <span class="p">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">Data</span><span class="p">(</span><span class="n">contentsOf</span><span class="p">:</span> <span class="n">url</span><span class="p">!)</span>
-
-<span class="c1">// key, iv 준비</span>
-<span class="c1">// hexadecimal 메소드는 http://stackoverflow.com/a/26502285 참고</span>
-<span class="kd">let</span> <span class="nv">key</span> <span class="p">=</span> <span class="s">&#34;A8C174B6F635A7770CE3AE18FCB7290E7E09F289D1187CE0E28A842E07057EDA&#34;</span><span class="p">.</span><span class="n">hexadecimal</span><span class="p">()</span>
-<span class="kd">let</span> <span class="nv">iv</span> <span class="p">=</span> <span class="s">&#34;7B3E50E41A9F2A33A568F4C34D2C129C&#34;</span><span class="p">.</span><span class="n">hexadecimal</span><span class="p">()</span>
-
-<span class="c1">// 해독화된 데이터를 받을 공간 준비</span>
-<span class="kd">var</span> <span class="nv">output</span> <span class="p">=</span> <span class="n">Data</span><span class="p">(</span><span class="bp">count</span><span class="p">:</span> <span class="n">encrypted_data</span><span class="p">!.</span><span class="bp">count</span> <span class="o">+</span> <span class="n">kCCBlockSizeAES128</span><span class="p">)</span>
-<span class="kd">var</span> <span class="nv">dataOutMoved</span> <span class="p">=</span> <span class="mi">0</span>
-
-<span class="c1">// 해독화</span>
-<span class="kd">let</span> <span class="nv">result</span> <span class="p">=</span> <span class="n">output</span><span class="p">.</span><span class="n">withUnsafeMutableBytes</span> <span class="p">{</span> <span class="n">outputPtr</span> <span class="k">in</span>
-    <span class="k">return</span> <span class="n">CCCrypt</span><span class="p">(</span><span class="n">CCOperation</span><span class="p">(</span><span class="n">kCCDecrypt</span><span class="p">),</span> <span class="n">CCAlgorithm</span><span class="p">(</span><span class="n">kCCAlgorithmAES</span><span class="p">),</span>
-            <span class="n">CCOptions</span><span class="p">(</span><span class="n">kCCOptionPKCS7Padding</span><span class="p">),</span>
-            <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">key</span><span class="p">!),</span> <span class="n">kCCKeySizeAES256</span><span class="p">,</span> <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">iv</span><span class="p">!),</span>
-            <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">encrypted_data</span><span class="p">!),</span> <span class="n">encrypted_data</span><span class="p">!.</span><span class="bp">count</span><span class="p">,</span>
-            <span class="n">outputPtr</span><span class="p">,</span> <span class="n">output</span><span class="p">.</span><span class="bp">count</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">dataOutMoved</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="n">output</span><span class="p">.</span><span class="bp">count</span> <span class="p">=</span> <span class="n">dataOutMoved</span>
-
-<span class="c1">// 해독화된 데이터를 문자열로 변환</span>
-<span class="kd">let</span> <span class="nv">outputStr</span> <span class="p">=</span> <span class="nb">String</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">output</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="p">.</span><span class="n">utf8</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="c1">// 암호화된 데이터 준비</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">url</span> <span class="p">=</span> <span class="n">Bundle</span><span class="p">.</span><span class="n">main</span><span class="p">.</span><span class="n">url</span><span class="p">(</span><span class="n">forResource</span><span class="p">:</span> <span class="s">&#34;encrypted&#34;</span><span class="p">,</span> <span class="n">withExtension</span><span class="p">:</span> <span class="s">&#34;dat&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">encrypted_data</span> <span class="p">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">Data</span><span class="p">(</span><span class="n">contentsOf</span><span class="p">:</span> <span class="n">url</span><span class="p">!)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// key, iv 준비</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// hexadecimal 메소드는 http://stackoverflow.com/a/26502285 참고</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">key</span> <span class="p">=</span> <span class="s">&#34;A8C174B6F635A7770CE3AE18FCB7290E7E09F289D1187CE0E28A842E07057EDA&#34;</span><span class="p">.</span><span class="n">hexadecimal</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">iv</span> <span class="p">=</span> <span class="s">&#34;7B3E50E41A9F2A33A568F4C34D2C129C&#34;</span><span class="p">.</span><span class="n">hexadecimal</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 해독화된 데이터를 받을 공간 준비</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nv">output</span> <span class="p">=</span> <span class="n">Data</span><span class="p">(</span><span class="bp">count</span><span class="p">:</span> <span class="n">encrypted_data</span><span class="p">!.</span><span class="bp">count</span> <span class="o">+</span> <span class="n">kCCBlockSizeAES128</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nv">dataOutMoved</span> <span class="p">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 해독화</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">result</span> <span class="p">=</span> <span class="n">output</span><span class="p">.</span><span class="n">withUnsafeMutableBytes</span> <span class="p">{</span> <span class="n">outputPtr</span> <span class="k">in</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">CCCrypt</span><span class="p">(</span><span class="n">CCOperation</span><span class="p">(</span><span class="n">kCCDecrypt</span><span class="p">),</span> <span class="n">CCAlgorithm</span><span class="p">(</span><span class="n">kCCAlgorithmAES</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="n">CCOptions</span><span class="p">(</span><span class="n">kCCOptionPKCS7Padding</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">key</span><span class="p">!),</span> <span class="n">kCCKeySizeAES256</span><span class="p">,</span> <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">iv</span><span class="p">!),</span>
+</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">encrypted_data</span><span class="p">!),</span> <span class="n">encrypted_data</span><span class="p">!.</span><span class="bp">count</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">outputPtr</span><span class="p">,</span> <span class="n">output</span><span class="p">.</span><span class="bp">count</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">dataOutMoved</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">output</span><span class="p">.</span><span class="bp">count</span> <span class="p">=</span> <span class="n">dataOutMoved</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 해독화된 데이터를 문자열로 변환</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">outputStr</span> <span class="p">=</span> <span class="nb">String</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">output</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="p">.</span><span class="n">utf8</span><span class="p">)</span></span></span></code></pre></div>
 <p>실제로 나온 결과를 보면 원본과 다릅니다.
 그것은 OpenSSL이 암호화한 파일 앞에 16 바이트의 소금(salt)가 추가되어 있기 때문입니다.
 16 바이트를 제거한 파일을 입력으로 주면 제대로 해독화가 됩니다.</p>
@@ -105,36 +105,36 @@ OpenSSL을 써서 암호화 할때는 보지 못한 것입니다.
 이렇게 되면 이 값을 하드코딩할 수는 없습니다.
 정식으로는 암호와 소금으로 부터 key와 iv를 유도해야 겠지만, 귀찮으니 다른 방법을 찾아봅니다.
 다행히 OpenSSL에는 소금을 사용하지 않는 옵셥이 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -nosalt -k <span class="m">1234</span>
-$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -nosalt -k <span class="m">1234</span> -p
-<span class="nv">key</span><span class="o">=</span>81DC9BDB52D04DC20036DBD8313ED055CC5776D16A1FB6E4AFA34B18395DA656
-<span class="nv">iv</span> <span class="o">=</span>6305309076F3AB48FF8FEF0F3B70A434</code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -nosalt -k <span class="m">1234</span>
+</span></span><span class="line"><span class="cl">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -nosalt -k <span class="m">1234</span> -p
+</span></span><span class="line"><span class="cl"><span class="nv">key</span><span class="o">=</span>81DC9BDB52D04DC20036DBD8313ED055CC5776D16A1FB6E4AFA34B18395DA656
+</span></span><span class="line"><span class="cl"><span class="nv">iv</span> <span class="o">=</span>6305309076F3AB48FF8FEF0F3B70A434</span></span></code></pre></div>
 <p>이렇게 하면 key와 iv가 항상 일정합니다. 그리고 암호화된 파일에서 소금 부분을 삭제하는 작업을 하지 않아도 됩니다.</p>
 <p>물론 보통의 경우 이렇게 하면 안 되겠지만, 이번 작업에서는 이 정도로 충분하다는 판단을 했습니다.
 실제로는 암호도 사용하지 않고 key와 iv를 직접 주어서 암호화를 했습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -K <span class="m">01020304</span> -iv 0a0b0c0d -nosalt
-$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -K <span class="m">01020304</span> -iv 0a0b0c0d -nosalt -p
-<span class="nv">key</span><span class="o">=</span><span class="m">0102030400000000000000000000000000000000000000000000000000000000</span>
-<span class="nv">iv</span> <span class="o">=</span>0A0B0C0D000000000000000000000000</code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -K <span class="m">01020304</span> -iv 0a0b0c0d -nosalt
+</span></span><span class="line"><span class="cl">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -K <span class="m">01020304</span> -iv 0a0b0c0d -nosalt -p
+</span></span><span class="line"><span class="cl"><span class="nv">key</span><span class="o">=</span><span class="m">0102030400000000000000000000000000000000000000000000000000000000</span>
+</span></span><span class="line"><span class="cl"><span class="nv">iv</span> <span class="o">=</span>0A0B0C0D000000000000000000000000</span></span></code></pre></div>
 <hr>
 <p>똑같은 동작을 Java(안드로이드)에서도 할 수 있습니다.
 Java에서는 javax.crypto 패키지를 사용합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 암호화된 데이터 준비
-</span><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">encrypted_data</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;encrypted.dat&#34;</span><span class="o">));</span>
-
-<span class="c1">// key, iv 준비
-</span><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s">&#34;0102030400000000000000000000000000000000000000000000000000000000&#34;</span><span class="o">,</span> <span class="n">16</span><span class="o">).</span><span class="na">toByteArray</span><span class="o">();</span>
-<span class="kt">byte</span><span class="o">[]</span> <span class="n">iv</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s">&#34;0A0B0C0D000000000000000000000000&#34;</span><span class="o">,</span> <span class="n">16</span><span class="o">).</span><span class="na">toByteArray</span><span class="o">();</span>
-
-<span class="c1">// 해독화 준비
-</span><span class="c1"></span><span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&#34;AES/CBC/PKCS5Padding&#34;</span><span class="o">);</span>
-<span class="n">SecretKeySpec</span> <span class="n">keySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecretKeySpec</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="s">&#34;AES&#34;</span><span class="o">);</span>
-<span class="n">IvParameterSpec</span> <span class="n">ivSpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IvParameterSpec</span><span class="o">(</span><span class="n">iv</span><span class="o">);</span>
-<span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">keySpec</span><span class="o">,</span> <span class="n">ivSpec</span><span class="o">);</span>
-
-<span class="c1">// 해독화
-</span><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">output</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">encrypted_data</span><span class="o">);</span>
-<span class="n">String</span> <span class="n">outputStr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="s">&#34;UTF-8&#34;</span><span class="o">);</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 암호화된 데이터 준비
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">encrypted_data</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;encrypted.dat&#34;</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// key, iv 준비
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s">&#34;0102030400000000000000000000000000000000000000000000000000000000&#34;</span><span class="o">,</span> <span class="n">16</span><span class="o">).</span><span class="na">toByteArray</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="kt">byte</span><span class="o">[]</span> <span class="n">iv</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s">&#34;0A0B0C0D000000000000000000000000&#34;</span><span class="o">,</span> <span class="n">16</span><span class="o">).</span><span class="na">toByteArray</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 해독화 준비
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&#34;AES/CBC/PKCS5Padding&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">SecretKeySpec</span> <span class="n">keySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecretKeySpec</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="s">&#34;AES&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">IvParameterSpec</span> <span class="n">ivSpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IvParameterSpec</span><span class="o">(</span><span class="n">iv</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">keySpec</span><span class="o">,</span> <span class="n">ivSpec</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 해독화
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">output</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">encrypted_data</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">String</span> <span class="n">outputStr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="s">&#34;UTF-8&#34;</span><span class="o">);</span></span></span></code></pre></div>
 <p>JVM 위에서 위 코드를 실행하면 <code>java.security.InvalidKeyException: Illegal key size</code> 에러가 발생할 수 있습니다.
 그것은 기본 배포되는 JRE가 256 비트의 키를 허용하지 않기 때문입니다.
 aes-128-cbc로 암호화하고 key에 16 바이트(=128 비트)의 키를 주면 잘 동작합니다.
@@ -172,7 +172,7 @@ aes-128-cbc로 암호화하고 key에 16 바이트(=128 비트)의 키를 주면
       <div class='text-center'>
         <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

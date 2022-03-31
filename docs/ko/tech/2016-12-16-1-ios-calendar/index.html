@@ -72,11 +72,11 @@
 불교력은 태국어등 사용자로 나왔습니다.
 지극히 한국과 한국어에 특화된 지그재그 서비스라고 생각하고 있었는데 드물지만 외국어 사용자가 있다는 사실이 놀라웠습니다.</p>
 <p>기술적으로는</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="kd">let</span> <span class="nv">calendar</span> <span class="p">=</span> <span class="n">Calendar</span><span class="p">.</span><span class="n">current</span> <span class="c1">// &lt;--</span>
-<span class="kd">let</span> <span class="nv">components</span> <span class="p">=</span> <span class="n">calendar</span><span class="p">.</span><span class="n">dateComponents</span><span class="p">([.</span><span class="n">year</span><span class="p">],</span> <span class="n">from</span><span class="p">:</span> <span class="n">Date</span><span class="p">())</span>
-<span class="kd">let</span> <span class="nv">currentYear</span> <span class="p">=</span> <span class="n">components</span><span class="p">.</span><span class="n">year</span> <span class="p">??</span> <span class="mi">2016</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">calendar</span> <span class="p">=</span> <span class="n">Calendar</span><span class="p">.</span><span class="n">current</span> <span class="c1">// &lt;--</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">components</span> <span class="p">=</span> <span class="n">calendar</span><span class="p">.</span><span class="n">dateComponents</span><span class="p">([.</span><span class="n">year</span><span class="p">],</span> <span class="n">from</span><span class="p">:</span> <span class="n">Date</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">currentYear</span> <span class="p">=</span> <span class="n">components</span><span class="p">.</span><span class="n">year</span> <span class="p">??</span> <span class="mi">2016</span></span></span></code></pre></div>
 <p>로 되어 있던 것을</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="kd">let</span> <span class="nv">calendar</span> <span class="p">=</span> <span class="n">Calendar</span><span class="p">(</span><span class="n">identifier</span><span class="p">:</span> <span class="p">.</span><span class="n">gregorian</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">calendar</span> <span class="p">=</span> <span class="n">Calendar</span><span class="p">(</span><span class="n">identifier</span><span class="p">:</span> <span class="p">.</span><span class="n">gregorian</span><span class="p">)</span></span></span></code></pre></div>
 <p>로 변경했더니 사용자가 설정한 캘린더와 상관없이 기대한 값이 반환되었습니다.</p>
 <p>혹시 유사한 증상이 있을 경우 한번 의심해보시면 좋을 것 같습니다.</p>
 
@@ -109,7 +109,7 @@
       <div class='text-center'>
         <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

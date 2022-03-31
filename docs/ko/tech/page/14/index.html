@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang='ko'>
+
+<head>
+  <meta charset='utf-8'>
+
+  
+  <title>sixmen.com: Tech</title>
+  
+  
+  <meta name='author' content='Sangmin Yoon'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+  <link href='/css/style.css?body=1' rel='stylesheet' type='text/css' media='all'>
+  <link href='/css/syntax.css?body=1' rel='stylesheet' type='text/css' media='all'>
+
+  <!--[if lt IE 9]>
+  <script src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js'></script>
+  <script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script>
+  <![endif]-->
+</head>
+
+<body>
+<div class='hp-navbar'>
+  <div class='container-fluid'>
+    <div class='row'>
+      <div class='col-xs-12'>
+        
+        <nav class='hp-nav'>
+          <a class='hp-nav-item'
+            href='/ko/'>Home</a>
+          <a class='hp-nav-item'
+            href='/ko/mylife/'>MyLife</a>
+          <a class='hp-nav-item'
+            href='/ko/travel/'>Travel</a>
+          <a class='hp-nav-item active'
+            href='/ko/tech/'>Tech</a>
+          <a class='hp-nav-item'
+            href='/ko/tags/'>Tags</a>
+          <a class='hp-nav-item pull-right' href='/en/'>English</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class='container'>
+
+  <div class='row' style='margin-top: 20px;'>
+
+    <div class='col-sm-10 col-sm-offset-1'>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2014-04-18-1-logrotate/'>서버 어플리케이션에 logrotate를 적용하기</a></h2>
+          <p class='posts-date'>18 Apr 2014</p>
+        </div>
+        <div class='panel-body'>
+          <!-- raw HTML omitted -->
+<p>회사에서 서비스를 하는 중에 로그 파일이 너무 커져서, 적당한 크기에서 나눌 방법이 필요해졌습니다.
+이런 경우 리눅스에서 주로 쓰는 방법은 logrotate입니다.
+그리고 이를 서비스에 적용하기 위해 필요한 것을 찾아봤습니다.</p>
+<p>logrotate 설정에 나눌 로그 파일을 추가하면 설정된 상황(매일 또는 매주, 무조건 또는
+주어진 크기를 넘었을 때등)에서 로그 파일을 나눕니다.
+이때 하는 동작은 기존 로그 파일의 이름을 변경하고, 같은 이름으로 새 로그 파일을 만드는 것입니다.</p>
+<p>만약 잠깐 실행되고 마는 프로그램이면 이것으로 잘 동작합니다.
+매번 실행할 때마다 주어진 이름의 로그 파일을 새로 열어서 쓰니까요.
+하지만 프로그램이 계속 떠 있는 경우 새 로그 파일에 쓰지 않고 계속 기존 로그 파일에 데이터가 쌓입니다.</p>
+<p>간단하게 이 동작을 확인할 수 있습니다.
+shell에서 <code>node -e &quot;setInterval(function () { console.log('hello'); }, 1000)&quot; &gt; log</code>를 실행한 후
+다른 창에서 log 파일의 이름을 변경하고 새로 생성해도 계속 기존 파일에 로그가 추가됩니다.
+이것은 한번 파일을 열면 그 파일의 이름이 아닌 descriptor에 의해서 접근하기 때문입니다.</p>
+<p>이 문제를 해결하기 위해 logrotate는 copytruncate라는 옵션을 제공합니다.
+이 옵션을 사용하면 파일의 이름을 변경하는 대신 새 파일로 내용을 복사하고
+기존 파일의 크기를 0으로 만들어버립니다.
+하지만 이 경우 복사하는 동안 추가된 로그가 사라지는 문제가 있습니다.</p>
+<p>다른 방법으로는 logrotate가 파일 이름을 변경한 후에 프로그램이 로그 파일을 새로 열도록 하는 것이 있습니다.
+이미 떠 있는 프로그램에 명령을 내리기 위해서는 주로 시그널을 사용합니다.
+예를 들어 <a href="http://nginx.org/">nginx</a>는 SIGUSR1을 받으면 로그 파일을 다시 열도록 되어 있습니다.
+(<a href="http://wiki.nginx.org/CommandLine#Stopping_or_Restarting_Nginx">Stopping or Restarting Nginx</a>)
+logrotate에서는 postrotate 옵션으로 이를 표현합니다. 다음은 Ubuntu에 적용된 nginx를 위한 logrotate 설정입니다.</p>
+<pre tabindex="0"><code>postrotate
+  [ ! -f /run/nginx.pid ] || kill -USR1 `cat /run/nginx.pid`
+endscript
+</code></pre><p>다음은 이 방법이 적용된 서버 코드입니다. Node.js를 사용하고 CoffeeScript로 작성되어 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nv">logstream = </span><span class="kc">undefined</span>
+</span></span><span class="line"><span class="cl"><span class="nv">openLogFile = </span><span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">logstream</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span> <span class="k">if</span> <span class="nx">logstream</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">logstream = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span> <span class="s">&#34;log&#34;</span><span class="p">,</span> <span class="nv">flags: </span><span class="s">&#39;a+&#39;</span><span class="p">,</span> <span class="nv">mode: </span><span class="s">&#39;0644&#39;</span><span class="p">,</span> <span class="nv">encoding: </span><span class="s">&#39;utf8&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">openLogFile</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 시그널을 받으면 로그 파일을 다시 연다
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGUSR2&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">openLogFile</span><span class="p">()</span></span></span></code></pre></div>
+<p>SIGUSR1은 Node.js가 디버그 모드 진입용으로 사용하고 있습니다. 그래서 대신 SIGUSR2를 사용했습니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2012-06-18-1-ssh-without-password/'>암호 없이 SSH 접속하기</a></h2>
+          <p class='posts-date'>18 Jun 2012</p>
+        </div>
+        <div class='panel-body'>
+          <p>이번 글에서는 SSH 서버에 암호 입력 없이 접속하는 방법에 대해서 설명하겠습니다.
+정확히 얘기하자면 암호 대신 열쇠를 이용해서 접속하는 방법이 되겠습니다.
+암호를 입력하지 않는다고 해서 보안에 허술하다는 뜻은 아닙니다.</p>
+<h1 id="원리">원리</h1>
+<p>제가 처음 유닉스를 접했을 당시에는 서버에 접속하려면 주로 Telnet을 사용했었습니다.
+그때의 인식이 이어져 내려와 암호 없이 서버에 접속하는 것이 어색하게 느껴지긴 했으나,
+사실 열쇠를 이용하는 것이 여러모로 편리하고 좋습니다.</p>
+<p>두가지는 어떤 차이점이 있을까요?</p>
+<p>암호의 경우 각 서버가 가지고 있는 것입니다.
+따라서 어떠한 클라이언트에서라도 암호만 알고 있으면 서버에 접속할 수 있습니다.
+외우기 위해서는 암호가 어느 정도 이상 어려워지기 힘들기 때문에, 아무리 암호가 잘 암호화되어 서버에 저장되었어도,
+암호 DB가 유출되면 풀릴 가능성이 높습니다. 같은 암호를 쓴 다른 서버가 있다면 다른 서버도 덩달아 위험해지겠죠.
+그리고 여러 사람이 같은 계정을 공유해야 하는 경우 암호를 한번 바꾸는 것도 쉽지 않습니다.</p>
+<p>반면에 열쇠는 클라이언트와 서버가 나눠서 가지고 있고, 나누어진 열쇠가 맞아야지만 온전한 열쇠가 됩니다.
+이 때 클라이언트가 가진 키를 개인 열쇠(private key), 서버가 가진 열쇠를 공공 열쇠(public key)라고 합니다.
+서버에 공공 열쇠가 등록되어야지만 접속이 가능하기 때문에 장소를 가리지 않고 접속해야 하는 경우에는 사용하기 어렵지만,
+서버에서 공공 열쇠가 유출되어도 개인 열쇠를 거의 알 수 없기 때문에 (다른 열쇠를 알기 어렵다는 것이 개인/공공 열쇠 방식의 핵심입니다)
+다른 서버에 영향이 가지 않습니다.
+또 한 계정에 등록할 수 있는 공공 열쇠에 제한이 없기 때문에, 여러 사람이 각자 가진 개인 열쇠들로 계정을 공유할 수 있습니다.
+대신 개인 열쇠가 유출되면 문제가 생기지만 (개인 열쇠는 아무렇게나 복사해서 쓰면 안 되고
+클라이언트별로 다른 열쇠를 만들어야 합니다), 열쇠를 적절히 제한해서 서버에 등록해뒀다면 영향이 최소화 될 순 있습니다.
+또 개인 열쇠에 암호를 걸 수도 있습니다. 이 경우 유출되어도 비교적 안심할 수 있겠죠.</p>
+<p>두가지 방식의 특징에 대한 논의는 많이 존재하므로 궁금하신 분은 인터넷에서 쉽게 정보를 얻으실 수 있습니다.</p>
+<p>열쇠를 이용할 경우 자동화가 쉬워진다는 추가 장점이 있습니다.
+많은 서버/클라이언트 프로토콜(Git등)이 SSH을 통하기 때문에 SSH 인증만 자동으로 된다면 많은 일들이 자동화가 됩니다.
+그런데 암호를 이용한 SSH 인증 사용시 어딘가에 암호가 <strong>평문</strong>으로 존재해야 한다는 부담이 생깁니다.
+반면 열쇠를 이용한 경우 서버에 자동 접속을 허가하려는 클라이언트의 공공 열쇠를 등록하는 것으로 충분하고,
+추가적인 보안 위험은 없습니다.</p>
+<h1 id="방법">방법</h1>
+<p>이제 실제로 암호 없이 SSH 서버에 접속하는 방법을 설명드리겠습니다.
+원리를 이해하셨다면 큰 어려움이 없을 겁니다.</p>
+<h2 id="개인-열쇠-생성">개인 열쇠 생성</h2>
+<p>우선 <strong>클라이언트</strong>에서 개인 열쇠를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ssh-keygen -t rsa -C <span class="s2">&#34;comment to key&#34;</span>
+</span></span><span class="line"><span class="cl">Generating public/private rsa key pair.
+</span></span><span class="line"><span class="cl">Enter file in which to save the key <span class="o">(</span>/home/user/.ssh/id_rsa<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">Enter passphrase <span class="o">(</span>empty <span class="k">for</span> no passphrase<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">Enter same passphrase again:
+</span></span><span class="line"><span class="cl">Your identification has been saved in /home/user/.ssh/id_rsa.
+</span></span><span class="line"><span class="cl">Your public key has been saved in /home/user/.ssh/id_rsa.pub.
+</span></span><span class="line"><span class="cl">The key fingerprint is:
+</span></span><span class="line"><span class="cl">50:a5:15:0b:4b:b5:2e:2e:fb:97:6d:f8:b1:c0:48:a6 comment to key</span></span></code></pre></div>
+<p>-C 뒤에 주는 것은 개인 열쇠에 대한 설명입니다. 보통 간단하게 이메일 형식을 사용합니다. 저의 경우 &lsquo;sangmin.yoon@컴퓨터명&rsquo;을 사용합니다.</p>
+<p>첫번째로 경로를 입력하게 되어 있습니다. 대부분의 경우 기본값을 그대로 둡니다. (ssh 명령에서 따로 인자를 주지 않으면 저 경로를 참고합니다.)</p>
+<p>두번째는 암호구를 입력하는 곳입니다. 우리의 주 목적은 암호없이 서버에 접속하는 것이기 때문에 이 부분은 빈칸으로 둡니다.
+여기에 암호구를 넣으면 열쇠를 사용하기 전에 암호구를 확인합니다.
+단 이 암호구는 서버로 전송되지 않는 것으로, 암호를 통한 SSH 접속과는 다른 동작을 합니다.
+원하는 경우 나중에 &lsquo;ssh-keygen -p&rsquo; 명령으로 암호구를 변경할 수 있습니다.</p>
+<p>위와 같이 하면 .ssh 디렉토리에 id_rsa와 id_rsa.pub 파일이 생기는데 각각 개인 열쇠와 공공 열쇠입니다.
+파일 권한을 살펴보시면 id_rsa 파일이 더 한정된 권한을 갖는 것을 볼 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ls -l
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> user user <span class="m">1675</span> Jun <span class="m">18</span> 16:19 id_rsa
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> user user  <span class="m">396</span> Jun <span class="m">18</span> 16:11 id_rsa.pub</span></span></code></pre></div>
+<h2 id="공공-열쇠-등록">공공 열쇠 등록</h2>
+<p>자 이제 공공 열쇠를 <strong>서버</strong>에 등록하면 됩니다.</p>
+<p>서버에 접속해서 .ssh/authorized_keys 파일에 id_rsa.pub의 내용을 추가하면 됩니다.
+여려 개의 공공 열쇠를 등록할 경우 한줄에 하나씩 넣으면 됩니다.
+이 파일은 본인에게만 읽기/쓰기 권한(0600)이 있어야 합니다.</p>
+<p>제 서버 설정 예입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ cat .ssh/authorized_keys 
+</span></span><span class="line"><span class="cl">ssh-rsa AAAA....OXIj sangmin.yoon@iMac
+</span></span><span class="line"><span class="cl">ssh-rsa AAAA....Ew<span class="o">==</span> sangmin.yoon@wiki
+</span></span><span class="line"><span class="cl">ssh-rsa AAAA....xgrT sangmin.yoon@git
+</span></span><span class="line"><span class="cl">$ ls -l .ssh/authorized_keys
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> user user <span class="m">1585</span> Jun  <span class="m">8</span> 09:09 .ssh/authorized_keys</span></span></code></pre></div>
+<h2 id="접속-확인">접속 확인</h2>
+<p>다시 <strong>클라이언트</strong>로 돌아와 SSH 접속을 시도했을 때 암호 없이 접속되었다면 성공한 것입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ssh sangmin.yoon@git.croquis.com
+</span></span><span class="line"><span class="cl">Last login: Mon Jun <span class="m">18</span> 16:09:20 <span class="m">2012</span> from 192.168.23.7
+</span></span><span class="line"><span class="cl">sangmin.yoon@git:~$ </span></span></code></pre></div>
+
+        </div>
+      </div>
+      
+    </div>
+
+    
+<div class='col-xs-12 text-center'>
+  
+  <ul class='pagination'>
+    
+    <li><a href='/ko/tech/'>&laquo; 처음</a></li>
+    <li><a href='/ko/tech/page/13/'>&lt; 이전</a></li>
+    
+
+    
+    <li class='disabled'><span>&hellip;</span></li>
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <li><a href='/ko/tech/page/12/'>12</a></li>
+    
+    
+    
+    
+    
+    <li><a href='/ko/tech/page/13/'>13</a></li>
+    
+    
+    
+    
+    
+    <li class='active'><span>14</span></li>
+    
+    
+
+    
+    
+
+    
+    <li class='disabled'><span>다음 &gt;</span></li>
+    <li class='disabled'><span>끝 &raquo;</span></li>
+    
+  </ul>
+  
+</div>
+
+  </div>
+
+</div>
+
+<div class='container-fluid'>
+  <hr>
+  <footer>
+    <p>
+      &copy; 2014-2021 Sangmin Yoon
+      <span class='pull-right text-muted'>
+        powered by
+        <a href='https://gohugo.io/' target='_blank'>Hugo</a>
+        ,
+        <a href='http://getbootstrap.com/' target='_blank'>Bootstrap</a>
+        ,
+        <a href='http://www.dnsever.com' target='dnsever'><img src='http://banner.dnsever.com/dnsever-banner_62x15.gif'
+            border='0' alt='DNS server, DNS service '></a>
+      </span>
+    </p>
+  </footer>
+</div>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-48366784-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+
+</body>
+
+</html>
