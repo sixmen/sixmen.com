@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Node.js on sixmen.com</title>
+    <link>http://sixmen.com/ko/tags/node.js/</link>
+    <description>Recent content in Node.js on sixmen.com</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sat, 09 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/node.js/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ESM 삽질기</title>
+      <link>http://sixmen.com/ko/tech/2022-04-09-1-esm-problem/</link>
+      <pubDate>Sat, 09 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2022-04-09-1-esm-problem/</guid>
+      <description>저희는 주기적으로 Node.js 모듈을 최신 버전으로 업데이트하고 있습니다. Node.js를 10년째 사용 중인데, CoffeeScript → TypeScript, 콜백 → Async.js → Promise(&amp;amp; async, await) 전환 하면서 몇 번 혼란의 시기</description>
+    </item>
+    
+  </channel>
+</rss>
