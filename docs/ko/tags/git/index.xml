@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Gi on sixmen.com</title>
-    <link>http://sixmen.com/ko/tags/gi/</link>
-    <description>Recent content in Gi on sixmen.com</description>
+    <title>Git on sixmen.com</title>
+    <link>http://sixmen.com/ko/tags/git/</link>
+    <description>Recent content in Git on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/gi/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/git/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>잘못된 브랜치 배포를 방지하기</title>
       <link>http://sixmen.com/ko/tech/2022-08-28-1-prevent-deploy-invalid-branch/</link>
