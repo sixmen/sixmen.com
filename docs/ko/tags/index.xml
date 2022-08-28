@@ -5,7 +5,16 @@
     <link>http://sixmen.com/ko/tags/</link>
     <description>Recent content in Tags on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 09 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gi</title>
+      <link>http://sixmen.com/ko/tags/gi/</link>
+      <pubDate>Sun, 28 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tags/gi/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Node.js</title>
       <link>http://sixmen.com/ko/tags/node.js/</link>

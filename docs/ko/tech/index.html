@@ -55,6 +55,64 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2022-08-28-1-prevent-deploy-invalid-branch/'>잘못된 브랜치 배포를 방지하기</a></h2>
+          <p class='posts-date'>28 Aug 2022</p>
+        </div>
+        <div class='panel-body'>
+          <p>반복해서 실수가 발생해서 수많은 사람들의 시간을 낭비하는데, 사실 시스템 개선에 조금만 시간을 썼으면 발생하지 않았을, 그런 문제들이 있습니다. 이런 상황을 알면서도 바쁘다는 핑계로 넘어가곤 하는데, 이번에 1년 이상 머리 한 구석에만 뒀던 이슈를 해결해 공유해볼까 합니다.</p>
+<h2 id="문제">문제</h2>
+<p>카카오스타일 정도의 규모에서는 당연히 어떤 기능을 프로덕션에 바로 배포하지 않습니다. 먼저 테스트 서버에 배포해 어느 정도 검증을 하고 프로덕션에 반영하게 됩니다. (물론 아무리 이런 과정을 거쳐도 문제는 발생하긴 합니다.) 카카오스타일은 스테이징 서버란 용어는 사용하지 않고, 알파란 용어를 사용하고 있습니다. 알파용 환경은 프로덕션 환경과 동일한 구조를 가지고 있지만, DB는 별개로 존재하는 환경입니다. (추가로 베타는 어플리케이션은 별도이지만, DB는 프로덕션을 사용하는 환경을 의미합니다. 피쳐 플래그 대신 주로 베타 환경을 이용해 최종 검증을 합니다.)</p>
+<p>알파 환경은 하나이기 때문에 여러 팀이 동시에 작업하는 상황에서 충돌이 발생하곤 합니다. 어떤 기능을 알파에 배포해서 확인하던 도중에 다른 팀이 작업 덮어 씌워서 혼란이 발생하는데, 이를 완전히 막기는 어렵습니다. 이 부분은 일정 시간동안 알파 환경을 점유하겠다는 의사 표현을 하거나(아직 시스템화까진 생각하고 있지 않습니다), 알파 전 단계인 팀별 개발 환경을 만들어 해결하고 있습니다.</p>
+<p>문제는 <strong>테스트도 끝나 정식으로 프로덕션까지 반영된 기능이 알파 환경에서 사라지는 케이스</strong>가 꽤 높은 비율로 발생한다는 점이였습니다. 오래전의 코드에서 브랜치를 만들어 내 기능을 작업한 이후에 최신 수정 사항을 제대로 반영하지 않은 채 알파에 배포를 하는 거죠. 나는 내 기능을 배포했을 뿐인데, 무관해 보이는 기능이 갑자기 동작하지 않으면서 이를 해결하기 위해 많은 사람들이 시간을 낭비하는 일이 발생하곤 했습니다.</p>
+<p>해결책은 단순합니다. 정식으로 반영된 기능을 되돌리는 배포를 할 수 없게 막으면 됩니다. 다만 그동안 기술적 해결책을 찾지 못해, 규칙으로 정했지만(알파 배포시에는 main 브랜치를 포함해서 주세요!) 당연히 문제는 계속 발생했습니다.</p>
+<h2 id="작업-내용">작업 내용</h2>
+<p>카카오스타일도 당연히 배포 시스템이 갖춰져 있습니다. 명령을 내리면 GitHub에서 소스를 가져와 도커 이미지를 빌드하게 됩니다. 이때 브랜치도 같이 지정하게 됩니다. (프로덕션 배포시에는 브랜치가 고정 - 팀에 따라 master, main, release등을 사용 - 되어 있습니다.)</p>
+<p>모든 소스를 가져오는 것은 오래 걸리기 때문에 얕은 복제(shallow clone)을 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ git clone git@github.com:croquiscom/<span class="nv">$SERVICE</span> -b <span class="nv">$BRANCH</span> --depth <span class="m">1</span> --jobs <span class="m">2</span>
+</span></span></code></pre></div><p>이런 상황에서 배포하려는 브랜치가 주 브랜치(master, main)의 내용을 포함하고 있는지를 검사하는것이 이번 문제의 기술적인 이슈였습니다.</p>
+<p>처음에는 복제(clone) 전에 브랜치 비교하는 방법을 찾아봤습니다. 하지만 아쉽게도 git 명령 중에 원격 저장소에서 동작하는 건 <a href="https://git-scm.com/docs/git-ls-remote.html">ls-remote</a> 밖에 없는 것 같습니다.</p>
+<p>로컬 저장소에서 브랜치 비교는 가능하지만, 문제는 얕은 복제여서 브랜치간 비교가 불가능하다는 것이였습니다. 전체 복제 대신 처음 고민한 옵션은 깊이를 늘리는 것이였습니다(<code>--depth</code> 또는 <code>--shallow-since</code>). 복제시 지정한 브랜치만 받아졌기 때문에 <code>--no-single-branch</code> 옵션도 필요합니다. 다만 아무리 적당히 큰 값을 준다고해도 배포할 브랜치와 주 브랜치의 공통 조상이 복제에 포함될지 여부를 보장할 수 없는 문제가 있습니다.</p>
+<p>그래도 얕은 복제 후 필요한 만큼 커밋을 더 받는 옵션을 찾아봤는데 deepen 옵션을 알게 됐습니다. 여기에 더해 <a href="https://stackoverflow.com/a/56113247">공통 조상이 발견될 때까지 원격에서 커밋을 가져오는 스크립트</a>를 스택오버플로우에서 발견하게 됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">while</span> <span class="o">[</span> -z <span class="k">$(</span> git merge-base master feature <span class="k">)</span> <span class="o">]</span><span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  git fetch -q --deepen<span class="o">=</span><span class="m">1</span> origin master feature<span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span></code></pre></div><p>위 스크립트가 동작하려면 master 브랜치도 로컬에 존재해야 하는데 <code>--no-single-branch</code> 옵션 대신 master 브랜치만 추가로 가져오는 건 <a href="https://github.com/rmacklin/fetch-through-merge-base">fetch-through-merge-base</a>라는 기능의 코드에서 찾았습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git fetch --depth<span class="o">=</span><span class="m">1</span> origin <span class="s2">&#34;+refs/heads/</span><span class="nv">$BASE_REF</span><span class="s2">:refs/heads/</span><span class="nv">$BASE_REF</span><span class="s2">&#34;</span>
+</span></span></code></pre></div><p>이를 조합해 이미지 빌드 서버에 최종적으로 적용된 스크립트는 다음과 같습니다. (배포할 브랜치가 주 브랜치와 같은 경우에도 동작합니다.)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone git@github.com:croquiscom/<span class="nv">$SERVICE</span> -b <span class="nv">$BRANCH</span> --depth <span class="m">1</span> --jobs <span class="m">2</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> <span class="nv">$SERVICE</span>
+</span></span><span class="line"><span class="cl">git fetch --depth <span class="m">1</span> origin <span class="s2">&#34;+refs/heads/</span><span class="nv">$BASE_BRANCH</span><span class="s2">:refs/heads/</span><span class="nv">$BASE_BRANCH</span><span class="s2">&#34;</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s1">&#39;same branch&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="k">$(</span> git merge-base <span class="s2">&#34;</span><span class="nv">$BASE_BRANCH</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="nv">$BRANCH</span><span class="s2">&#34;</span> <span class="k">)</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  git fetch -q --deepen<span class="o">=</span><span class="m">20</span> origin <span class="s2">&#34;</span><span class="nv">$BASE_BRANCH</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="nv">$BRANCH</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="k">$(</span>git rev-list --left-only --count <span class="nv">$BASE_BRANCH</span>...<span class="nv">$BRANCH</span><span class="k">)</span><span class="s2">&#34;</span> !<span class="o">=</span> <span class="s2">&#34;0&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$BASE_BRANCH</span><span class="s2"> is not merged&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><p><a href="https://git-scm.com/docs/git-rev-list">rev-list</a> 명령에서 <code>--count</code> 옵션을 사용하면 브랜치가 얼마나 앞서 있는지 수치로 알 수 있습니다. 주 브랜치(left)가 0 만큼 앞서 있다면 배포하려는 브랜치가 주 브랜치의 내용을 모두 포함하고 있다는 뜻이 됩니다.</p>
+<h2 id="한편">한편..</h2>
+<p>초기에 구축한 배포 시스템은 AWS의 <a href="https://aws.amazon.com/ko/codebuild/">CodeBuild</a>를 사용하고 있습니다. 한편 근래에 작업중인 서비스에서는 <a href="https://github.com/features/actions">GitHub Actions</a>를 사용중입니다. 위 방법은 GitHub Actions에도 역시 적용 가능하지만, GitHub API를 쓰면 복제전에 검사가 가능합니다. (사실 이쪽을 먼저 해결했다 보니, git만 가지고 원격에서 가능한 방식이 있나 한참 찾아봤습니다.)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl">- <span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/github-script@v6</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      const result = await github.rest.repos.compareCommitsWithBasehead({
+</span></span></span><span class="line"><span class="cl"><span class="sd">        owner: context.repo.owner,
+</span></span></span><span class="line"><span class="cl"><span class="sd">        repo: context.repo.repo,
+</span></span></span><span class="line"><span class="cl"><span class="sd">        basehead: `master...${context.sha}`,
+</span></span></span><span class="line"><span class="cl"><span class="sd">      });
+</span></span></span><span class="line"><span class="cl"><span class="sd">      if (result.data.behind_by === 0) {
+</span></span></span><span class="line"><span class="cl"><span class="sd">        return;
+</span></span></span><span class="line"><span class="cl"><span class="sd">      }
+</span></span></span><span class="line"><span class="cl"><span class="sd">      throw new Error(&#39;master not merged&#39;);</span><span class="w">      
+</span></span></span></code></pre></div><h2 id="결론">결론</h2>
+<p>몇 줄 안 되는 코드지만, 일반적으로 겪는 문제가 아니다보니 잠깐 검색해본 것으로는 잘 나오지 않는 내용이였습니다. 그러다보니 해결책을 찾는게 많이 미뤄진 것 같습니다. 하지만 마음 먹고 작업하니 하루에 끝날 정도의 분량이였고, 이게 적용되면 많은 시간 낭비를 없앨 것으로 기대됩니다.</p>
+<p>이번에 작업한 내용과 유사하게 실수를 방지 하기 위한 조치를 하는 것을 <a href="https://ko.wikipedia.org/wiki/%ED%8F%AC%EC%B9%B4_%EC%9A%94%EC%BC%80">포카 요케</a>라고 부릅니다. 카카오스타일에서는 실수를 반복하지 않게 하기 위해 포카 요케 목록을 만들어 해결하는데 최근 많은 시간을 투자하고 있습니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2022-04-09-1-esm-problem/'>ESM 삽질기</a></h2>
           <p class='posts-date'>09 Apr 2022</p>
         </div>
@@ -609,440 +667,6 @@ TypeScript가 변환하지 않도록 import 문을 감추는 것입니다.</p>
         </div>
       </div>
       
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2022-03-31-2-web-application-using-eks/'>EKS를 사용해서 어플리케이션 서비스 하기</a></h2>
-          <p class='posts-date'>31 Mar 2022</p>
-        </div>
-        <div class='panel-body'>
-          <p><a href="/ko/tech/2022-03-31-1-web-application-using-ecs/">ECS 아티클</a>에 이어 이번 글에서는 같은 서비스를 EKS로 구축해보도록 하겠습니다.</p>
-<p>간단하게 구축하는 것은 <a href="https://eksctl.io/">eksctl</a>을 쓰면 되지만, 내부 이해를 위해 여기서는 기본부터 구현하도록 하겠습니다.</p>
-<h2 id="vpc-셋업">VPC 셋업</h2>
-<p>VPC는 이전과 마찬가지로 두 개의 AZ에 퍼블릭 서브넷과 프리이빗 서브넷이 필요합니다. 다만 로드 밸런서가 정상적으로 배치되려며 특정한 태그를 서브넷에 부여해야합니다.</p>
-<p><img src="/img/ko/tech/2022-03-31-2-01.png" alt="Sample VPC"></p>
-<p>서비스 컨테이너만 정의하는 ECS와 달리 쿠버네티스는 클러스터 내에서 로드 밸런서, 영구 볼륨등도 정의할 수 있습니다. 이때 정의는 쿠버네티스안에서 하지만 실제 만들어지는 것은 쿠버네티스와 무관한 AWS 리소스(ALB, EBS등)입니다. 쿠버네티스 자체는 AWS 구조와 독립적이고, 태그등 다른 방법을 통해 쿠버네티스 리소스가 위치할 AWS 리소스를 찾게 됩니다.</p>
-<p><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/alb-ingress.html">EKS에서 애플리케이션 로드 밸런싱 문서</a>에 따라 다음 태그를 설정해줍니다.</p>
-<ul>
-<li><code>kubernetes.io/cluster/&lt;name&gt;</code>: <code>shared</code></li>
-<li><code>kubernetes.io/role/internal-elb</code>: 프라이빗 서브넷에 대해 <code>1</code>로 설정합니다.</li>
-<li><code>kubernetes.io/role/elb</code>: 퍼블릭 서브넷에 대해 <code>1</code>로 설정합니다.</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="k">provider</span> <span class="s2">&#34;aws&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  region</span> <span class="o">=</span> <span class="s2">&#34;ap-northeast-2&#34;</span>
-</span></span><span class="line"><span class="cl">}
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">locals</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_name</span>        <span class="o">=</span> <span class="s2">&#34;simon-test&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cidr</span>            <span class="o">=</span> <span class="s2">&#34;10.194.0.0/16&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  public_subnets</span>  <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;10.194.0.0/24&#34;, &#34;10.194.1.0/24&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  private_subnets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;10.194.100.0/24&#34;, &#34;10.194.101.0/24&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  azs</span>             <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;ap-northeast-2a&#34;, &#34;ap-northeast-2c&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cluster_name</span>    <span class="o">=</span> <span class="s2">&#34;simon-test&#34;</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## VPC를 생성합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_vpc&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  cidr_block</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">cidr</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>       <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">vpc_name</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## VPC 생성시 기본으로 생성되는 라우트 테이블에 이름을 붙입니다
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 이걸 서브넷에 연결해 써도 되지만, 여기서는 사용하지 않습니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_default_route_table&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  default_route_table_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">default_route_table_id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>                   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-default&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## VPC 생성시 기본으로 생성되는 보안 그룹에 이름을 붙입니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_default_security_group&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-default&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷에 연결할 인터넷 게이트웨이를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_internet_gateway&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-igw&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷에 적용할 라우팅 테이블
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table&#34; &#34;public&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-public&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷에서 인터넷에 트래픽 요청시 앞서 정의한 인터넷 게이트웨이로 보냅니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route&#34; &#34;public_worldwide&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span>         <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">public</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  destination_cidr_block</span> <span class="o">=</span> <span class="s2">&#34;0.0.0.0/0&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  gateway_id</span>             <span class="o">=</span> <span class="k">aws_internet_gateway</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷을 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_subnet&#34; &#34;public&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">public_subnets</span><span class="p">)</span><span class="c1"> # 여러개를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span>                  <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cidr_block</span>              <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">public_subnets</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  availability_zone</span>       <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">azs</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  map_public_ip_on_launch</span> <span class="o">=</span> <span class="kt">true</span><span class="c1"> # 퍼플릭 서브넷에 배치되는 서비스는 자동으로 공개 IP를 부여합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  tags</span> <span class="o">=</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-public-${count.index + 1}&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">    &#34;kubernetes.io/cluster/${local.cluster_name}&#34;</span> <span class="o">=</span> <span class="s2">&#34;shared&#34;</span><span class="p">,</span><span class="c1"> # 다른 부분
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">    &#34;kubernetes.io/role/elb&#34;</span>                      <span class="o">=</span> <span class="s2">&#34;1&#34;</span><span class="c1"> # 다른 부분
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷을 라우팅 테이블에 연결합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table_association&#34; &#34;public&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">public_subnets</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_id</span>      <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">public</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">].</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span> <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">public</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## NAT 게이트웨이는 고정 IP를 필요로 합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_eip&#34; &#34;nat_gateway&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc</span>  <span class="o">=</span> <span class="kt">true</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span> <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-natgw&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷에서 인터넷 접속시 사용할 NAT 게이트웨이
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_nat_gateway&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  allocation_id</span> <span class="o">=</span> <span class="k">aws_eip</span><span class="p">.</span><span class="k">nat_gateway</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_id</span>     <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">public</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="k">id</span><span class="c1"> # NAT 게이트웨이 자체는 퍼플릭 서브넷에 위치해야 합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  tags</span>          <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-natgw&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷에 적용할 라우팅 테이블
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table&#34; &#34;private&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-private&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷에서 인터넷에 트래픽 요청시 앞서 정의한 NAT 게이트웨이로 보냅니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route&#34; &#34;private_worldwide&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span>         <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">private</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  destination_cidr_block</span> <span class="o">=</span> <span class="s2">&#34;0.0.0.0/0&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  nat_gateway_id</span>         <span class="o">=</span> <span class="k">aws_nat_gateway</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷을 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_subnet&#34; &#34;private&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">private_subnets</span><span class="p">)</span><span class="c1"> # 여러개를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span>            <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cidr_block</span>        <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">private_subnets</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  availability_zone</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">azs</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span> <span class="o">=</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-private-${count.index + 1}&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">    &#34;kubernetes.io/cluster/${local.cluster_name}&#34;</span> <span class="o">=</span> <span class="s2">&#34;shared&#34;</span><span class="p">,</span><span class="c1"> # 다른 부분
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">    &#34;kubernetes.io/role/internal-elb&#34;</span>             <span class="o">=</span> <span class="s2">&#34;1&#34;</span><span class="c1"> # 다른 부분
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷을 라우팅 테이블에 연결합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table_association&#34; &#34;private&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">private_subnets</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_id</span>      <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">private</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">].</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span> <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">private</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><h2 id="eks-클러스터-생성">EKS 클러스터 생성</h2>
-<p>ECS가 하나의 리소스로 끝난 것에 비해 EKS는 조금 복잡합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="c1">## 클러스터가 사용할 역할을 정의합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1">## AmazonEKSClusterPolicy와 AmazonEKSVPCResourceController를 포함합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_iam_role&#34; &#34;cluster&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span> <span class="o">=</span> <span class="s2">&#34;${local.cluster_name}-eks-cluster-role&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">  assume_role_policy</span> <span class="o">=</span> <span class="k">jsonencode</span><span class="p">(</span>{
-</span></span><span class="line"><span class="cl"><span class="n">    Version</span> <span class="o">=</span> <span class="s2">&#34;2012-10-17&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">    Statement</span> <span class="o">=</span> <span class="p">[</span>{
-</span></span><span class="line"><span class="cl"><span class="n">      Effect</span> <span class="o">=</span> <span class="s2">&#34;Allow&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">      Principal</span> <span class="o">=</span> {
-</span></span><span class="line"><span class="cl"><span class="n">        Service</span> <span class="o">=</span> <span class="s2">&#34;eks.amazonaws.com&#34;</span>
-</span></span><span class="line"><span class="cl">      }<span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">      Action</span> <span class="o">=</span> <span class="s2">&#34;sts:AssumeRole&#34;</span>
-</span></span><span class="line"><span class="cl">    }<span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }<span class="p">)</span>
-</span></span><span class="line"><span class="cl">}
-</span></span><span class="line"><span class="cl"><span class="k">resource</span> <span class="s2">&#34;aws_iam_role_policy_attachment&#34; &#34;cluster_AmazonEKSClusterPolicy&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  policy_arn</span> <span class="o">=</span> <span class="s2">&#34;arn:aws:iam::aws:policy/AmazonEKSClusterPolicy&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  role</span>       <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">cluster</span><span class="p">.</span><span class="k">name</span>
-</span></span><span class="line"><span class="cl">}
-</span></span><span class="line"><span class="cl"><span class="k">resource</span> <span class="s2">&#34;aws_iam_role_policy_attachment&#34; &#34;cluster_AmazonEKSVPCResourceController&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  policy_arn</span> <span class="o">=</span> <span class="s2">&#34;arn:aws:iam::aws:policy/AmazonEKSVPCResourceController&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  role</span>       <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">cluster</span><span class="p">.</span><span class="k">name</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## EKS 클러스터를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_eks_cluster&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span>     <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">cluster_name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  role_arn</span> <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">cluster</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl">  <span class="k">vpc_config</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    subnet_ids</span> <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">private</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl"><span class="n">  depends_on</span> <span class="o">=</span> <span class="p">[</span><span class="c1"> # see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster#example-usage
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">aws_iam_role_policy_attachment</span><span class="p">.</span><span class="k">cluster_AmazonEKSClusterPolicy</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="k">aws_iam_role_policy_attachment</span><span class="p">.</span><span class="k">cluster_AmazonEKSVPCResourceController</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">  <span class="p">]</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## Fargate에서 팟 배치시 사용하는 실행 역할을 정의합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1">## AmazonEKSFargatePodExecutionRolePolicy를 포함합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_iam_role&#34; &#34;pod_execution&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span> <span class="o">=</span> <span class="s2">&#34;${local.cluster_name}-eks-pod-execution-role&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">  assume_role_policy</span> <span class="o">=</span> <span class="k">jsonencode</span><span class="p">(</span>{
-</span></span><span class="line"><span class="cl"><span class="n">    Version</span> <span class="o">=</span> <span class="s2">&#34;2012-10-17&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">    Statement</span> <span class="o">=</span> <span class="p">[</span>{
-</span></span><span class="line"><span class="cl"><span class="n">      Effect</span> <span class="o">=</span> <span class="s2">&#34;Allow&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">      Principal</span> <span class="o">=</span> {
-</span></span><span class="line"><span class="cl"><span class="n">        Service</span> <span class="o">=</span> <span class="s2">&#34;eks-fargate-pods.amazonaws.com&#34;</span>
-</span></span><span class="line"><span class="cl">      }<span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">      Action</span> <span class="o">=</span> <span class="s2">&#34;sts:AssumeRole&#34;</span>
-</span></span><span class="line"><span class="cl">    }<span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }<span class="p">)</span>
-</span></span><span class="line"><span class="cl">}
-</span></span><span class="line"><span class="cl"><span class="k">resource</span> <span class="s2">&#34;aws_iam_role_policy_attachment&#34; &#34;pod_execution_AmazonEKSFargatePodExecutionRolePolicy&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  policy_arn</span> <span class="o">=</span> <span class="s2">&#34;arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  role</span>       <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">pod_execution</span><span class="p">.</span><span class="k">name</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## EKS 클러스터에 노드를 Fargate로 공급합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1">## default/kube-system 네임스페이스를 가진 팟에 대해 적용됩니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_eks_fargate_profile&#34; &#34;default&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  cluster_name</span>           <span class="o">=</span> <span class="k">aws_eks_cluster</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  fargate_profile_name</span>   <span class="o">=</span> <span class="s2">&#34;fp-default&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  pod_execution_role_arn</span> <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">pod_execution</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_ids</span>             <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">private</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="k">id</span><span class="c1"> # 프라이빗 서브넷만 줄 수 있습니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">selector</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    namespace</span> <span class="o">=</span> <span class="s2">&#34;default&#34;</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">  <span class="k">selector</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    namespace</span> <span class="o">=</span> <span class="s2">&#34;kube-system&#34;</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>쿠버네티스 클러스터에 접근할 수 있도록 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/create-kubeconfig.html">kubeconfig를 생성</a>합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ aws eks update-kubeconfig --region ap-northeast-2 --name simon-test --alias simon-test
-</span></span></code></pre></div><p>이제 쿠버네티스 클러스터의 상태를 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl get svc
-</span></span><span class="line"><span class="cl">NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
-</span></span><span class="line"><span class="cl">kubernetes   ClusterIP   172.20.0.1   &lt;none&gt;        443/TCP   23m
-</span></span></code></pre></div><p>그런데 팟 목록을 보면 기본적으로 실행되어야 할 coredns 팟이 뜨지 않는 것이 보입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl get pods -n kube-system
-</span></span><span class="line"><span class="cl">NAME                       READY   STATUS    RESTARTS   AGE
-</span></span><span class="line"><span class="cl">coredns-6dbb778559-clx8r   0/1     Pending   <span class="m">0</span>          13m
-</span></span><span class="line"><span class="cl">coredns-6dbb778559-zpx2h   0/1     Pending   <span class="m">0</span>          13m
-</span></span></code></pre></div><p>Fargate 노드만 사용하려면 <a href="https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html#fargate-gs-coredns">CoreDNS 내용을 수정 해줘야</a> 합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl patch deployment coredns <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -n kube-system <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --type json <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -p<span class="o">=</span><span class="s1">&#39;[{&#34;op&#34;: &#34;remove&#34;, &#34;path&#34;: &#34;/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type&#34;}]&#39;</span>
-</span></span><span class="line"><span class="cl">deployment.apps/coredns patched
-</span></span><span class="line"><span class="cl">$ kubectl get pods -n kube-system                          
-</span></span><span class="line"><span class="cl">NAME                       READY   STATUS    RESTARTS   AGE
-</span></span><span class="line"><span class="cl">coredns-6f99dbb876-hp667   1/1     Running   <span class="m">0</span>          4m
-</span></span><span class="line"><span class="cl">coredns-6f99dbb876-skrgn   1/1     Running   <span class="m">0</span>          4m
-</span></span></code></pre></div><p>컨테이너에 IAM 권한을 부여하려면 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/enable-iam-roles-for-service-accounts.html">OIDC 공급자 생성</a>이 필요합니다</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ eksctl utils associate-iam-oidc-provider --cluster simon-test --approve
-</span></span></code></pre></div><h2 id="서비스-구동">서비스 구동</h2>
-<p>이제 우리가 만든 어플리케이션을 EKS 클러스터에 올릴 차례입니다.</p>
-<p>이전과 마찬가지로 ECR 저장소를 만들고 이미지를 올려둡니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="k">locals</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  app_name</span> <span class="o">=</span> <span class="s2">&#34;simon-sample&#34;</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## simon-sample 앱을 위한 저장소를 만듭니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_ecr_repository&#34; &#34;simon_sample&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">app_name</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>이 이미지를 띄우는 것은 쿠버네티스가 처리합니다.</p>
-<p>쿠버네티스에 띄우는 가장 작은 단위는 <a href="https://kubernetes.io/ko/docs/concepts/workloads/pods/">파드</a>입니다. 다만 파드로 띄우면 서버를 확장하는 것이 어렵습니다. <a href="https://kubernetes.io/ko/docs/concepts/workloads/controllers/replicaset/">레플리카셋</a>이라는 리소스를 사용하면 파드를 여러개 띄울 수 있습니다. 여기에 더해 <a href="https://kubernetes.io/ko/docs/concepts/workloads/controllers/deployment/">디플로이먼트</a>를 리소스를 사용하면 어플리케이션 갱신시 레플리카셋 교체를 해줍니다.</p>
-<p>다음과 같이 쿠버네티스 리소스를 정의합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">simon-sample</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">simon-sample</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">simon-sample</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">app</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;aws-account-id&gt;.dkr.ecr.ap-northeast-2.amazonaws.com/simon-sample:latest</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">ports</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
-</span></span></span></code></pre></div><p>다음 명령으로 적용합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl apply -f simon-sample.yaml
-</span></span><span class="line"><span class="cl">deployment.apps/simon-sample created
-</span></span></code></pre></div><p>보통 5분 안에(빠르면 1분 안에) 다음과 같이 Running 상태로 바뀝니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl get pods -o wide                 
-</span></span><span class="line"><span class="cl">NAME                           READY   STATUS    RESTARTS   AGE     IP              NODE                    NOMINATED NODE   READINESS GATES
-</span></span><span class="line"><span class="cl">simon-sample-dd88b97bc-svtd6   1/1     Running   <span class="m">0</span>          3m45s   10.194.101.15   fargate-10.194.101.15   &lt;none&gt;           &lt;none&gt;
-</span></span></code></pre></div><p>포트 포워딩으로 세팅하고, HTTP 요청을 하면 응답이 오는 것을 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl port-forward simon-sample-dd88b97bc-svtd6 3000:3000
-</span></span><span class="line"><span class="cl">Forwarding from 127.0.0.1:3000 -&gt; <span class="m">3000</span>
-</span></span><span class="line"><span class="cl">Handling connection <span class="k">for</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">## from other terminal</span>
-</span></span><span class="line"><span class="cl">$ curl localhost:3000 --data <span class="s1">&#39;hello world&#39;</span>
-</span></span><span class="line"><span class="cl">hello world
-</span></span></code></pre></div><h2 id="서비스를-외부에-노출하기">서비스를 외부에 노출하기</h2>
-<p>ECS와 마찬가지로 실제 서비스가 되려면 외부에 노출된 로드 밸런서에 우리의 서비스를 붙여줘야 합니다. ECS와 달리 쿠버네티스에서는 로드 밸런서 정의도 쿠버네티스 리소스로 정의합니다. 하지만 실제로는 EKS가 알아서 AWS 로드 밸런서를 생성하게 됩니다.</p>
-<p>어플리케이션 계층(L7)에서 동작하는 Application Load Balancer(ALB)를 생성하기 위한 리소스 타입은 <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Ingress</a> 입니다.</p>
-<p>우선 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html">AWS Load Balancer Controller 추가 기능 설치</a>가 필요합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">## ALB를 컨트롤 할 수 있는 정책을 생성합니다.</span>
-</span></span><span class="line"><span class="cl">$ curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.0/docs/install/iam_policy.json
-</span></span><span class="line"><span class="cl">$ aws iam create-policy <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --policy-name AWSLoadBalancerControllerIAMPolicy-simon-test <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --policy-document file://iam_policy.json
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">## 위 정책을 포함한 IAM 역할을 생성합니다.</span>
-</span></span><span class="line"><span class="cl">$ <span class="nv">ACCOUNT_ID</span><span class="o">=</span><span class="k">$(</span>aws sts get-caller-identity <span class="p">|</span> jq -r .Account<span class="k">)</span>
-</span></span><span class="line"><span class="cl">$ <span class="nv">OIDC_URL</span><span class="o">=</span><span class="k">$(</span>aws eks describe-cluster --name simon-test --query <span class="s2">&#34;cluster.identity.oidc.issuer&#34;</span> --output text <span class="p">|</span> sed <span class="s2">&#34;s|https://||&#34;</span><span class="k">)</span>
-</span></span><span class="line"><span class="cl">$ cat &gt; load-balancer-role-trust-policy.json <span class="s">&lt;&lt; EOF
-</span></span></span><span class="line"><span class="cl"><span class="s">{
-</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;Version&#34;: &#34;2012-10-17&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s">    &#34;Statement&#34;: [
-</span></span></span><span class="line"><span class="cl"><span class="s">        {
-</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;Effect&#34;: &#34;Allow&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;Principal&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s">                &#34;Federated&#34;: &#34;arn:aws:iam::${ACCOUNT_ID}:oidc-provider/$OIDC_URL&#34;
-</span></span></span><span class="line"><span class="cl"><span class="s">            },
-</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;Action&#34;: &#34;sts:AssumeRoleWithWebIdentity&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s">            &#34;Condition&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s">                &#34;StringEquals&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s">                    &#34;${OIDC_URL}:aud&#34;: &#34;sts.amazonaws.com&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s">                    &#34;${OIDC_URL}:sub&#34;: &#34;system:serviceaccount:kube-system:aws-load-balancer-controller&#34;
-</span></span></span><span class="line"><span class="cl"><span class="s">                }
-</span></span></span><span class="line"><span class="cl"><span class="s">            }
-</span></span></span><span class="line"><span class="cl"><span class="s">        }
-</span></span></span><span class="line"><span class="cl"><span class="s">    ]
-</span></span></span><span class="line"><span class="cl"><span class="s">}
-</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
-</span></span><span class="line"><span class="cl">$ aws iam create-role <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --role-name AmazonEKSLoadBalancerControllerRole-simon-test <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --assume-role-policy-document file://<span class="s2">&#34;load-balancer-role-trust-policy.json&#34;</span>
-</span></span><span class="line"><span class="cl">$ aws iam attach-role-policy <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --policy-arn arn:aws:iam::<span class="si">${</span><span class="nv">ACCOUNT_ID</span><span class="si">}</span>:policy/AWSLoadBalancerControllerIAMPolicy-simon-test <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --role-name AmazonEKSLoadBalancerControllerRole-simon-test
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">## IAM 역할에 연결된 쿠베네티스 서비스 계정을 생성합니다.</span>
-</span></span><span class="line"><span class="cl">$ cat &gt; aws-load-balancer-controller-service-account.yaml <span class="s">&lt;&lt; EOF
-</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: v1
-</span></span></span><span class="line"><span class="cl"><span class="s">kind: ServiceAccount
-</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
-</span></span></span><span class="line"><span class="cl"><span class="s">  labels:
-</span></span></span><span class="line"><span class="cl"><span class="s">    app.kubernetes.io/component: controller
-</span></span></span><span class="line"><span class="cl"><span class="s">    app.kubernetes.io/name: aws-load-balancer-controller
-</span></span></span><span class="line"><span class="cl"><span class="s">  name: aws-load-balancer-controller
-</span></span></span><span class="line"><span class="cl"><span class="s">  namespace: kube-system
-</span></span></span><span class="line"><span class="cl"><span class="s">  annotations:
-</span></span></span><span class="line"><span class="cl"><span class="s">    eks.amazonaws.com/role-arn: arn:aws:iam::${ACCOUNT_ID}:role/AmazonEKSLoadBalancerControllerRole-simon-test
-</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
-</span></span><span class="line"><span class="cl">$ kubectl apply -f aws-load-balancer-controller-service-account.yaml
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">## AWS Load Balancer Controller를 설치합니다</span>
-</span></span><span class="line"><span class="cl">$ <span class="nv">VPC_ID</span><span class="o">=</span><span class="k">$(</span>aws ec2 describe-vpcs --filters <span class="nv">Name</span><span class="o">=</span>cidr,Values<span class="o">=</span>10.194.0.0/16 <span class="p">|</span> jq -r .Vpcs<span class="o">[</span>0<span class="o">]</span>.VpcId<span class="k">)</span>
-</span></span><span class="line"><span class="cl">$ helm repo add eks https://aws.github.io/eks-charts
-</span></span><span class="line"><span class="cl">$ helm repo update
-</span></span><span class="line"><span class="cl">$ helm install aws-load-balancer-controller eks/aws-load-balancer-controller <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -n kube-system <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --set <span class="nv">clusterName</span><span class="o">=</span>simon-test <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --set serviceAccount.create<span class="o">=</span><span class="nb">false</span> <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --set serviceAccount.name<span class="o">=</span>aws-load-balancer-controller <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --set <span class="nv">region</span><span class="o">=</span>ap-northeast-2 <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --set <span class="nv">vpcId</span><span class="o">=</span><span class="nv">$VPC_ID</span> <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --set image.repository<span class="o">=</span>602401143452.dkr.ecr.ap-northeast-2.amazonaws.com/amazon/aws-load-balancer-controller
-</span></span><span class="line"><span class="cl">NAME: aws-load-balancer-controller
-</span></span><span class="line"><span class="cl">LAST DEPLOYED: Sat Mar <span class="m">26</span> 10:02:19 <span class="m">2022</span>
-</span></span><span class="line"><span class="cl">NAMESPACE: kube-system
-</span></span><span class="line"><span class="cl">STATUS: deployed
-</span></span><span class="line"><span class="cl">REVISION: <span class="m">1</span>
-</span></span><span class="line"><span class="cl">TEST SUITE: None
-</span></span><span class="line"><span class="cl">NOTES:
-</span></span><span class="line"><span class="cl">AWS Load Balancer controller installed!
-</span></span><span class="line"><span class="cl">$ kubectl get deployment -n kube-system aws-load-balancer-controller
-</span></span><span class="line"><span class="cl">NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span class="line"><span class="cl">aws-load-balancer-controller   2/2     <span class="m">2</span>            <span class="m">2</span>           5m51s
-</span></span></code></pre></div><p>이제 쿠버네티스를 통해 ALB를 생성하고, 아까 만든 앱을 등록합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">simon-sample-service</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">simon-sample</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">simon-test-alb</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">alb.ingress.kubernetes.io/scheme</span><span class="p">:</span><span class="w"> </span><span class="l">internet-facing</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">alb.ingress.kubernetes.io/target-type</span><span class="p">:</span><span class="w"> </span><span class="l">ip</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ingressClassName</span><span class="p">:</span><span class="w"> </span><span class="l">alb</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">http</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">paths</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">backend</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">service</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">simon-sample-service</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">                  </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
-</span></span></span></code></pre></div><p>이제 로드 밸런서 주소로 요청을 보내면 응답을 보내옵니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">## k8s-default-simontes-ea5ab2759b-771587743.ap-northeast-2.elb.amazonaws.com 같은 주소를 가집니다</span>
-</span></span><span class="line"><span class="cl">$ <span class="nv">LB_HOST</span><span class="o">=</span><span class="k">$(</span>kubectl get ingress/simon-test-alb -ojson <span class="p">|</span> jq -r .status.loadBalancer.ingress<span class="o">[</span>0<span class="o">]</span>.hostname<span class="k">)</span>
-</span></span><span class="line"><span class="cl">$ curl <span class="nv">$LB_HOST</span> --data <span class="s1">&#39;hello world&#39;</span>
-</span></span><span class="line"><span class="cl">hello world
-</span></span></code></pre></div><h2 id="후기">후기</h2>
-<p>확실히 EKS는 ECS에 비해 훨씬 복잡합니다. 그만큼 세세한 컨트롤이 가능하고, AWS에 특화된 개념이 아니라는 것은 장점이라고 봅니다.</p>
-<p>이번 글에서는 수동으로 처리해주는 부분이 꽤 있는데 다음에는 더 자동화(Terraform) 해보도록 하겠습니다.</p>
-<h2 id="appendix">Appendix</h2>
-<ul>
-<li>예제 파일: <a href="/file/ko/tech/2022-03-31-2-simon-sample.zip">simon-sample.zip</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/alb-ingress.html">Amazon EKS의 애플리케이션 로드 밸런싱</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/create-cluster.html">Amazon EKS 클러스터 생성</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/fargate-getting-started.html">Amazon EKS를 사용하여 AWS Fargate 시작하기</a>
-<ul>
-<li><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/fargate-getting-started.html#fargate-gs-coredns">CoreDNS 업데이트</a></li>
-</ul>
-</li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/create-kubeconfig.html">Amazon EKS용 kubeconfig 생성</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/enable-iam-roles-for-service-accounts.html">클러스터에 대한 IAM OIDC 공급자 생성</a></li>
-<li><a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/">AWS Load Balancer Controller</a>
-<ul>
-<li><a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/">Ingress annotations</a></li>
-</ul>
-</li>
-<li><a href="https://kubernetes.io/ko/docs/home/">쿠버네티스</a>
-<ul>
-<li><a href="https://kubernetes.io/ko/docs/concepts/workloads/pods/">파드</a></li>
-<li><a href="https://kubernetes.io/ko/docs/concepts/workloads/controllers/replicaset/">레플리카셋</a></li>
-<li><a href="https://kubernetes.io/ko/docs/concepts/workloads/controllers/deployment/">디플로이먼트</a></li>
-<li><a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Ingress</a></li>
-</ul>
-</li>
-</ul>
-
-        </div>
-      </div>
-      
     </div>
 
     
@@ -1130,6 +754,11 @@ TypeScript가 변환하지 않도록 import 문을 감추는 것입니다.</p>
     
     
     
+    
+    
+    
+    
+    
 
     
     
@@ -1138,7 +767,7 @@ TypeScript가 변환하지 않도록 import 문을 감추는 것입니다.</p>
 
     
     <li><a href='/ko/tech/page/2/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/14/'>끝 &raquo;</a></li>
+    <li><a href='/ko/tech/page/15/'>끝 &raquo;</a></li>
     
   </ul>
   

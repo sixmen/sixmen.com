@@ -55,6 +55,152 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-15-1-match-multiple-patterns/'>문자열이 여러개의 패턴에 일치하는지 여부 검사하기</a></h2>
+          <p class='posts-date'>15 Dec 2016</p>
+        </div>
+        <div class='panel-body'>
+          <p>지그재그에서는 현재 하루에 수천만개의 사용자 로그가 쌓이고 있습니다.
+그리고 이 로그를 분석해 사용자가 얼마나 쇼핑몰에 가입을 하는지,
+주문을 얼마나 하는지 살피고 있습니다.</p>
+<p>그런데 지그재그가 지원하는 수많은 쇼핑몰은 다양한 솔루션을 사용하고 있고,
+그에 따라 패턴도 전부 제각각입니다.
+따라서 어떤 로그가 가입 페이지인지, 주문 페이지인지 확인하기 위해서
+모든 솔루션의 패턴과 대조를 해야 합니다.</p>
+<p>오늘은 이러한 대조를 어떻게 하고 있는지 살펴보겠습니다.
+분석은 여러가지 언어로 하고 있지만, 여기서는 JavaScript를 살펴보겠습니다.</p>
+<p>JavaScript에서 어떤 문자열이 패턴을 포함하고 있는지 검사하는 방법은 다음과 같은 것들이 있습니다.
+<a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf">String.prototype.indexOf</a>,
+<a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/String/includes">String.prototype.includes</a>,
+<a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/String/match">String.prototype.match</a>,
+<a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test">RegExp.prototype.test</a>.</p>
+<p>우선 10만개짜리 로그들을 놓고 간단한 문자열 포함 여부 검사를 각 방법으로 해서 시간을 비교해봤습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nv">fs = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">logs = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s">&#39;logs&#39;</span><span class="p">,</span> <span class="s">&#39;utf-8&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;\n&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">run = </span><span class="nf">(name, fn) -&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">start = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">...</span><span class="mi">1000</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fn</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#34;</span><span class="si">#{</span><span class="nx">name</span><span class="si">}</span><span class="s"> - </span><span class="si">#{</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="o">-</span><span class="nx">start</span><span class="si">}</span><span class="s">ms&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;indexOf&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s">&#39;o&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;includes&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">includes</span> <span class="s">&#39;o&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="sr">/o/</span><span class="p">.</span><span class="nx">test</span> <span class="nx">log</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;match&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">match</span> <span class="o">/</span><span class="nx">o</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span></span></span></code></pre></div>
+<p>다음은 그 결과입니다.</p>
+<pre tabindex="0"><code>indexOf - 6517ms
+includes - 7247ms
+test - 13539ms
+match - 14369ms
+</code></pre><p>속도 차이가 많아보입니다.</p>
+<p>이번에는 검색 패턴을 좀더 실제에 가깝게 해봤습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;indexOf&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s">&#39;join.html&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;includes&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">includes</span> <span class="s">&#39;join.html&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="sr">/join\.html/</span><span class="p">.</span><span class="nx">test</span> <span class="nx">log</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;match&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">match</span> <span class="o">/</span><span class="nx">join</span><span class="err">\</span><span class="p">.</span><span class="nx">html</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span></span></span></code></pre></div>
+<p>다음은 그 결과입니다.</p>
+<pre tabindex="0"><code>indexOf - 6812ms
+includes - 7947ms
+test - 10420ms
+match - 10943ms
+</code></pre><p>indexOf, includes에 대해서 시간이 증가하는 것은 예상된 것이지만,
+정규식을 쓰는 경우 오히려 시간이 감소했습니다.
+혹시 이유를 아시는 분은 알려주시면 감사하겠습니다.</p>
+<p>그래도 indexOf가 가장 빠르지만, 우리가 원하는 패턴은 하나가 아닙니다.
+패턴을 두개로 늘려봤습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;indexOf&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s">&#39;join.html&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">or</span> <span class="nx">log</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s">&#39;join_contract.html&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;includes&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s">&#39;join.html&#39;</span><span class="p">)</span> <span class="o">or</span> <span class="nx">log</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s">&#39;join_contract.html&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="sr">/join\.html|join_contract\.html/</span><span class="p">.</span><span class="nx">test</span> <span class="nx">log</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">run</span> <span class="s">&#39;match&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count = </span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">log</span> <span class="k">in</span> <span class="nx">logs</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">log</span><span class="p">.</span><span class="nx">match</span> <span class="o">/</span><span class="nx">join</span><span class="err">\</span><span class="p">.</span><span class="nx">html</span><span class="o">|</span><span class="nx">join_contract</span><span class="err">\</span><span class="p">.</span><span class="nx">html</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">count</span><span class="o">++</span></span></span></code></pre></div>
+<p>다음은 그 결과입니다.</p>
+<pre tabindex="0"><code>indexOf - 12686ms
+includes - 13864ms
+test - 11690ms
+match - 12089ms
+</code></pre><p>패턴이 두개만 되도 정규식이 빠릅니다. 심지어 저희는 패턴이 일단 10개는 넘습니다.
+그래서 정규식의 test를 쓰는 것으로 결정을 했습니다.
+그리고 알려진 패턴을 추가했습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nv">PATTERN = </span><span class="sr">/join\.html|join_contract\.html|member\/register|register_form\.php|..../</span></span></span></code></pre></div>
+<p>10개미만일때는 그래도 괜찮은데 길어지니까 어디까지가 하나의 패턴인지 눈에 안 들어옵니다.
+거기에 일일이 기억하기 어려워서 각 패턴이 어떤 솔루션의 것인지 주석을 달고 싶어졌습니다.
+그래서 정규식을 여러 줄로 나눠서 쓸 수 있는지 찾아봤습니다.
+몇몇언어(예. Perl)는 정규식 자체를 여러 줄로 나눌 수 있지만 JavaScript는 그런 문법은 없는 것 같습니다.</p>
+<p>방법을 찾아보니 <a href="http://stackoverflow.com/q/12317049">regex - How to split a long regular expression into multiple lines in JavaScript? - Stack Overflow</a>를 찾을 수 있었습니다.
+그 중에서도 단순히 문자열을 합친 후 RegExp 생성자를 이용하는 것은 문자열 escape에 신경을 써야 해서,
+최종적으로는 <a href="http://stackoverflow.com/a/34755045">두번째 답변</a>의 방법을 이용하기로 했습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nv">PATTERNS = </span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="sr">/join\.html/</span><span class="p">,</span> <span class="c1"># 솔루션 A
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="sr">/join_contract\.html/</span><span class="p">,</span> <span class="c1"># 솔루션 B
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="sr">/member\/register/</span><span class="p">,</span> <span class="c1"># 솔루션 C
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="sr">/register_form\.php/</span><span class="p">,</span> <span class="c1"># 솔루션 D
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PATTERN_RE = </span><span class="k">new</span> <span class="nb">RegExp</span> <span class="nx">PATTERNS</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nf">(p) -&gt;</span> <span class="nx">p</span><span class="p">.</span><span class="nx">source</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">)</span></span></span></code></pre></div>
+<p>이상 패턴 일치 여부 검사 방법이였습니다.
+(원래는 JavaScript에서 정규식을 여러 줄로 쓰는 방법에 대해서 쓰려던 건데 사족이 붙어서 길어졌네요)</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2016-12-14-1-language-comparison-regular-expression-capturing-group/'>언어 비교 - 정규식 캡쳐링 그룹</a></h2>
           <p class='posts-date'>14 Dec 2016</p>
         </div>
@@ -286,117 +432,6 @@ import java.util.regex.Pattern;
         </div>
       </div>
       
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2016-12-09-1-language-comparison-string-join/'>언어 비교 - 문자열 배열 합치기</a></h2>
-          <p class='posts-date'>09 Dec 2016</p>
-        </div>
-        <div class='panel-body'>
-          
-<div class='langsheet'>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>C</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*<span class='cmd_keyword'>const</span>&nbsp;strs[]&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_keyword'>int</span>&nbsp;i&nbsp;=&nbsp;<span class='cmd_number'>0</span>;<br><span class='cmd_keyword'>int</span>&nbsp;size&nbsp;=&nbsp;<span class='cmd_number'>0</span>;<br><span class='cmd_keyword'>char</span>&nbsp;*out;<br><span class='cmd_keyword'>for</span>&nbsp;(i=<span class='cmd_number'>0</span>;i&lt;<span class='cmd_number'>3</span>;i++)&nbsp;{<br>&nbsp;&nbsp;size&nbsp;+=&nbsp;<span class='cmd_stdlib'>strlen</span>(strs[i])&nbsp;+&nbsp;<span class='cmd_number'>1</span>;<br>}<br>out&nbsp;=&nbsp;(<span class='cmd_keyword'>char</span>&nbsp;*)<span class='cmd_stdlib'>malloc</span>(size);<br><span class='cmd_stdlib'>strcpy</span>(out,&nbsp;strs[<span class='cmd_number'>0</span>]);<br><span class='cmd_keyword'>for</span>&nbsp;(i=<span class='cmd_number'>1</span>;i&lt;<span class='cmd_number'>3</span>;i++)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_stdlib'>strcat</span>(out,&nbsp;<span class='cmd_string'>","</span>);<br>&nbsp;&nbsp;<span class='cmd_stdlib'>strcat</span>(out,&nbsp;strs[i]);<br>}
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>C++</div>
-  <div class='panel-body'>
-    <span class='cmd_comment'>//&nbsp;one-liner</span><br><span class='cmd_stdlib'>vector</span>&lt;<span class='cmd_stdlib'>string</span>&gt;&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>string</span>&nbsp;out&nbsp;=&nbsp;<span class='cmd_stdlib'>accumulate</span>(<span class='cmd_stdlib'>next</span>(strs.<span class='cmd_stdlib'>begin</span>()),&nbsp;strs.<span class='cmd_stdlib'>end</span>(),&nbsp;strs[0],<br>&nbsp;&nbsp;[](<span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_stdlib'>string</span>&nbsp;&amp;a,&nbsp;<span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_stdlib'>string</span>&nbsp;&amp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='cmd_keyword'>return</span>&nbsp;a&nbsp;+&nbsp;<span class='cmd_string'>","</span>&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;});<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;prevent&nbsp;reallocation</span><br><span class='cmd_stdlib'>vector</span>&lt;<span class='cmd_stdlib'>string</span>&gt;&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>ostringstream</span>&nbsp;os;<br><span class='cmd_stdlib'>copy</span>(strs.<span class='cmd_stdlib'>begin</span>(),&nbsp;strs.<span class='cmd_stdlib'>end</span>()-1,&nbsp;<span class='cmd_stdlib'>ostream_iterator</span>&lt;<span class='cmd_stdlib'>string</span>&gt;(os,&nbsp;<span class='cmd_string'>","</span>));<br>os&nbsp;&lt;&lt;&nbsp;*strs.<span class='cmd_stdlib'>rbegin</span>();<br><span class='cmd_stdlib'>string</span>&nbsp;out&nbsp;=&nbsp;os.<span class='cmd_stdlib'>str</span>();
-  </div>
-  <div class='panel-footer'>
-    #include &lt;algorithm&gt; // copy<br>
-#include &lt;iterator&gt; // next, ostream_iterator<br>
-#include &lt;numeric&gt; // accumulate<br>
-#include &lt;sstream&gt; // ostringstream
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>CoffeeScript</div>
-  <div class='panel-body'>
-    strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br>out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Java</div>
-  <div class='panel-body'>
-    <span class='cmd_comment'>//&nbsp;Java&nbsp;8</span><br><span class='cmd_stdlib'>List</span>&lt;<span class='cmd_stdlib'>String</span>&gt;&nbsp;strs&nbsp;=&nbsp;<span class='cmd_stdlib'>Arrays</span>.<span class='cmd_stdlib'>asList</span>(<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>);<br><span class='cmd_stdlib'>String</span>&nbsp;out&nbsp;=&nbsp;<span class='cmd_stdlib'>String</span>.<span class='cmd_stdlib'>join</span>(<span class='cmd_string'>","</span>,&nbsp;strs);<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;Java&nbsp;7&nbsp;and&nbsp;below</span><br><span class='cmd_stdlib'>String</span>[]&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>StringBuilder</span>&nbsp;sb&nbsp;=&nbsp;new&nbsp;<span class='cmd_stdlib'>StringBuilder</span>();<br><span class='cmd_keyword'>boolean</span>&nbsp;first&nbsp;=&nbsp;<span class='cmd_keyword'>true</span>;<br>for&nbsp;(<span class='cmd_stdlib'>String</span>&nbsp;str&nbsp;:&nbsp;strs)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>if</span>&nbsp;(first)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;first&nbsp;=&nbsp;<span class='cmd_keyword'>false</span>;<br>&nbsp;&nbsp;}&nbsp;<span class='cmd_keyword'>else</span>&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;sb.<span class='cmd_stdlib'>append</span>(<span class='cmd_string'>","</span>);<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;sb.<span class='cmd_stdlib'>append</span>(str);<br>}<br><span class='cmd_stdlib'>String</span>&nbsp;out&nbsp;=&nbsp;sb.<span class='cmd_stdlib'>toString</span>();
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>JavaScript</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>(<span class='cmd_string'>','</span>)
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Kotlin</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>val</span>&nbsp;strs&nbsp;=&nbsp;<span class='cmd_stdlib'>arrayOf</span>(<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>)<br><span class='cmd_keyword'>val</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joinToString</span>(<span class='cmd_string'>","</span>)
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Lua</div>
-  <div class='panel-body'>
-    strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>}<br><span class='cmd_stdlib'>table</span>.<span class='cmd_stdlib'>concat</span>(strs,&nbsp;<span class='cmd_string'>","</span>)
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Objective-C</div>
-  <div class='panel-body'>
-    <span class='cmd_stdlib'>NSArray</span>&nbsp;*strs&nbsp;=&nbsp;@[<span class='cmd_string'>@"one"</span>,&nbsp;<span class='cmd_string'>@"two"</span>,&nbsp;<span class='cmd_string'>@"three"</span>];<br><span class='cmd_stdlib'>NSString</span>&nbsp;*out&nbsp;=&nbsp;[strs&nbsp;<span class='cmd_stdlib'>componentsJoinedByString</span>:<span class='cmd_string'>@","</span>];
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Perl</div>
-  <div class='panel-body'>
-    @strs&nbsp;=&nbsp;<span class='cmd_keyword'>qw</span>(<span class='cmd_string'>one</span>&nbsp;<span class='cmd_string'>two</span>&nbsp;<span class='cmd_string'>three</span>);<br>$out&nbsp;=&nbsp;<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>,&nbsp;@strs;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>PHP</div>
-  <div class='panel-body'>
-    $strs&nbsp;=&nbsp;<span class='cmd_keyword'>array</span>(<span class='cmd_string'>'one'</span>,&nbsp;<span class='cmd_string'>'two'</span>,&nbsp;<span class='cmd_string'>'three'</span>);<br>$out&nbsp;=&nbsp;<span class='cmd_stdlib'>implode</span>(<span class='cmd_string'>','</span>,&nbsp;$strs);
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Python</div>
-  <div class='panel-body'>
-    strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br><span class='cmd_string'>','</span>.<span class='cmd_stdlib'>join</span>(strs)
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Ruby</div>
-  <div class='panel-body'>
-    strs&nbsp;=&nbsp;%w(<span class='cmd_string'>one</span>&nbsp;<span class='cmd_string'>two</span>&nbsp;<span class='cmd_string'>three</span>)<br>out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Swift</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joined</span>(<span class='cmd_stdlib'>separator</span>:&nbsp;<span class='cmd_string'>","</span>)
-  </div>
-</div>
-
-</div>
-
-        </div>
-      </div>
-      
     </div>
 
     
@@ -488,13 +523,20 @@ import java.util.regex.Pattern;
     <li><a href='/ko/tech/page/14/'>14</a></li>
     
     
+    
+    
+    
+    
+    
 
     
+    
+    <li class='disabled'><span>&hellip;</span></li>
     
 
     
     <li><a href='/ko/tech/page/13/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/14/'>끝 &raquo;</a></li>
+    <li><a href='/ko/tech/page/15/'>끝 &raquo;</a></li>
     
   </ul>
   

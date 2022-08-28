@@ -55,6 +55,117 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-09-1-language-comparison-string-join/'>언어 비교 - 문자열 배열 합치기</a></h2>
+          <p class='posts-date'>09 Dec 2016</p>
+        </div>
+        <div class='panel-body'>
+          
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*<span class='cmd_keyword'>const</span>&nbsp;strs[]&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_keyword'>int</span>&nbsp;i&nbsp;=&nbsp;<span class='cmd_number'>0</span>;<br><span class='cmd_keyword'>int</span>&nbsp;size&nbsp;=&nbsp;<span class='cmd_number'>0</span>;<br><span class='cmd_keyword'>char</span>&nbsp;*out;<br><span class='cmd_keyword'>for</span>&nbsp;(i=<span class='cmd_number'>0</span>;i&lt;<span class='cmd_number'>3</span>;i++)&nbsp;{<br>&nbsp;&nbsp;size&nbsp;+=&nbsp;<span class='cmd_stdlib'>strlen</span>(strs[i])&nbsp;+&nbsp;<span class='cmd_number'>1</span>;<br>}<br>out&nbsp;=&nbsp;(<span class='cmd_keyword'>char</span>&nbsp;*)<span class='cmd_stdlib'>malloc</span>(size);<br><span class='cmd_stdlib'>strcpy</span>(out,&nbsp;strs[<span class='cmd_number'>0</span>]);<br><span class='cmd_keyword'>for</span>&nbsp;(i=<span class='cmd_number'>1</span>;i&lt;<span class='cmd_number'>3</span>;i++)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_stdlib'>strcat</span>(out,&nbsp;<span class='cmd_string'>","</span>);<br>&nbsp;&nbsp;<span class='cmd_stdlib'>strcat</span>(out,&nbsp;strs[i]);<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;one-liner</span><br><span class='cmd_stdlib'>vector</span>&lt;<span class='cmd_stdlib'>string</span>&gt;&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>string</span>&nbsp;out&nbsp;=&nbsp;<span class='cmd_stdlib'>accumulate</span>(<span class='cmd_stdlib'>next</span>(strs.<span class='cmd_stdlib'>begin</span>()),&nbsp;strs.<span class='cmd_stdlib'>end</span>(),&nbsp;strs[0],<br>&nbsp;&nbsp;[](<span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_stdlib'>string</span>&nbsp;&amp;a,&nbsp;<span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_stdlib'>string</span>&nbsp;&amp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='cmd_keyword'>return</span>&nbsp;a&nbsp;+&nbsp;<span class='cmd_string'>","</span>&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;});<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;prevent&nbsp;reallocation</span><br><span class='cmd_stdlib'>vector</span>&lt;<span class='cmd_stdlib'>string</span>&gt;&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>ostringstream</span>&nbsp;os;<br><span class='cmd_stdlib'>copy</span>(strs.<span class='cmd_stdlib'>begin</span>(),&nbsp;strs.<span class='cmd_stdlib'>end</span>()-1,&nbsp;<span class='cmd_stdlib'>ostream_iterator</span>&lt;<span class='cmd_stdlib'>string</span>&gt;(os,&nbsp;<span class='cmd_string'>","</span>));<br>os&nbsp;&lt;&lt;&nbsp;*strs.<span class='cmd_stdlib'>rbegin</span>();<br><span class='cmd_stdlib'>string</span>&nbsp;out&nbsp;=&nbsp;os.<span class='cmd_stdlib'>str</span>();
+  </div>
+  <div class='panel-footer'>
+    #include &lt;algorithm&gt; // copy<br>
+#include &lt;iterator&gt; // next, ostream_iterator<br>
+#include &lt;numeric&gt; // accumulate<br>
+#include &lt;sstream&gt; // ostringstream
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br>out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;Java&nbsp;8</span><br><span class='cmd_stdlib'>List</span>&lt;<span class='cmd_stdlib'>String</span>&gt;&nbsp;strs&nbsp;=&nbsp;<span class='cmd_stdlib'>Arrays</span>.<span class='cmd_stdlib'>asList</span>(<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>);<br><span class='cmd_stdlib'>String</span>&nbsp;out&nbsp;=&nbsp;<span class='cmd_stdlib'>String</span>.<span class='cmd_stdlib'>join</span>(<span class='cmd_string'>","</span>,&nbsp;strs);<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;Java&nbsp;7&nbsp;and&nbsp;below</span><br><span class='cmd_stdlib'>String</span>[]&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>StringBuilder</span>&nbsp;sb&nbsp;=&nbsp;new&nbsp;<span class='cmd_stdlib'>StringBuilder</span>();<br><span class='cmd_keyword'>boolean</span>&nbsp;first&nbsp;=&nbsp;<span class='cmd_keyword'>true</span>;<br>for&nbsp;(<span class='cmd_stdlib'>String</span>&nbsp;str&nbsp;:&nbsp;strs)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>if</span>&nbsp;(first)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;first&nbsp;=&nbsp;<span class='cmd_keyword'>false</span>;<br>&nbsp;&nbsp;}&nbsp;<span class='cmd_keyword'>else</span>&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;sb.<span class='cmd_stdlib'>append</span>(<span class='cmd_string'>","</span>);<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;sb.<span class='cmd_stdlib'>append</span>(str);<br>}<br><span class='cmd_stdlib'>String</span>&nbsp;out&nbsp;=&nbsp;sb.<span class='cmd_stdlib'>toString</span>();
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>(<span class='cmd_string'>','</span>)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>val</span>&nbsp;strs&nbsp;=&nbsp;<span class='cmd_stdlib'>arrayOf</span>(<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>)<br><span class='cmd_keyword'>val</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joinToString</span>(<span class='cmd_string'>","</span>)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>}<br><span class='cmd_stdlib'>table</span>.<span class='cmd_stdlib'>concat</span>(strs,&nbsp;<span class='cmd_string'>","</span>)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>NSArray</span>&nbsp;*strs&nbsp;=&nbsp;@[<span class='cmd_string'>@"one"</span>,&nbsp;<span class='cmd_string'>@"two"</span>,&nbsp;<span class='cmd_string'>@"three"</span>];<br><span class='cmd_stdlib'>NSString</span>&nbsp;*out&nbsp;=&nbsp;[strs&nbsp;<span class='cmd_stdlib'>componentsJoinedByString</span>:<span class='cmd_string'>@","</span>];
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    @strs&nbsp;=&nbsp;<span class='cmd_keyword'>qw</span>(<span class='cmd_string'>one</span>&nbsp;<span class='cmd_string'>two</span>&nbsp;<span class='cmd_string'>three</span>);<br>$out&nbsp;=&nbsp;<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>,&nbsp;@strs;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    $strs&nbsp;=&nbsp;<span class='cmd_keyword'>array</span>(<span class='cmd_string'>'one'</span>,&nbsp;<span class='cmd_string'>'two'</span>,&nbsp;<span class='cmd_string'>'three'</span>);<br>$out&nbsp;=&nbsp;<span class='cmd_stdlib'>implode</span>(<span class='cmd_string'>','</span>,&nbsp;$strs);
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br><span class='cmd_string'>','</span>.<span class='cmd_stdlib'>join</span>(strs)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;%w(<span class='cmd_string'>one</span>&nbsp;<span class='cmd_string'>two</span>&nbsp;<span class='cmd_string'>three</span>)<br>out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joined</span>(<span class='cmd_stdlib'>separator</span>:&nbsp;<span class='cmd_string'>","</span>)
+  </div>
+</div>
+
+</div>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2016-12-07-1-language-comparison-string-concatenate/'>언어 비교 - 문자열 연결</a></h2>
           <p class='posts-date'>07 Dec 2016</p>
         </div>
@@ -210,33 +321,6 @@ iPhone 6 / 6 Plus의 확대됨 모드에서는 약 16%~17%가 더 크게 표시�
         </div>
       </div>
       
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2014-11-12-1-git-ignore-changes/'>Git에서 변경된 내용 무시하기</a></h2>
-          <p class='posts-date'>12 Nov 2014</p>
-        </div>
-        <div class='panel-body'>
-          <p>개발을 하다보면 몇몇 설정 파일을 수정한 채로 개발을 하는 경우가 있습니다.
-예를 들면 서버 주소를 개발용 서버로 변경해서 작업을 할 수 있겠죠.
-만약 개발용 서버가 명확히 정해져 있다면, 디버그 모드와 출시 모드를 구분하는 식으로 고정된 설정 파일을 만들 수 있겠지만,
-개발용 서버가 개발자 개인 컴퓨터인 경우는 이것도 쉽지 않습니다.</p>
-<p>이런 용도로 변경된 파일들은 당연히 주 저장소에 올라가면 안 되겠죠.
-(하지만 이 파일 자체는 주 저장소에 포함되어야 하기에 .gitignore를 쓸 수는 없습니다)
-저 같이 &lsquo;git commit -a&rsquo;을 실행하는데 익숙한 사람은 매번 커밋시 이 파일이 포함되지 않도록 신경써주는것이 꽤 큰 비용입니다.</p>
-<p>다행히 git는 이를 위한 해결책이 있습니다. 다음 명령을 실행하면 해당 파일에 대한 변경을 무시합니다.</p>
-<pre tabindex="0"><code>git update-index --assume-unchanged &lt;file&gt;
-</code></pre><p>다시 변경된 내역을 표시하려면 다음 명령을 실행합니다.</p>
-<pre tabindex="0"><code>git update-index --no-assume-unchanged &lt;file&gt;
-</code></pre><p>변경이 무시되고 있는 파일 목록은 다음 명령으로 확인할 수 있습니다.</p>
-<pre tabindex="0"><code>git ls-files -v | grep &#39;^h&#39;
-</code></pre><h3 id="참고">참고</h3>
-<ul>
-<li><a href="http://blog.pagebakers.nl/2009/01/29/git-ignoring-changes-in-tracked-files/">GIT: ignoring changes in tracked files « Pagebakers</a></li>
-</ul>
-
-        </div>
-      </div>
-      
     </div>
 
     
@@ -327,13 +411,19 @@ iPhone 6 / 6 Plus의 확대됨 모드에서는 약 16%~17%가 더 크게 표시�
     <li><a href='/ko/tech/page/14/'>14</a></li>
     
     
+    
+    
+    
+    <li><a href='/ko/tech/page/15/'>15</a></li>
+    
+    
 
     
     
 
     
     <li><a href='/ko/tech/page/14/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/14/'>끝 &raquo;</a></li>
+    <li><a href='/ko/tech/page/15/'>끝 &raquo;</a></li>
     
   </ul>
   
