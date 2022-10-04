@@ -5,7 +5,16 @@
     <link>http://sixmen.com/ko/tech/</link>
     <description>Recent content in Teches on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tech/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 04 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GraphQL 이해하기: (1) 스키마 정의</title>
+      <link>http://sixmen.com/ko/tech/2022-10-04-1-understanding-graphql-1-schema/</link>
+      <pubDate>Tue, 04 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2022-10-04-1-understanding-graphql-1-schema/</guid>
+      <description>GraphQL이란 것은 대부분 들어보셨을 것으로 생각합니다. 그리고 페이스북이 만들었다는 것 정도는 아실 것 같습니다. 근데 여기서 말하는 GraphQL이란</description>
+    </item>
+    
     <item>
       <title>잘못된 브랜치 배포를 방지하기</title>
       <link>http://sixmen.com/ko/tech/2022-08-28-1-prevent-deploy-invalid-branch/</link>

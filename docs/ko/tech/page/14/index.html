@@ -55,6 +55,58 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2014-12-23-1-iphone-ppi/'>iPhone PPI와 논리 픽셀에 대응하는 물리 크기</a></h2>
+          <p class='posts-date'>23 Dec 2014</p>
+        </div>
+        <div class='panel-body'>
+          <p>앱을 iPhone 6 / 6 Plus에 맞추는 작업을 하던 중에 PPI에 혼란이 와서 직접 계산해 봤습니다.</p>
+<p>우선 오리지널 iPhone의 물리적 스크린 크기는 가로 1.94 인치(4.93cm), 세로 2.91 인치(7.4cm)입니다.<!-- raw HTML omitted -->1<!-- raw HTML omitted -->
+해상도(resolution)는 320x480이므로 PPI는 약 163입니다.
+(위 수치로 계산하면 165가 되는데 대부분 163으로 표시해서 이를 기준으로 합니다.)
+PPI가 163라는 것은 64x64 픽셀의 이미지가 물리적으로 0.4인치 x 0.4인치 = 1cm x 1cm 정도의
+크기가 된다는 것을 의미합니다. (64/163=0.39in=1cm)</p>
+<p>iPhone 4로 넘어오면서 물리적인 크기는 유지하면서 해상도를 두배(640x960)로 만들었습니다.
+따라서 PPI는 약 326(계산으로는 330)이 되었습니다.
+iPhone 4에서 1cm x 1cm로 이미지를 표현하려면 128x128 픽셀이 필요합니다. (1/2.54*326=128)
+하지만 프로그래밍시에는 scale factor를 도입해서(UIScreen의 scale 속성)
+논리적인 좌표는 오리지널 iPhone과 동일하게 64x64를 갖도록 해서
+iPhone 4를 지원하기 위해 별도의 작업이 필요없도록 했습니다.
+(대신 hairline을 표현하기가 까다로워 졌습니다.)</p>
+<p>iPhone 5에서는 해상도가 640x1152(논리적 해상도 320x568)로 켜졌지만, 물리적 크기도 1.94 인치 x 3.49 인치로 늘어서
+PPI는 iPhone 4와 동일하게 326입니다.</p>
+<p>이제 iPhone 6를 보겠습니다.
+iPhone 6의 물리적 스크린 크기는 가로 2.3 인치(5.8cm), 세로 4.1 인치(10.4cm)이고,
+해상도는 750x1334(논리적 해상도 375x667)입니다.<!-- raw HTML omitted -->2<!-- raw HTML omitted -->
+PPI를 계산해보면 326으로 iPhone 4, iPhone 5와 동일합니다.
+즉, iPhone 4, iPhone 5에서와 동일한 논리적 픽셀 값을 사용하면 사용자에게 같은 크기로 보인다는 얘기입니다.
+대신 스크린 크기가 커졌으므로 더 많은 1cm x 1cm 이미지를 표시할 수 있겠죠.</p>
+<p>그런데 여기서 하나 새로운 개념이 추가됩니다. 디스플레이 확대/축소(Display Zoome)에서 확대됨(Zoomed)를 설정하면
+이미지, 글씨등이 크게 표시됩니다. 기술적으로는 논리적 해상도로 375x667 대신 320x568을 기준으로 작업함을 의미합니다.
+이 상태에서 iPhone 4와 동일하게 64x64 픽셀로 이미지를 위치시키면 물리적 크기가 1.17cm x 1.17cm가 됩니다.</p>
+<p>마지막으로 iPhone 6 Plus는 가로 2.7 인치(6.8cm), 세로 4.8 인치(12.2cm), 해상도 1080x1920을 갖습니다.
+PPI는 400이 되겠네요. 그런데 iPhone 6 Plus는 특이하게 414x736의 논리적 해상도를 갖습니다.
+(scale factor는 3으로 1242x2208 캔버스에 그려집니다.)
+실 해상도와 정수로 대응하지 않습니다. 왜 이렇게 했을까요?</p>
+<p>만약 논리적 해상도를 360x640으로 했다면, iPhone 4에 맞춰 64x64로 작업한 이미지는 1.2cmx1.2cm로 표시됩니다.
+반면 414x736인 경우 1.05cmx1.05cm로 나머지 기종에서 기대하는 크기와 비슷합니다.
+(어짜피 물리적 해상도와 다른데 정확히 맞추지 않은 이유는 모르겠습니다.)</p>
+<p>마지막으로 iPhone 6 Plus에서 확대됨을 선택하면 iPhone 6의 논리적 해상도인 375x667로 동작합니다.
+이 경우 64x64로 작업한 이미지(scale factor는 3x이므로 192x192 픽셀의 이미지가 필요)는 1.16cm x 1.16cm로
+iPhone 6의 확대됨 모드와 비슷한 크기로 표시됩니다.</p>
+<p>요약하면 코드 작성시 같은 픽셀 크기로 작업하면 iPhone 종류와 상관없이 같은 물리적 크기로 표시됩니다.
+다만 한 화면에서 표시되는 양만 달라집니다.
+iPhone 6 / 6 Plus의 확대됨 모드에서는 약 16%~17%가 더 크게 표시됩니다.</p>
+<hr>
+<ol>
+<li><a href="http://www.theverge.com/2012/4/9/2937265/the-4-inch-iphone-5">http://www.theverge.com/2012/4/9/2937265/the-4-inch-iphone-5</a></li>
+<li><a href="http://stackoverflow.com/questions/25756087/detecting-iphone-6-6-screen-sizes-in-point-values">http://stackoverflow.com/questions/25756087/detecting-iphone-6-6-screen-sizes-in-point-values</a></li>
+</ol>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2014-11-12-1-git-ignore-changes/'>Git에서 변경된 내용 무시하기</a></h2>
           <p class='posts-date'>12 Nov 2014</p>
         </div>
@@ -106,53 +158,6 @@ awk가 좀 오래된 도구다 보니 열린 파일 수 제한이 낮은 듯 합
 <ul>
 <li><a href="http://stackoverflow.com/questions/11713978/how-to-split-existing-apache-logfile-by-month/11714105#11714105">How to split existing apache logfile by month?</a></li>
 </ul>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2014-04-18-1-logrotate/'>서버 어플리케이션에 logrotate를 적용하기</a></h2>
-          <p class='posts-date'>18 Apr 2014</p>
-        </div>
-        <div class='panel-body'>
-          <!-- raw HTML omitted -->
-<p>회사에서 서비스를 하는 중에 로그 파일이 너무 커져서, 적당한 크기에서 나눌 방법이 필요해졌습니다.
-이런 경우 리눅스에서 주로 쓰는 방법은 logrotate입니다.
-그리고 이를 서비스에 적용하기 위해 필요한 것을 찾아봤습니다.</p>
-<p>logrotate 설정에 나눌 로그 파일을 추가하면 설정된 상황(매일 또는 매주, 무조건 또는
-주어진 크기를 넘었을 때등)에서 로그 파일을 나눕니다.
-이때 하는 동작은 기존 로그 파일의 이름을 변경하고, 같은 이름으로 새 로그 파일을 만드는 것입니다.</p>
-<p>만약 잠깐 실행되고 마는 프로그램이면 이것으로 잘 동작합니다.
-매번 실행할 때마다 주어진 이름의 로그 파일을 새로 열어서 쓰니까요.
-하지만 프로그램이 계속 떠 있는 경우 새 로그 파일에 쓰지 않고 계속 기존 로그 파일에 데이터가 쌓입니다.</p>
-<p>간단하게 이 동작을 확인할 수 있습니다.
-shell에서 <code>node -e &quot;setInterval(function () { console.log('hello'); }, 1000)&quot; &gt; log</code>를 실행한 후
-다른 창에서 log 파일의 이름을 변경하고 새로 생성해도 계속 기존 파일에 로그가 추가됩니다.
-이것은 한번 파일을 열면 그 파일의 이름이 아닌 descriptor에 의해서 접근하기 때문입니다.</p>
-<p>이 문제를 해결하기 위해 logrotate는 copytruncate라는 옵션을 제공합니다.
-이 옵션을 사용하면 파일의 이름을 변경하는 대신 새 파일로 내용을 복사하고
-기존 파일의 크기를 0으로 만들어버립니다.
-하지만 이 경우 복사하는 동안 추가된 로그가 사라지는 문제가 있습니다.</p>
-<p>다른 방법으로는 logrotate가 파일 이름을 변경한 후에 프로그램이 로그 파일을 새로 열도록 하는 것이 있습니다.
-이미 떠 있는 프로그램에 명령을 내리기 위해서는 주로 시그널을 사용합니다.
-예를 들어 <a href="http://nginx.org/">nginx</a>는 SIGUSR1을 받으면 로그 파일을 다시 열도록 되어 있습니다.
-(<a href="http://wiki.nginx.org/CommandLine#Stopping_or_Restarting_Nginx">Stopping or Restarting Nginx</a>)
-logrotate에서는 postrotate 옵션으로 이를 표현합니다. 다음은 Ubuntu에 적용된 nginx를 위한 logrotate 설정입니다.</p>
-<pre tabindex="0"><code>postrotate
-  [ ! -f /run/nginx.pid ] || kill -USR1 `cat /run/nginx.pid`
-endscript
-</code></pre><p>다음은 이 방법이 적용된 서버 코드입니다. Node.js를 사용하고 CoffeeScript로 작성되어 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-coffeescript" data-lang="coffeescript"><span class="line"><span class="cl"><span class="nv">logstream = </span><span class="kc">undefined</span>
-</span></span><span class="line"><span class="cl"><span class="nv">openLogFile = </span><span class="nf">-&gt;</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">logstream</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span> <span class="k">if</span> <span class="nx">logstream</span>
-</span></span><span class="line"><span class="cl">  <span class="nv">logstream = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">createWriteStream</span> <span class="s">&#34;log&#34;</span><span class="p">,</span> <span class="nv">flags: </span><span class="s">&#39;a+&#39;</span><span class="p">,</span> <span class="nv">mode: </span><span class="s">&#39;0644&#39;</span><span class="p">,</span> <span class="nv">encoding: </span><span class="s">&#39;utf8&#39;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">openLogFile</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># 시그널을 받으면 로그 파일을 다시 연다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGUSR2&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">openLogFile</span><span class="p">()</span></span></span></code></pre></div>
-<p>SIGUSR1은 Node.js가 디버그 모드 진입용으로 사용하고 있습니다. 그래서 대신 SIGUSR2를 사용했습니다.</p>
 
         </div>
       </div>
