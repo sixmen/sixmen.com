@@ -55,6 +55,262 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2022-04-09-1-esm-problem/'>ESM 삽질기</a></h2>
+          <p class='posts-date'>09 Apr 2022</p>
+        </div>
+        <div class='panel-body'>
+          <p>저희는 주기적으로 Node.js 모듈을 최신 버전으로 업데이트하고 있습니다.
+Node.js를 10년째 사용 중인데, CoffeeScript → TypeScript, 콜백 → Async.js → Promise(&amp; async, await) 전환 하면서 몇 번 혼란의 시기가 있었습니다.
+하지만 모듈 시스템은 쭉 이어져왔습니다.
+그런데 최근에 이 모듈 시스템에 큰 변화가 생겼고 기존 변화와 다르게 양립이 잘 안 되서 모듈 업데이트를 제대로 못 하고 있습니다.
+이 문제를 일으킨 ESM이 뭐고 어떤 작업이 필요한지 알아보려고 합니다. (개인적으로 만족하는 깔끔한 해결책이 나오지 못했습니다)</p>
+<h2 id="발생하는-문제">발생하는 문제</h2>
+<p><a href="https://www.npmjs.com/package/chalk">chalk</a> 란 모듈이 5.0으로 가면서 Pure ESM 모듈이 됐습니다. 이를 가져다 쓰면 다음과 같은 에러가 발생합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="nx">chalk</span> <span class="kr">from</span> <span class="s1">&#39;chalk&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">chalk</span><span class="p">.</span><span class="nx">yellow</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">));</span>
+</span></span></code></pre></div><pre tabindex="0"><code>Error [ERR_REQUIRE_ESM]: require() of ES Module /a/node_modules/chalk/source/index.js from /a/a.ts not supported.
+Instead change the require of index.js in /a/a.ts to a dynamic import() which is available in all CommonJS modules.
+</code></pre><h2 id="esm이란-무엇인가">ESM이란 무엇인가?</h2>
+<p>초기 JavaScript는 모듈 시스템이 없었습니다.
+클라이언트쪽에서는 <a href="https://requirejs.org/">Require.js</a>란 것이 많이 쓰였습니다.
+한편 서버(Node.js)에서는 CommonJS가 적용되어 따로 발전을 했습니다.
+라이브러리가 클라이언트, 서버를 모두 지원하기 위한 <a href="https://stackoverflow.com/questions/16521471/relation-between-commonjs-amd-and-requirejs">패턴들이 개발</a>되어 적용됐던 기억이 나네요.
+그후 <a href="https://browserify.org/">Browserify</a>, <a href="https://webpack.js.org/">webpack</a> 같은 번들 시스템이 나오면서 CommonJS 쪽으로 통일되었습니다.</p>
+<p>대부분의 경우 잘 동작하지만 뭔가 문제가 있으시까 새로운 시스템이 나왔겠죠? 상세한 히스토리는 잘 모르지만 제가 아는 CommonJS의 가장 큰 문제는 런타임에 모듈을 읽는 다는 것입니다.
+다음 예를 보겠습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="c1">// a.js
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a1&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./b&#39;</span><span class="p">).</span><span class="nx">b</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a2&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// b.js
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b1&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./a&#39;</span><span class="p">).</span><span class="nx">a</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b2&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ node a.js 
+</span></span><span class="line"><span class="cl">a1
+</span></span><span class="line"><span class="cl">b1
+</span></span><span class="line"><span class="cl">undefined
+</span></span><span class="line"><span class="cl">b2
+</span></span><span class="line"><span class="cl"><span class="m">2</span>
+</span></span><span class="line"><span class="cl">a2
+</span></span></code></pre></div><p>위의 예에서 보다시피 require는 그 줄에 다다를 때 실행됩니다.
+순환 참조가 발생하는 경우(<code>require('./a')</code>) 모듈을 다시 읽지는 않습니다.
+이때문에 주의를 기울이지 않으면 위 예처럼 모듈이 내보낸 값이 얻어지지 않는 문제가 발생할 수 있습니다.</p>
+<p>TypeScript의 import문은 사실 require로 변환되는 코드이기 때문에 기존 컴파일 언어에 익숙하신 분이 보면 당황할만한 부분이 좀 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="c1">// a.ts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a1&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">b</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./b&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a2&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">export</span> <span class="kr">const</span> <span class="nx">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// b.ts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b1&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">a</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./a&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b2&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">export</span> <span class="kr">const</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</span></span></code></pre></div><pre tabindex="0"><code>$ ts-node a.ts 
+a1
+b1
+undefined
+b2
+2
+a2
+</code></pre><p>아마 이런 저런 이유 때문에 <a href="https://nodejs.org/api/esm.html">ESM</a>이란 것이 나왔으리라 생각합니다.
+(몇년전에 <code>.cjs</code>, <code>.mjs</code> 확장자 얘기가 나오는 글들 보면서 무슨 얘기가 진행되는 거야 라고 넘어간 기억이 있습니다.)</p>
+<p>async/await 문법이 나온 이후에 가장 아쉬운 점 중 하나가 최상위 단계에서 await가 불가능하다는 것입니다.</p>
+<pre tabindex="0"><code>$ cat a.js                                                                                                                                                                         1 ↵
+await Promise.resolve(1);
+$ node a.js 
+/a/a.js:1
+await Promise.resolve(1);
+^^^^^
+
+SyntaxError: await is only valid in async functions and the top level bodies of modules
+</code></pre><p>따라서 함수를 만들거나 <a href="https://developer.mozilla.org/ko/docs/Glossary/IIFE">IIFE</a>를 사용해야 했습니다.
+이것은 CommonJS의 한계로 인한 것이고 ESM에서는 가능해졌습니다.
+이런 이유도 있어서 CommonJS에서 ESM 모듈을 require 하는 것이 불가능합니다.
+반대로 ESM 모듈에서 CommonJS 모듈을 읽는 것은 가능하지만 신경써야 할 것들이 있습니다.</p>
+<p>이렇게 ESM이 만들어진 후에 Sindre Sorhus란 분이 <a href="https://blog.sindresorhus.com/get-ready-for-esm-aa53530b3f77">ESM 전환을 선언</a>했습니다.
+그리고 이 분이 만드는 많은 모듈들(예 <a href="https://www.npmjs.com/package/file-type">file-type</a>.
+<a href="https://www.npmjs.com/~sindresorhus">npm 개인 홈</a>에 들어가보면 1165개의 모듈에 관여하고 있다고 나오네요)이 <a href="https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c">Pure ESM</a> 모듈로 전환됐습니다.
+Pure ESM은 모듈이 CommonJS/ESM 양쪽을 지원하도록 구성할 수도 있지만, 굳이 ESM만 제공한다는 뜻입니다.</p>
+<p>문제는 CommonJS 프로젝트에서는 ESM 모듈을 불러오는 것이 불가능하다는 것에 있습니다.
+따라서 프로젝트가 ESM으로 전환해야지만 Pure ESM 모듈을 사용할 수 있습니다.</p>
+<h2 id="무엇이-문제인가">무엇이 문제인가?</h2>
+<h3 id="typescript에서-원인-찾기">TypeScript에서 원인 찾기</h3>
+<p>위 예제에서 다시 시작하겠습니다</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="nx">chalk</span> <span class="kr">from</span> <span class="s1">&#39;chalk&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">chalk</span><span class="p">.</span><span class="nx">yellow</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">));</span>
+</span></span></code></pre></div><p>ts-node로 실행해보면 다음과 같은 에러가 발생합니다.</p>
+<pre tabindex="0"><code>$ ts-node a.ts 
+Error [ERR_REQUIRE_ESM]: require() of ES Module /a/node_modules/chalk/source/index.js from /a/a.ts not supported.
+Instead change the require of index.js in /a/a.ts to a dynamic import() which is available in all CommonJS modules.
+</code></pre><p>컴파일된 JavaScript 결과물을 보면 원인을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="s2">&#34;use strict&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">__esModule</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">chalk_1</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&#34;chalk&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">chalk_1</span><span class="p">[</span><span class="s2">&#34;default&#34;</span><span class="p">].</span><span class="nx">yellow</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">));</span>
+</span></span></code></pre></div><p>ESM 모듈은 require가 아니라 import를 해야 합니다.</p>
+<h3 id="javascript에서-문제-해결">JavaScript에서 문제 해결</h3>
+<p>TypeScript가 아니라 JavaScript로 import 구문을 사용해 작성해 봅니다. 이번에는 다른 에러가 납니다.</p>
+<pre tabindex="0"><code>$ cat a.js 
+import chalk from &#39;chalk&#39;;
+console.log(chalk.yellow(&#39;Hello&#39;));
+$ node a.js
+(node:72179) Warning: To load an ES module, set &#34;type&#34;: &#34;module&#34; in the package.json or use the .mjs extension.
+/a/a.js:1
+import chalk from &#39;chalk&#39;;
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+</code></pre><p>파일명을 <code>.mjs</code>로 바꾸면 잘 실행됩니다.</p>
+<pre tabindex="0"><code>$ node a.mjs 
+Hello
+</code></pre><p>파일명을 바꾸는 대신 전체 프로젝트를 ESM을 사용하는 것으로 선언할 수 있습니다. package.json에 <code>&quot;type&quot;: &quot;module&quot;</code>을 추가합니다.</p>
+<pre tabindex="0"><code>$ cat a.js 
+import chalk from &#39;chalk&#39;;
+console.log(chalk.yellow(&#39;Hello&#39;));
+$ cat package.json 
+{
+  &#34;type&#34;: &#34;module&#34;,
+  &#34;dependencies&#34;: {
+    &#34;chalk&#34;: &#34;^5.0.1&#34;
+  }
+}
+$ node a.js 
+Hello
+</code></pre><p>또는 TypeScript 실행시 보여준 에러 처럼 dynamic import를 사용할 수 있습니다.</p>
+<pre tabindex="0"><code>$ cat a.js 
+(async () =&gt; {
+  const chalk = await import(&#39;chalk&#39;);
+  console.log(chalk.default.yellow(&#39;Hello&#39;));
+})();
+$ node a.js 
+Hello
+</code></pre><p>정리하면 JavaScript에서 Pure ESM 모듈을 읽기 위해서는 다음 세가지 방법이 있습니다.</p>
+<ul>
+<li><code>.mjs</code> 확장자 사용</li>
+<li>전체 프로젝트를 ESM으로 전환</li>
+<li>dynamic import 사용</li>
+</ul>
+<h3 id="typescript로-되돌아-가서">TypeScript로 되돌아 가서</h3>
+<p><code>.mts</code> 란 확장자도 인식하고, tsc로 컴파일 해보면 <code>.mjs</code>로 나오긴 하지만 적절한 변환은 안 됩니다.</p>
+<p>dynamic import 구문을 사용해도 여전히 실행이 안 됩니다.
+컴파일된 결과물을 보면 여전히 require로 변환이 됩니다.
+이를 해결하려면 모듈시스템을 ES 것을 사용한다고 선언해야 합니다.
+tsconfig에서 <a href="https://www.typescriptlang.org/tsconfig#module">module 설정</a>을 적절히 해줘야 합니다.</p>
+<pre tabindex="0"><code>$ cat a.ts 
+(async () =&gt; {
+  const chalk = await import(&#39;chalk&#39;);
+  console.log(chalk.default.yellow(&#39;Hello&#39;));
+})();
+$ cat tsconfig.json 
+{
+  &#34;compilerOptions&#34;: {
+    &#34;target&#34;: &#34;es2017&#34;,
+    &#34;module&#34;: &#34;es2020&#34;,
+    &#34;moduleResolution&#34;: &#34;node&#34;
+  }
+}
+$ ts-node a.ts 
+Hello
+</code></pre><p>import를 require로 변환하지 않고 그대로 두는 건 module 설정이지만, Node.js에서 import 구문을 이해하는 것을 별개입니다.
+package.json에 <code>&quot;type&quot;: &quot;module&quot;</code> 도 추가하면 일반 import 구문도 동작합니다.
+ts-node로 실행시에는 <code>--esm</code> 옵션을 줘야 동작합니다.</p>
+<pre tabindex="0"><code>$ cat a.ts 
+import chalk from &#39;chalk&#39;;
+console.log(chalk.yellow(&#39;Hello&#39;));
+$ cat package.json 
+{
+  &#34;type&#34;: &#34;module&#34;,
+  &#34;dependencies&#34;: {...}
+}
+$ ts-node --esm a
+Hello
+$ tsc --module es2020 
+$ cat a.js
+import chalk from &#39;chalk&#39;;
+console.log(chalk.yellow(&#39;Hello&#39;));
+</code></pre><h2 id="실전-적용">실전 적용</h2>
+<p>이제 ESM의 동작 원리에 대해 약간 감이 옵니다. (저는 이 글을 쓰면서 정리하는데도 아직도 헷갈립니다) 이제 실전 적용을 해봅니다.</p>
+<p>JavaScript에서는 require와 dynamic import를 혼합해서 쓸 수 있습니다.
+다시 말해 ESM 전환(<code>&quot;type&quot;: &quot;module&quot;</code>)을 하지 않아도 ESM 모듈을 쓰는 것이 가능합니다.
+(static import가 안 되므로 코드를 다르게 작성하는 불편함은 있습니다.)</p>
+<p>하지만 TypeScript에서는 import를 require로 변환 또는 모드 import로 유지, 두 가지 선택지 밖에 없습니다.
+require로는 ESM 모듈을 쓸 수 없으므로 import 유지(<code>&quot;module&quot;: &quot;es2020&quot;</code>)를 해야 합니다.
+이 경우 Node.js에서 import 구문을 사용하므로 ESM 전환(<code>&quot;type&quot;: &quot;module&quot;</code>)도 해야 합니다.</p>
+<p>단순히 import 구문만 쓰면 되는게 아닙니다.
+<a href="https://nodejs.org/api/esm.html#mandatory-file-extensions">불러올 파일의 확장자를 모두 기술</a>해줘야 합니다.
+TypeScript 임에도 불구하고 <code>.js</code> 확장자를 써줘야 합니다.
+또 저는 디렉토리명으로 import 하는 것을 종종 사용하는데 모두 파일명으로 바꿔줘야 합니다.
+(<code>from './services' → from '.services/index.js'</code>) 이 과정을 도와주는 도구(<a href="https://www.npmjs.com/package/fix-esm-import-path">fix-esm-import-path</a>)도 있습니다.</p>
+<p>샘플로 만들어본 프로젝트에서는 이걸로 동작했습니다.
+하지만 실제 프로젝트로 가니 또 다른 이슈가 있었습니다.
+<code>__dirname</code> 을 쓸 수 없다고 해서 변환을 해야 했습니다.
+(예 <code>loadSchemaSync(join(__dirname, './index.graphql')</code>)</p>
+<p>이제 컴파일도 되고 구동해봅니다. 안 됩니다. ESM 모듈에서는 require 구문을 쓰는게 아예 안 됩니다.</p>
+<pre tabindex="0"><code>$ node a.js 
+file:///a/a.js:1
+const http = require(&#39;http&#39;);
+             ^
+
+ReferenceError: require is not defined in ES module scope, you can use import instead
+This file is being treated as an ES module because it has a &#39;.js&#39; file extension and &#39;/a/package.json&#39; contains &#34;type&#34;: &#34;module&#34;. To treat it as a CommonJS script, rename it to use the &#39;.cjs&#39; file extension.
+</code></pre><p>그런데 저희 주요 프로젝트 구조에는 TypeScript 내에서 require를 의존하는 곳이 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="c1">// tools/server.js
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TZ</span> <span class="o">=</span> <span class="s1">&#39;Etc/UTC&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;ts-node/register/transpile-only&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../app/server&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// config/index.ts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">function</span> <span class="nx">loadConfig</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;(</span><span class="nx">dir</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span> <span class="nx">env</span><span class="o">?:</span> <span class="nx">string</span><span class="p">)</span><span class="o">:</span> <span class="nx">T</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">base</span> <span class="o">=</span> <span class="nx">cloneDeep</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">dir</span><span class="si">}</span><span class="sb">/default`</span><span class="p">).</span><span class="k">default</span> <span class="nx">as</span> <span class="nx">T</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">...</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>다른 건 몰라도 config는 당장 고치기 어려워 보였습니다.
+또 즐겨쓰고 있는 <a href="https://github.com/croquiscom/rinore">REPL</a>도 제대로 동작을 안 하는 건 좀 심각했습니다.</p>
+<h2 id="그래서-해결책은">그래서 해결책은?</h2>
+<p>결국 이 이상 시간을 쏟기는 어려워서 어플리케이션을 ESM 모드로 전환하는 것은 포기했습니다.
+하지만 ESM 모듈은 여전히 필요했습니다.</p>
+<p>다행히 이번에 조사할 때는 저번에 찾지 못했던 <a href="https://github.com/TypeStrong/ts-node/discussions/1290">회피 방법</a>을 찾았습니다.
+TypeScript가 변환하지 않도록 import 문을 감추는 것입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="k">new</span> <span class="nb">Function</span><span class="p">(</span><span class="s1">&#39;specifier&#39;</span><span class="p">,</span> <span class="s1">&#39;return import(specifier)&#39;</span><span class="p">)</span>
+</span></span></code></pre></div><p><a href="https://stackoverflow.com/a/70546326/3239514">eval도 가능</a>하다는데 테스트해보진 않았습니다.</p>
+<p>다만 위 코드보다는 라이브러리를 활용하는 솔루션이 더 직관적인 것 같아서 이 방법을 사용했습니다.
+<a href="https://www.npmjs.com/package/tsimportlib">tsimportlib</a> 라이브러리를 사용하면 됩니다.</p>
+<p>아쉬운 대로 동작합니다만 나중에 프로젝트가 ESM으로 전환됐을 때 dynamic import를 static import로 바꿔줘야 할 것 같아 꼭 필요한 곳에만 쓰는 것으로 생각하고 있습니다.</p>
+<p>다행히 dynamic import는 서버에서만 필요했고, 프론트엔드 코드에서는 Next.js등이 잘 처리해주는지 static import로도 잘 동작했습니다.</p>
+<h2 id="마무리">마무리</h2>
+<p>개인적인 느낌으로 ESM은 Python2 → Python3를 전환시의 혼란을 보는 것 같습니다.
+저를 포함해 많은 사람들이 당황해하고 불만을 터트리네요</p>
+<p><img src="/img/ko/tech/2022-04-09-1-01.png" alt="https://github.com/sindresorhus/meta/discussions/15#discussioncomment-2495719">
+<a href="https://github.com/sindresorhus/meta/discussions/15#discussioncomment-2495719">https://github.com/sindresorhus/meta/discussions/15#discussioncomment-2495719</a></p>
+<p>하지만 좋은 싫든 ESM으로의 전환은 시작된 것 같습니다.
+조금 더 생태계가 안정되면 다시 전환 시도를 해야 할 것 같습니다.</p>
+<h2 id="appendix">Appendix</h2>
+<ul>
+<li><a href="https://nodejs.org/api/esm.html">Modules: ECMAScript modules | Node.js Documentation</a></li>
+<li><a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Guide/Modules">JavaScript modules - JavaScript | MDN</a></li>
+<li><a href="https://redfin.engineering/node-modules-at-war-why-commonjs-and-es-modules-cant-get-along-9617135eeca1">Node Modules at War: Why CommonJS and ES Modules Can’t Get Along</a> (<a href="https://roseline.oopy.io/dev/translation-why-cjs-and-esm-cannot-get-along">번역</a>, <a href="https://yceffort.kr/2020/08/commonjs-esmodules">요약</a>)</li>
+<li><a href="https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c">Pure ESM package</a></li>
+<li><a href="https://blog.sindresorhus.com/get-ready-for-esm-aa53530b3f77">Get Ready For ESM. JavaScript Modules will soon be a… | by Sindre Sorhus | 🦄 Sindre Sorhus’ blog</a></li>
+<li><a href="https://docs.joshuatz.com/cheatsheets/node-and-npm/node-esm/">ES Modules in NodeJS - Troubleshooting Resources</a></li>
+<li><a href="https://github.com/TypeStrong/ts-node/discussions/1290">Dynamic `import()` with `&ldquo;module&rdquo;: &ldquo;commonjs&rdquo;`</a></li>
+<li><a href="https://typestrong.org/ts-node/docs/imports/">CommonJS vs native ECMAScript modules | ts-node</a></li>
+<li><a href="https://www.npmjs.com/package/tsimportlib">tsimportlib</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2022-03-31-3-build-eks-cluster-with-terraform/'>Terraform으로 EKS 구축하기</a></h2>
           <p class='posts-date'>31 Mar 2022</p>
         </div>
@@ -782,377 +1038,6 @@
 <li><a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Ingress</a></li>
 </ul>
 </li>
-</ul>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2022-03-31-1-web-application-using-ecs/'>ECS를 사용해서 어플리케이션 서비스 하기</a></h2>
-          <p class='posts-date'>31 Mar 2022</p>
-        </div>
-        <div class='panel-body'>
-          <p>카카오스타일에서는 한동한 ECS를 사용해서 어플리케이션을 서비스했습니다. 현재는 EKS로 전환하고 있지만, ECS가 상대적으로 단순하기 때문에 서비스 구축 개념을 익히는데 좋은 것 같습니다. (간단한 서비스는 굳이 쿠버네티스를 쓸 필요가 없다고 생각합니다) 그런 의미에서 이번 글에서는 ECS를 이용해 단순한 서비스를 오픈하는 과정을 단계별로 설명해보려고 합니다.</p>
-<h2 id="docker-도입-과정">Docker 도입 과정</h2>
-<p><a href="https://www.docker.com/">도커</a>에 대한 얘기는 2014~2015년 무렵 들려오기 시작했던 것 같습니다. 혁신적인 솔루션이라는 얘기가 오가고 있었지만, 카카오스타일에서는 <a href="https://aws.amazon.com/ko/elasticbeanstalk/">AWS Elastic Beanstalk</a>를 거쳐, 독자적인 배포 시스템을 갖추고 있었기 때문에 도커의 이득에 대해서 크게 와 닿지 않아 도커로 넘어가는게 상대적으로 늦었던 것 같습니다.</p>
-<p>그러던 와중에 처음 필요성을 느꼈던 것은 로컬 개발환경을 갖추는 부분이였던 것 같습니다. 유닛 테스트등을 위해서 로컬에 DB 프로세스 구동이 필요했습니다. 신규 직원에게 <a href="https://brew.sh/">brew</a>로 설치하는 것을 가이드하고 있었는데, <a href="https://docs.docker.com/compose/">Docker Compose</a>로 구성해두었더니 도커에 익숙한 사람은 쉽게 개발 환경을 갖출 수 있었습니다.</p>
-<p><img src="/img/ko/tech/2022-03-31-1-01.png" alt="2022-03-31-1-01.png"></p>
-<p>이후 지토가 하나의 마이크로서비스에 대해서 <a href="https://aws.amazon.com/ko/ecs/">ECS</a> 셋업을 했는데, 세팅된 것을 보고 나니 유용성이 느껴진 것 같습니다. 그래서 빠르게 이후에 빠르게 ECS 전환을 했습니다.</p>
-<p><img src="/img/ko/tech/2022-03-31-1-02.png" alt="2022-03-31-1-02.png"></p>
-<p>ECS 전환전보다 배포 시간이 늘어나긴 했습니다. (이전에는 이미 존재하는 EC2 인스턴스에 새로운 소스를 전송한 후 프로세스만 새로 띄우면 됐습니다) 하지만 점점 마이크로서비스로 나눠지고, 트래픽이 늘어나는 상황에 대응하기에는 ECS가 훨씬 수월했습니다.</p>
-<h2 id="docker로-서비스-만들기">Docker로 서비스 만들기</h2>
-<p>도커로 구동할 Node.js 어플리케이션을 만들어봅시다. HTTP 요청에 보낸 온 데이터를 그대로 반환하는 간단한 서버입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="c1">// echo.js
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">((</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">req</span><span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="p">});</span>
-</span></span><span class="line"><span class="cl"><span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">3000</span><span class="p">);</span>
-</span></span></code></pre></div><p>이 서버를 도커 이미지로 만들기 위해 다음과 같이 Dockerfile을 만들면 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> node:16</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /opt/app</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> echo.js .<span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 3000</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> <span class="p">[</span><span class="s2">&#34;node&#34;</span><span class="p">,</span> <span class="s2">&#34;echo.js&#34;</span><span class="p">]</span><span class="err">
-</span></span></span></code></pre></div><p><code>[docker build](https://docs.docker.com/engine/reference/commandline/build/)</code>로 도커 이미지를 만들 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ docker build . -t simon-sample
-</span></span></code></pre></div><blockquote>
-<p>Apple Silicon을 사용한 컴퓨터에서는 platform을 지정해 빌드해야 ECS에서 정상동작합니다. <code>docker build . -t simon-sample --platform=linux/amd64</code></p>
-</blockquote>
-<p><code>[docker run](https://docs.docker.com/engine/reference/commandline/run/)</code>을 이용해 이미지로 부터 프로세스를 실행할 수 있습니다. 외부에서 서버에 접근하기 위해 3000번 포트를 열어야 하고, 데몬 모드로 실행합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ docker run -p <span class="m">3000</span> -d simon-sample
-</span></span></code></pre></div><p><a href="https://curl.se/">curl</a>을 사용해 잘 동작하는지 확인 가능합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ curl http://localhost:3000 --data <span class="s1">&#39;hello world&#39;</span>    
-</span></span><span class="line"><span class="cl">hello world
-</span></span></code></pre></div><p>이렇게 만들어진 이미지는 어떠한 환경에서든 동일하게 동작하고, 배포도 단순해집니다.</p>
-<h2 id="vpc-셋업">VPC 셋업</h2>
-<p>ECS 클러스터 생성에 앞서, 클러스터가 놓일 VPC를 만듭니다.</p>
-<p>우리가 원하는 서비스 구조를 위해서는 VPC에 최소한 다음과 같은 것들이 필요합니다. (<a href="https://docs.aws.amazon.com/ko_kr/vpc/latest/userguide/VPC_Scenario2.html">퍼블릭 및 프라이빗 서브넷이 있는 VPC(NAT) 문서</a>에서 설명하는 구조와 같습니다.)</p>
-<ul>
-<li>VPC</li>
-<li>인터넷에 노출되는 서버가 놓일 퍼플릭 서브넷 (최소 두개 이상의 AZ)</li>
-<li>안전하게 외부로 부터 접근을 차단된, 실제 서비스가 배치될 프라이빗 서브넷 (최소 두개 이상의 AZ)</li>
-<li>퍼플릭 서브넷에서 외부 통신을 할 때 사용하는 인터넷 게이트웨이</li>
-<li>프라이빗 서브넷에서 외부 통신이 필요할 때(아웃바운드 전용) 사용하는 NAT 게이트웨이</li>
-<li>퍼플릭 서브넷에 연결할 라우팅 테이블. 서브넷에서 다른 서브넷에 접근할 때 규칙과, 외부(0.0.0.0/0)에 접근할 때의 규칙(인터넷 게이트웨이를 거치게 함)을 정의합니다.</li>
-<li>프라이빗 서브넷에 연결할 라우팅 테이블. 퍼플릭 라우팅 테이블과 비슷한 규칙이지만, 외부에 접근시 NAT 게이트웨이를 거칩니다.</li>
-</ul>
-<p><img src="/img/ko/tech/2022-03-31-1-03.png" alt="Sample VPC"></p>
-<p>카카오스타일은 인프라 정의시 <a href="https://www.terraform.io/">Terraform</a>을 사용합니다. 여기서는 세부 사항을 이해하기 위해 개별 리소스를 정의하고 있지만, <a href="https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest">terraform-aws-modules/vpc/aws</a> 같은 모듈을 써서 편하게 정의하는 것도 가능합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="k">provider</span> <span class="s2">&#34;aws&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  region</span> <span class="o">=</span> <span class="s2">&#34;ap-northeast-2&#34;</span>
-</span></span><span class="line"><span class="cl">}
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">locals</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_name</span>        <span class="o">=</span> <span class="s2">&#34;simon-test&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cidr</span>            <span class="o">=</span> <span class="s2">&#34;10.194.0.0/16&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  public_subnets</span>  <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;10.194.0.0/24&#34;, &#34;10.194.1.0/24&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  private_subnets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;10.194.100.0/24&#34;, &#34;10.194.101.0/24&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  azs</span>             <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;ap-northeast-2a&#34;, &#34;ap-northeast-2c&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## VPC를 생성합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_vpc&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  cidr_block</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">cidr</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>       <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">vpc_name</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## VPC 생성시 기본으로 생성되는 라우트 테이블에 이름을 붙입니다
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 이걸 서브넷에 연결해 써도 되지만, 여기서는 사용하지 않습니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_default_route_table&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  default_route_table_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">default_route_table_id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>                   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-default&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## VPC 생성시 기본으로 생성되는 보안 그룹에 이름을 붙입니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_default_security_group&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-default&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷에 연결할 인터넷 게이트웨이를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_internet_gateway&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-igw&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷에 적용할 라우팅 테이블
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table&#34; &#34;public&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-public&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷에서 인터넷에 트래픽 요청시 앞서 정의한 인터넷 게이트웨이로 보냅니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route&#34; &#34;public_worldwide&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span>         <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">public</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  destination_cidr_block</span> <span class="o">=</span> <span class="s2">&#34;0.0.0.0/0&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  gateway_id</span>             <span class="o">=</span> <span class="k">aws_internet_gateway</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷을 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_subnet&#34; &#34;public&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">public_subnets</span><span class="p">)</span><span class="c1"> # 여러개를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span>                  <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cidr_block</span>              <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">public_subnets</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  availability_zone</span>       <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">azs</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  map_public_ip_on_launch</span> <span class="o">=</span> <span class="kt">true</span><span class="c1"> # 퍼플릭 서브넷에 배치되는 서비스는 자동으로 공개 IP를 부여합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  tags</span>                    <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-public-${count.index + 1}&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 퍼플릭 서브넷을 라우팅 테이블에 연결합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table_association&#34; &#34;public&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">public_subnets</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_id</span>      <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">public</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">].</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span> <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">public</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## NAT 게이트웨이는 고정 IP를 필요로 합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_eip&#34; &#34;nat_gateway&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc</span>  <span class="o">=</span> <span class="kt">true</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span> <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-natgw&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷에서 인터넷 접속시 사용할 NAT 게이트웨이
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_nat_gateway&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  allocation_id</span> <span class="o">=</span> <span class="k">aws_eip</span><span class="p">.</span><span class="k">nat_gateway</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_id</span>     <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">public</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="k">id</span><span class="c1"> # NAT 게이트웨이 자체는 퍼플릭 서브넷에 위치해야 합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  tags</span>          <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-natgw&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷에 적용할 라우팅 테이블
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table&#34; &#34;private&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>   <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-private&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷에서 인터넷에 트래픽 요청시 앞서 정의한 NAT 게이트웨이로 보냅니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route&#34; &#34;private_worldwide&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span>         <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">private</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  destination_cidr_block</span> <span class="o">=</span> <span class="s2">&#34;0.0.0.0/0&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  nat_gateway_id</span>         <span class="o">=</span> <span class="k">aws_nat_gateway</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷을 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_subnet&#34; &#34;private&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">private_subnets</span><span class="p">)</span><span class="c1"> # 여러개를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span>            <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cidr_block</span>        <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">private_subnets</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  availability_zone</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">azs</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  tags</span>              <span class="o">=</span><span class="n"> { Name</span> <span class="o">=</span> <span class="s2">&#34;${local.vpc_name}-private-${count.index + 1}&#34;</span> }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 프라이빗 서브넷을 라우팅 테이블에 연결합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_route_table_association&#34; &#34;private&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  count</span> <span class="o">=</span> <span class="k">length</span><span class="p">(</span><span class="k">local</span><span class="p">.</span><span class="k">private_subnets</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">  subnet_id</span>      <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">private</span><span class="p">[</span><span class="k">count</span><span class="p">.</span><span class="k">index</span><span class="p">].</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  route_table_id</span> <span class="o">=</span> <span class="k">aws_route_table</span><span class="p">.</span><span class="k">private</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><h2 id="ecs-클러스터">ECS 클러스터</h2>
-<p>우리 서비스가 동작할 ECS 클러스터가 필요합니다. 도커 컨테이너가 구동될 EC2 인스턴스를 직접 관리한다면 복잡하지만 Fargate를 쓴다면 크게 신경쓸게 없습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="c1">## ECS 클러스터를 생성합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_ecs_cluster&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span> <span class="o">=</span> <span class="s2">&#34;simon-test&#34;</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><h2 id="서비스-구동">서비스 구동</h2>
-<p>이제 우리가 만든 어플리케이션을 ECS 클러스터에 올릴 차례입니다.</p>
-<p>우선 도커 이미지를 업로드할 저장소(<a href="https://aws.amazon.com/ko/ecr/">ECR</a>)를 정의합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="k">locals</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  app_name</span> <span class="o">=</span> <span class="s2">&#34;simon-sample&#34;</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## simon-sample 앱을 위한 저장소를 만듭니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_ecr_repository&#34; &#34;simon_sample&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span> <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">app_name</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>첫단계에서 만든 도커 이미지를 다음과 같이 업로드할 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">## ECR 저장소에 로그인합니다</span>
-</span></span><span class="line"><span class="cl">$ aws ecr get-login-password --region ap-northeast-2 <span class="p">|</span> docker login --username AWS --password-stdin &lt;aws-account-id&gt;.dkr.ecr.ap-northeast-2.amazonaws.com
-</span></span><span class="line"><span class="cl"><span class="c1">## 앞서 만든 이미지에 ECR 이름을 붙여줍니다</span>
-</span></span><span class="line"><span class="cl">$ docker tag simon-sample:latest &lt;aws-account-id&gt;.dkr.ecr.ap-northeast-2.amazonaws.com/simon-sample:latest
-</span></span><span class="line"><span class="cl"><span class="c1">## 이미지를 올립니다</span>
-</span></span><span class="line"><span class="cl">$ docker push &lt;aws-account-id&gt;.dkr.ecr.ap-northeast-2.amazonaws.com/simon-sample:latest
-</span></span></code></pre></div><p>작업 정의를 다음과 같이 정의합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="c1">## 태스크 정의시 AmazonECSTaskExecutionRolePolicy 정책을 포함한
-</span></span></span><span class="line"><span class="cl"><span class="c1">## IAM 역할을 실행 역할(execution role)로 설정해줘야 합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_iam_role&#34; &#34;execution&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span> <span class="o">=</span> <span class="s2">&#34;${local.app_name}-exec-role&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  assume_role_policy</span> <span class="o">=</span> <span class="k">jsonencode</span><span class="p">(</span>{
-</span></span><span class="line"><span class="cl"><span class="n">    Version</span> <span class="o">=</span> <span class="s2">&#34;2012-10-17&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">    Statement</span> <span class="o">=</span> <span class="p">[</span>{
-</span></span><span class="line"><span class="cl"><span class="n">      Action</span> <span class="o">=</span> <span class="s2">&#34;sts:AssumeRole&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">      Principal</span> <span class="o">=</span> {
-</span></span><span class="line"><span class="cl"><span class="n">        Service</span> <span class="o">=</span> <span class="s2">&#34;ecs-tasks.amazonaws.com&#34;</span>
-</span></span><span class="line"><span class="cl">      }<span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="n">      Effect</span> <span class="o">=</span> <span class="s2">&#34;Allow&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    }<span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }<span class="p">)</span>
-</span></span><span class="line"><span class="cl">}
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">resource</span> <span class="s2">&#34;aws_iam_role_policy_attachment&#34; &#34;execution&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  role</span>       <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">execution</span><span class="p">.</span><span class="k">name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  policy_arn</span> <span class="o">=</span> <span class="s2">&#34;arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy&#34;</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## ECS 위에서 띄울 태스크에 대한 정의입니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_ecs_task_definition&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  family</span>                   <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">app_name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  network_mode</span>             <span class="o">=</span> <span class="s2">&#34;awsvpc&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  requires_compatibilities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;FARGATE&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cpu</span>                      <span class="o">=</span> <span class="m">256</span><span class="c1"> # CPU, 메모리는 가장 작은 값을 사용합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  memory</span>                   <span class="o">=</span> <span class="m">512</span>
-</span></span><span class="line"><span class="cl"><span class="n">  execution_role_arn</span>       <span class="o">=</span> <span class="k">aws_iam_role</span><span class="p">.</span><span class="k">execution</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  container_definitions</span> <span class="o">=</span> <span class="k">jsonencode</span><span class="p">([</span>{
-</span></span><span class="line"><span class="cl"><span class="n">    name</span>  <span class="o">=</span> <span class="s2">&#34;app&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">    image</span> <span class="o">=</span> <span class="s2">&#34;${aws_ecr_repository.simon_sample.repository_url}:latest&#34;</span><span class="p">,</span><span class="c1"> # ECR에 올라온 이미지를 사용합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">    cpu</span>   <span class="o">=</span> <span class="m">0</span>
-</span></span><span class="line"><span class="cl"><span class="n">    portMappings</span> <span class="o">=</span> <span class="p">[</span>{<span class="c1"> # 3000번 포트를 외부에 엽니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">      hostPort</span>      <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl"><span class="n">      protocol</span>      <span class="o">=</span> <span class="s2">&#34;tcp&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">      containerPort</span> <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl">    }<span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }<span class="p">])</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>이제 컨테이너를 띄울 준비가 끝났습니다. 서비스를 정의하면 설정된 것에 맞춰 작업(태스크)가 뜹니다</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="c1">## ECR에서 데이터를 가져오려면 태스크에 인터넷에 접근할 수 있는 권한을 주어야 합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_security_group&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span>   <span class="o">=</span> <span class="s2">&#34;${local.app_name}-sg&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">  <span class="k">egress</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    from_port</span>   <span class="o">=</span> <span class="m">0</span>
-</span></span><span class="line"><span class="cl"><span class="n">    to_port</span>     <span class="o">=</span> <span class="m">0</span>
-</span></span><span class="line"><span class="cl"><span class="n">    protocol</span>    <span class="o">=</span> <span class="s2">&#34;-1&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">    cidr_blocks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;0.0.0.0/0&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## ECS 서비스를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_ecs_service&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  desired_count</span>   <span class="o">=</span> <span class="m">1</span><span class="c1"> # 태스크를 하나만 띄웁니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  name</span>            <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">app_name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cluster</span>         <span class="o">=</span> <span class="k">aws_ecs_cluster</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  task_definition</span> <span class="o">=</span> <span class="k">aws_ecs_task_definition</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  launch_type</span>     <span class="o">=</span> <span class="s2">&#34;FARGATE&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">network_configuration</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    subnets</span>         <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">private</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="k">id</span><span class="c1"> # 프라이빗 서브넷에 배치합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">    security_groups</span> <span class="o">=</span> <span class="p">[</span><span class="k">aws_security_group</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><h2 id="서비스를-외부에-노출하기">서비스를 외부에 노출하기</h2>
-<p>이렇게 만들어진 서비스는 외부에서 접속이 불가능하기 때문에 사실 아무 쓸모가 없습니다. (로그도 없어서 잘 떴는지 확인하기도 어렵습니다.)</p>
-<p>ECS 태스크를 직접 외부에 노출할 수도 있겠지만, 보통 여러개의 태스크를 실행하기 때문에 앞에 트래픽을 분산해주는 서버가 필요합니다. 이는 로드 밸런서를 이용해 달성할 수 있습니다. 이 로드 밸런서를 퍼블릭 서브넷에 배치함으로써 외부에서 트래픽도 받을 수 있습니다.</p>
-<p>3000번 포트로 트래픽을 전송하는 로드밸런서 타겟 그룹을 만들어 로드 밸런서 80포트(HTTP)로 트래픽이 들어오면 전송하도록 설정합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="k">locals</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  lb_name</span> <span class="o">=</span> <span class="s2">&#34;simon-test-lb&#34;</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 외부에 80번 포트를 여는 보안 그룹을 생성합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_security_group&#34; &#34;lb&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span>   <span class="o">=</span> <span class="s2">&#34;${local.lb_name}-sg&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span> <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">  <span class="k">ingress</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    from_port</span>   <span class="o">=</span> <span class="m">80</span>
-</span></span><span class="line"><span class="cl"><span class="n">    to_port</span>     <span class="o">=</span> <span class="m">80</span>
-</span></span><span class="line"><span class="cl"><span class="n">    protocol</span>    <span class="o">=</span> <span class="s2">&#34;tcp&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">    cidr_blocks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;0.0.0.0/0&#34;</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## HTTP 요청을 분산하는 어플리케이션 로드 밸런서를 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_lb&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span>               <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">lb_name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  internal</span>           <span class="o">=</span> <span class="kt">false</span>
-</span></span><span class="line"><span class="cl"><span class="n">  load_balancer_type</span> <span class="o">=</span> <span class="s2">&#34;application&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  security_groups</span>    <span class="o">=</span> <span class="p">[</span><span class="k">aws_security_group</span><span class="p">.</span><span class="k">lb</span><span class="p">.</span><span class="k">id</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">  subnets</span>            <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">public</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="k">id</span><span class="c1"> # 퍼블릭 서브넷에 배치합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## 로드 밸런서로 온 요청을 받아 처리할 목표 그룹을 정의합니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_lb_target_group&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  name</span>        <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">app_name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  port</span>        <span class="o">=</span> <span class="m">3000</span><span class="c1"> # 우리가 만든 컨테이너는 3000번 포트에서 입력을 받습니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">  protocol</span>    <span class="o">=</span> <span class="s2">&#34;HTTP&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  target_type</span> <span class="o">=</span> <span class="s2">&#34;ip&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  vpc_id</span>      <span class="o">=</span> <span class="k">aws_vpc</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">## HTTP(80)에 대한 리스너를 생성합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_lb_listener&#34; &#34;http&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  load_balancer_arn</span> <span class="o">=</span> <span class="k">aws_lb</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  port</span>              <span class="o">=</span> <span class="s2">&#34;80&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  protocol</span>          <span class="o">=</span> <span class="s2">&#34;HTTP&#34;</span><span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">  # 앞서 정의한 타겟 그룹으로 모든 트래픽을 보냅니다
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">default_action</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    type</span>             <span class="o">=</span> <span class="s2">&#34;forward&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">    target_group_arn</span> <span class="o">=</span> <span class="k">aws_lb_target_group</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>이렇게 생성된 로드 밸런서는 <code>simon-test-lb-135798642.ap-northeast-2.elb.amazonaws.com</code>와 같은 주소를 할당받게 됩니다. 아직 이전에 만든 ECS 태스크가 타겟 그룹에 등록되지 않았기 때문에, 이 주소에 접속해보면 503 에러가 발생합니다. 두가지 추가 작업이 필요합니다.</p>
-<p>우선 ECS 태스크가 3000번 포트에서의 입력을 처리할 수 있도록 해야 합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="c1">## ECS는 로드 밸런서에서 3000번 포트로 온 요청을 받을 수 있습니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_security_group_rule&#34; &#34;ecs_from_lb&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  security_group_id</span>        <span class="o">=</span> <span class="k">aws_security_group</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  type</span>                     <span class="o">=</span> <span class="s2">&#34;ingress&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  from_port</span>                <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl"><span class="n">  to_port</span>                  <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl"><span class="n">  protocol</span>                 <span class="o">=</span> <span class="s2">&#34;tcp&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  source_security_group_id</span> <span class="o">=</span> <span class="k">aws_security_group</span><span class="p">.</span><span class="k">lb</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>또 로드 밸런서에서 ECS 태스크로 요청도 가능해야 합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="c1">## 로드 밸런서에서 ECS의 3000번 포트로 요청을 보낼 수 있습니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">resource</span> <span class="s2">&#34;aws_security_group_rule&#34; &#34;lb_to_ecs&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  security_group_id</span>        <span class="o">=</span> <span class="k">aws_security_group</span><span class="p">.</span><span class="k">lb</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">  type</span>                     <span class="o">=</span> <span class="s2">&#34;egress&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  from_port</span>                <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl"><span class="n">  to_port</span>                  <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl"><span class="n">  protocol</span>                 <span class="o">=</span> <span class="s2">&#34;tcp&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">  source_security_group_id</span> <span class="o">=</span> <span class="k">aws_security_group</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>다음으로는 ECS 서비스 정의를 변경해 태스크가 만들어지면 타겟 그룹에 등록하게 하게 하면 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-hcl" data-lang="hcl"><span class="line"><span class="cl"><span class="k">resource</span> <span class="s2">&#34;aws_ecs_service&#34; &#34;this&#34;</span> {
-</span></span><span class="line"><span class="cl"><span class="n">  desired_count</span>   <span class="o">=</span> <span class="m">1</span>
-</span></span><span class="line"><span class="cl"><span class="n">  name</span>            <span class="o">=</span> <span class="k">local</span><span class="p">.</span><span class="k">app_name</span>
-</span></span><span class="line"><span class="cl"><span class="n">  cluster</span>         <span class="o">=</span> <span class="k">aws_ecs_cluster</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  task_definition</span> <span class="o">=</span> <span class="k">aws_ecs_task_definition</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">  launch_type</span>     <span class="o">=</span> <span class="s2">&#34;FARGATE&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">network_configuration</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    subnets</span>         <span class="o">=</span> <span class="k">aws_subnet</span><span class="p">.</span><span class="k">private</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="k">id</span>
-</span></span><span class="line"><span class="cl"><span class="n">    security_groups</span> <span class="o">=</span> <span class="p">[</span><span class="k">aws_security_group</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">id</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">  }<span class="c1">
-</span></span></span><span class="line"><span class="cl"><span class="c1">  # 다음을 추가합니다.
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">load_balancer</span> {
-</span></span><span class="line"><span class="cl"><span class="n">    target_group_arn</span> <span class="o">=</span> <span class="k">aws_lb_target_group</span><span class="p">.</span><span class="k">this</span><span class="p">.</span><span class="k">arn</span>
-</span></span><span class="line"><span class="cl"><span class="n">    container_name</span>   <span class="o">=</span> <span class="s2">&#34;app&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="n">    container_port</span>   <span class="o">=</span> <span class="m">3000</span>
-</span></span><span class="line"><span class="cl">  }
-</span></span><span class="line"><span class="cl">}
-</span></span></code></pre></div><p>이제 로드 밸런서 주소로 요청을 보내면 로컬과 마찬가지로 응답을 보내옵니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ curl simon-test-lb-135798642.ap-northeast-2.elb.amazonaws.com --data <span class="s1">&#39;hello world&#39;</span>
-</span></span><span class="line"><span class="cl">hello world
-</span></span></code></pre></div><h2 id="남은-작업">남은 작업</h2>
-<p>실제 서비스에 더 가까우려면 추가로 해줘야 할 것들이 많이 있습니다. 다만 이번글에서는 따로 설명하지 않겠습니다.</p>
-<ul>
-<li>로드 밸런서 주소는 랜덤하게 생성됩니다. 이를 실제 서비스에서 쓰기는 어렵고 서비스만의 도메인을 설정해주는게 좋습니다. Route53에 별칭 A 레코드를 생성하면 됩니다.</li>
-<li>여기서는 HTTP 트래픽을 받고 있지만, 안전한 통신을 위해 HTTPS를 사용하면 좋습니다. AWS Certificate Manager로 인증서를 생성해 로드 밸런서에 설정하면 로드 밸런서에서 TLS 종료를 처리해줍니다. 그 뒷단에 있는 우리의 어플리케이션에서는 HTTP만 처리하면 됩니다.</li>
-<li>현재 트래픽을 받을 수 있는 서버가 하나 뿐입니다. 서버만 늘리면 로드 밸런서가 알아서 트래픽을 분산해줍니다. desired_count를 조절해 수동으로 서버를 늘릴 수도 있고, 오토 스케일링 정책을 설정해 트래픽에 따라 서버를 늘이고 줄일 수도 있습니다.</li>
-<li>현재는 컨테이너에서 발생한 로그를 볼 수 없습니다. CloudWatch Logs를 연결해 로그를 기록할 수 있습니다.</li>
-<li>CloudFront를 연결하면 전세계에서 접근할 때 지연 시간을 줄이는 등 추가 이득을 얻을 수 있습니다.</li>
-</ul>
-<h2 id="appendix">Appendix</h2>
-<ul>
-<li>예제 파일: <a href="/file/ko/tech/2022-03-31-1-simon-sample.zip">simon-sample.zip</a>
-<blockquote>
-<p>전체 Terraform 파일에서 한번에 스택을 생성할 때는 먼저 ECR만 생성해(<code>terraform apply --target aws_ecr_repository.simon_sample</code>) 이미지를 올린 후 나머지를 생성해주는게 깔끔합니다.</p>
-</blockquote>
-</li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/vpc/latest/userguide/VPC_Scenario2.html">퍼블릭 및 프라이빗 서브넷이 있는 VPC(NAT)</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/ecs/index.html">Amazon Elastic Container Service 설명서</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/Route53/latest/DeveloperGuide/routing-to-elb-load-balancer.html">ELB 로드 밸런서로 트래픽 라우팅</a></li>
-<li><a href="https://docs.aws.amazon.com/ko_kr/elasticloadbalancing/latest/application/create-https-listener.html">Application Load Balancer용 HTTPS 리스너 생성</a></li>
 </ul>
 
         </div>

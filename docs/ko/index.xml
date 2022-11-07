@@ -5,7 +5,16 @@
     <link>http://sixmen.com/ko/</link>
     <description>Recent content in Welcome on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 04 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 07 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GraphQL 이해하기: (2) 실행 및 전송</title>
+      <link>http://sixmen.com/ko/tech/2022-11-07-1-understanding-graphql-2-execution/</link>
+      <pubDate>Mon, 07 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2022-11-07-1-understanding-graphql-2-execution/</guid>
+      <description>이전 글에서 GraphQL 스키마를 정의했습니다. 이제 이 스키마에 질의를 하고 그 결과를 받을 수 있습니다. 실행 GraphQL.js graphql 메소드를 써서 질의를 할 수 있습니다. import { graphql, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLSchema, GraphQLString }</description>
+    </item>
+    
     <item>
       <title>GraphQL 이해하기: (1) 스키마 정의</title>
       <link>http://sixmen.com/ko/tech/2022-10-04-1-understanding-graphql-1-schema/</link>
@@ -975,7 +984,7 @@
       <pubDate>Thu, 28 Jun 2012 01:00:00 +0000</pubDate>
       
       <guid>http://sixmen.com/ko/mylife/2012-06-28-1-mitudei-girok-2012nyeon-06wol-26il/</guid>
-      <description>장어 먹고 힘내자!! 크크2012-06-27 19:48:10</description>
+      <description>장어 먹고 힘내자!! 크크 2012-06-27 19:48:10</description>
     </item>
     
     <item>
@@ -1020,7 +1029,7 @@
       <pubDate>Sun, 17 Jun 2012 01:00:00 +0000</pubDate>
       
       <guid>http://sixmen.com/ko/mylife/2012-06-17-1-mitudei-girok-2012nyeon-06wol-27il/</guid>
-      <description>용두동 쭈꾸미!!(me2mobile)2012-06-16 17:39:33</description>
+      <description>용두동 쭈꾸미!!(me2mobile) 2012-06-16 17:39:33</description>
     </item>
     
     <item>
@@ -1587,7 +1596,7 @@
       <pubDate>Mon, 16 May 2011 01:00:00 +0000</pubDate>
       
       <guid>http://sixmen.com/ko/mylife/2011-05-16-1-mitudei-girok-2011nyeon-5wol-15il/</guid>
-      <description>커피를 마시며 아이패드를 하는 차도녀(me2mobile me2photo)2011-05-15 20:21:15 [미금 맛집] 8번가(8ばんがい): 맛있고 배부르게 잘 먹고 왔다. 2011-05-15 20:39:20</description>
+      <description>커피를 마시며 아이패드를 하는 차도녀(me2mobile me2photo) 2011-05-15 20:21:15 [미금 맛집] 8번가(8ばんがい): 맛있고 배부르게 잘 먹고 왔다. 2011-05-15 20:39:20</description>
     </item>
     
     <item>

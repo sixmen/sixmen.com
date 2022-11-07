@@ -55,6 +55,98 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2017-01-05-1-github-wiki-to-slack-setting-aws-lambda/'>GitHub 위키 이벤트를 슬랙으로 받기 - 1. AWS Lambda 설정</a></h2>
+          <p class='posts-date'>05 Jan 2017</p>
+        </div>
+        <div class='panel-body'>
+          <p>크로키닷컴에서는 GitHub 이벤트(이슈 수정, PR등)를 슬랙으로 확인하고 있습니다.
+그런데 아쉽게도 기본 GitHub 슬랙 앱은 GitHub 위키 이벤트는 처리하지 못합니다.
+그래서 이를 자체적으로 구현하기로 했습니다.</p>
+<p>우선 이번글에서는 AWS Lambda를 통해 슬랙으로 메시지 보내는 방법에 대해서 설명합니다.</p>
+<hr>
+<p>외부에서 슬랙에 메시지를 보내기 위해서는 Incoming WebHooks을 설정해야 합니다.
+슬랙에서 &lsquo;Apps &amp; integrations&rsquo; 메뉴를 선택하면, App Directory 화면을 볼 수 있습니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-01.jpg" alt="App Directory"></p>
+<p>여기서 Incoming WebHooks을 검색하면 선택하면 설정화면이 표시됩니다.
+Add Configuration을 눌러서 새로운 설정을 추가합니다.</p>
+<p>메시지를 받을 채널을 선택하고 Add Incoming WebHooks integration을 누르면
+설정이 생성됩니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-02.jpg" alt="Add Incoming WebHooks integration"></p>
+<p>설정을 생성한 후에 몇가지 수정을 할 수 있지만, 여기서는 그냥 넘어가겠습니다.
+생성된 설정에서 중요한 것은 Webhook URL 입니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-03.jpg" alt="Webhook URL"></p>
+<p>밑에 친절하게 예제가 있습니다. 한번 테스트 해보세요.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ curl -X POST --data-urlencode <span class="s1">&#39;payload={&#34;channel&#34;: &#34;#auto-github&#34;, &#34;username&#34;: &#34;webhookbot&#34;, &#34;text&#34;: &#34;This is posted to #auto-github and comes from a bot named webhookbot.&#34;, &#34;icon_emoji&#34;: &#34;:ghost:&#34;}&#39;</span> https://hooks.slack.com/services/&lt;my-webhook-url&gt;</span></span></code></pre></div>
+<hr>
+<p>위 요청을 Node.js로 작성하면 다음과 같습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">url</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">https</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;https&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nx">hookUrl</span> <span class="o">=</span> <span class="s1">&#39;https://hooks.slack.com/services/&lt;my-webhook-url&gt;&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">body</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="nx">url</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">hookUrl</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">options</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span> <span class="s1">&#39;POST&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">options</span><span class="p">.</span><span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s1">&#39;Content-Length&#39;</span><span class="o">:</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">byteLength</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">const</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">https</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">res</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">resolve</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">          <span class="nx">statusCode</span><span class="o">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">statusCode</span>
+</span></span><span class="line"><span class="cl">        <span class="p">});</span>
+</span></span><span class="line"><span class="cl">      <span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">req</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">body</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">req</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">channel</span><span class="o">:</span> <span class="s1">&#39;#auto-github&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;This is a test message&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span></span></span></code></pre></div>
+<hr>
+<p>위의 코드를 바탕으로 AWS Lambda 함수를 하나 만들면 됩니다.</p>
+<p>&lsquo;Select blueprint&rsquo; 단계에서 Blank Function을 선택합니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-04.jpg" alt="Select blueprint"></p>
+<p>&lsquo;Configure triggers&rsquo; 단계는 특별히 필요하지 않습니다.</p>
+<p>&lsquo;Configure function&rsquo; 단계에서 함수 이름을 입력하고, 위의 코드를 입력합니다.
+다만 <code>exports.handler</code> 메소드에서 메시지를 보내도록 수정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">channel</span><span class="o">:</span> <span class="s1">&#39;#auto-github&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;This is a test message&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">sendMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">response</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">response</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}).</span><span class="k">catch</span><span class="p">((</span><span class="nx">error</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">callback</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span></span></span></code></pre></div>
+<p><img src="/img/ko/tech/2017-01-05-1-05.jpg" alt="Configuration function 1"></p>
+<p>기타 다른 설정은 건드리지 않아도 되지만 Role은 설정해줘야 합니다.
+적절한 Role이 없는 경우 템플릿을 통해 생성할 수 있습니다.
+&lsquo;KMS decryption permissions&rsquo;을 선택해서 Role을 생성합니다.</p>
+<p><img src="/img/ko/tech/2017-01-05-1-06.jpg" alt="Select role"></p>
+<p>&lsquo;Next&rsquo; -&gt; &lsquo;Create function&rsquo;을 선택하면 Lambda 함수가 만들어집니다.
+&lsquo;Test&rsquo; 버튼을 눌러 테스트를 하면 설정한 슬랙 채널에 메시지가 오는 것을 볼 수 있습니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2017-01-04-1-language-comparison-date-current-unix-time/'>언어 비교 - 현재 유닉스 시간</a></h2>
           <p class='posts-date'>04 Jan 2017</p>
         </div>
@@ -199,103 +291,6 @@
 <ul>
 <li><a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get">https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get</a></li>
 </ul>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2016-12-27-1-protect-script-decrypt-aes-mobile/'>스크립트 보호 - 모바일에서 AES 해독화 하기</a></h2>
-          <p class='posts-date'>27 Dec 2016</p>
-        </div>
-        <div class='panel-body'>
-          <p>이번에는 <!-- raw HTML omitted -->전편<!-- raw HTML omitted -->에서
-암호화한 파일을 모바일 환경(iOS, 안드로이드)에서 해독화 해보겠습니다.</p>
-<hr>
-<p>iOS에서 AES 해독화를 하기 위해서는 CommonCrypto 라이브러리를 사용합니다.
-Swift에서 사용하기 위해서 Bridging-Header.h에 다음을 포함하면 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-objective-c" data-lang="objective-c"><span class="line"><span class="cl"><span class="cp">#import &lt;CommonCrypto/CommonCryptor.h&gt;</span></span></span></code></pre></div>
-<p>암호화/해독화는 CCCrypt 함수를 사용하면 됩니다.
-그런데 함수 원형을 보면 key와 iv(Initialization vector)란 인자가 보입니다.
-OpenSSL을 써서 암호화 할때는 보지 못한 것입니다.
-여기에 어떤 값을 넣어줘야 할까요?</p>
-<p>찾아보니 OpenSSL은 암호에서 key와 iv를 유도해서 사용한다고 합니다
-(<a href="https://en.wikipedia.org/wiki/PBKDF2">PBKDF2</a> 참고).
--p 옵션을 사용하면 이 정보를 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -k <span class="m">1234</span> -p
-</span></span><span class="line"><span class="cl"><span class="nv">salt</span><span class="o">=</span>FBA42868201CC0ED
-</span></span><span class="line"><span class="cl"><span class="nv">key</span><span class="o">=</span>A8C174B6F635A7770CE3AE18FCB7290E7E09F289D1187CE0E28A842E07057EDA
-</span></span><span class="line"><span class="cl"><span class="nv">iv</span> <span class="o">=</span>7B3E50E41A9F2A33A568F4C34D2C129C</span></span></code></pre></div>
-<p>이제 해독화를 해봅니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-swift" data-lang="swift"><span class="line"><span class="cl"><span class="c1">// 암호화된 데이터 준비</span>
-</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">url</span> <span class="p">=</span> <span class="n">Bundle</span><span class="p">.</span><span class="n">main</span><span class="p">.</span><span class="n">url</span><span class="p">(</span><span class="n">forResource</span><span class="p">:</span> <span class="s">&#34;encrypted&#34;</span><span class="p">,</span> <span class="n">withExtension</span><span class="p">:</span> <span class="s">&#34;dat&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">encrypted_data</span> <span class="p">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">Data</span><span class="p">(</span><span class="n">contentsOf</span><span class="p">:</span> <span class="n">url</span><span class="p">!)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// key, iv 준비</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// hexadecimal 메소드는 http://stackoverflow.com/a/26502285 참고</span>
-</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">key</span> <span class="p">=</span> <span class="s">&#34;A8C174B6F635A7770CE3AE18FCB7290E7E09F289D1187CE0E28A842E07057EDA&#34;</span><span class="p">.</span><span class="n">hexadecimal</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">iv</span> <span class="p">=</span> <span class="s">&#34;7B3E50E41A9F2A33A568F4C34D2C129C&#34;</span><span class="p">.</span><span class="n">hexadecimal</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 해독화된 데이터를 받을 공간 준비</span>
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nv">output</span> <span class="p">=</span> <span class="n">Data</span><span class="p">(</span><span class="bp">count</span><span class="p">:</span> <span class="n">encrypted_data</span><span class="p">!.</span><span class="bp">count</span> <span class="o">+</span> <span class="n">kCCBlockSizeAES128</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nv">dataOutMoved</span> <span class="p">=</span> <span class="mi">0</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 해독화</span>
-</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">result</span> <span class="p">=</span> <span class="n">output</span><span class="p">.</span><span class="n">withUnsafeMutableBytes</span> <span class="p">{</span> <span class="n">outputPtr</span> <span class="k">in</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">CCCrypt</span><span class="p">(</span><span class="n">CCOperation</span><span class="p">(</span><span class="n">kCCDecrypt</span><span class="p">),</span> <span class="n">CCAlgorithm</span><span class="p">(</span><span class="n">kCCAlgorithmAES</span><span class="p">),</span>
-</span></span><span class="line"><span class="cl">            <span class="n">CCOptions</span><span class="p">(</span><span class="n">kCCOptionPKCS7Padding</span><span class="p">),</span>
-</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">key</span><span class="p">!),</span> <span class="n">kCCKeySizeAES256</span><span class="p">,</span> <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">iv</span><span class="p">!),</span>
-</span></span><span class="line"><span class="cl">            <span class="p">[</span><span class="nb">UInt8</span><span class="p">](</span><span class="n">encrypted_data</span><span class="p">!),</span> <span class="n">encrypted_data</span><span class="p">!.</span><span class="bp">count</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">            <span class="n">outputPtr</span><span class="p">,</span> <span class="n">output</span><span class="p">.</span><span class="bp">count</span><span class="p">,</span> <span class="p">&amp;</span><span class="n">dataOutMoved</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="n">output</span><span class="p">.</span><span class="bp">count</span> <span class="p">=</span> <span class="n">dataOutMoved</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 해독화된 데이터를 문자열로 변환</span>
-</span></span><span class="line"><span class="cl"><span class="kd">let</span> <span class="nv">outputStr</span> <span class="p">=</span> <span class="nb">String</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">output</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="p">.</span><span class="n">utf8</span><span class="p">)</span></span></span></code></pre></div>
-<p>실제로 나온 결과를 보면 원본과 다릅니다.
-그것은 OpenSSL이 암호화한 파일 앞에 16 바이트의 소금(salt)가 추가되어 있기 때문입니다.
-16 바이트를 제거한 파일을 입력으로 주면 제대로 해독화가 됩니다.</p>
-<p>그런데 원본 파일을 변경한 후 다시 암호화를 해보면 key와 iv가 다른 값으로 바뀝니다.
-이렇게 되면 이 값을 하드코딩할 수는 없습니다.
-정식으로는 암호와 소금으로 부터 key와 iv를 유도해야 겠지만, 귀찮으니 다른 방법을 찾아봅니다.
-다행히 OpenSSL에는 소금을 사용하지 않는 옵셥이 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -nosalt -k <span class="m">1234</span>
-</span></span><span class="line"><span class="cl">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -nosalt -k <span class="m">1234</span> -p
-</span></span><span class="line"><span class="cl"><span class="nv">key</span><span class="o">=</span>81DC9BDB52D04DC20036DBD8313ED055CC5776D16A1FB6E4AFA34B18395DA656
-</span></span><span class="line"><span class="cl"><span class="nv">iv</span> <span class="o">=</span>6305309076F3AB48FF8FEF0F3B70A434</span></span></code></pre></div>
-<p>이렇게 하면 key와 iv가 항상 일정합니다. 그리고 암호화된 파일에서 소금 부분을 삭제하는 작업을 하지 않아도 됩니다.</p>
-<p>물론 보통의 경우 이렇게 하면 안 되겠지만, 이번 작업에서는 이 정도로 충분하다는 판단을 했습니다.
-실제로는 암호도 사용하지 않고 key와 iv를 직접 주어서 암호화를 했습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ openssl aes-256-cbc -in original.txt -out encrypted.dat -K <span class="m">01020304</span> -iv 0a0b0c0d -nosalt
-</span></span><span class="line"><span class="cl">$ openssl aes-256-cbc -d -in encrypted.dat -out restored.txt -K <span class="m">01020304</span> -iv 0a0b0c0d -nosalt -p
-</span></span><span class="line"><span class="cl"><span class="nv">key</span><span class="o">=</span><span class="m">0102030400000000000000000000000000000000000000000000000000000000</span>
-</span></span><span class="line"><span class="cl"><span class="nv">iv</span> <span class="o">=</span>0A0B0C0D000000000000000000000000</span></span></code></pre></div>
-<hr>
-<p>똑같은 동작을 Java(안드로이드)에서도 할 수 있습니다.
-Java에서는 javax.crypto 패키지를 사용합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 암호화된 데이터 준비
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">encrypted_data</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;encrypted.dat&#34;</span><span class="o">));</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// key, iv 준비
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">key</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s">&#34;0102030400000000000000000000000000000000000000000000000000000000&#34;</span><span class="o">,</span> <span class="n">16</span><span class="o">).</span><span class="na">toByteArray</span><span class="o">();</span>
-</span></span><span class="line"><span class="cl"><span class="kt">byte</span><span class="o">[]</span> <span class="n">iv</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="s">&#34;0A0B0C0D000000000000000000000000&#34;</span><span class="o">,</span> <span class="n">16</span><span class="o">).</span><span class="na">toByteArray</span><span class="o">();</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 해독화 준비
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&#34;AES/CBC/PKCS5Padding&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">SecretKeySpec</span> <span class="n">keySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecretKeySpec</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="s">&#34;AES&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">IvParameterSpec</span> <span class="n">ivSpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IvParameterSpec</span><span class="o">(</span><span class="n">iv</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">keySpec</span><span class="o">,</span> <span class="n">ivSpec</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// 해독화
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">byte</span><span class="o">[]</span> <span class="n">output</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">encrypted_data</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">String</span> <span class="n">outputStr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">output</span><span class="o">,</span> <span class="s">&#34;UTF-8&#34;</span><span class="o">);</span></span></span></code></pre></div>
-<p>JVM 위에서 위 코드를 실행하면 <code>java.security.InvalidKeyException: Illegal key size</code> 에러가 발생할 수 있습니다.
-그것은 기본 배포되는 JRE가 256 비트의 키를 허용하지 않기 때문입니다.
-aes-128-cbc로 암호화하고 key에 16 바이트(=128 비트)의 키를 주면 잘 동작합니다.
-제가 목표로 한 안드로이드 환경에서는 256 비트의 키도 사용할 수 있었습니다.</p>
-<hr>
-<p>여기까지의 내용을 기반으로 AES 알고리즘을 써서 단순한 스크립트 보호를 해봤습니다.
-더 깊게 들어갈 부분도 있겠지만, AES를 다루는데 도움이 되었으면 합니다.</p>
 
         </div>
       </div>

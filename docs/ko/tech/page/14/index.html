@@ -55,6 +55,111 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-07-1-language-comparison-string-concatenate/'>언어 비교 - 문자열 연결</a></h2>
+          <p class='posts-date'>07 Dec 2016</p>
+        </div>
+        <div class='panel-body'>
+          
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br><span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*s2&nbsp;=&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;<br><span class='cmd_keyword'>char</span>&nbsp;*s3&nbsp;=&nbsp;(<span class='cmd_keyword'>char</span>&nbsp;*)<span class='cmd_stdlib'>malloc</span>(<span class='cmd_stdlib'>strlen</span>(s1)+<span class='cmd_stdlib'>strlen</span>(s2)+<span class='cmd_number'>1</span>);<br><span class='cmd_stdlib'>strcpy</span>(s3,&nbsp;s1);<br><span class='cmd_stdlib'>strcat</span>(s3,&nbsp;s2);
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;destructive</span><br><span class='cmd_stdlib'>string</span>&nbsp;s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br>s1&nbsp;+=&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;non-destructive</span><br><span class='cmd_stdlib'>string</span>&nbsp;s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br><span class='cmd_stdlib'>string</span>&nbsp;s2&nbsp;=&nbsp;s1&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;..&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;destructive</span><br><span class='cmd_stdlib'>NSMutableString</span>&nbsp;*s1&nbsp;=&nbsp;[<span class='cmd_string'>@"hello"</span>&nbsp;<span class='cmd_stdlib'>mutableCopy</span>];<br>[s1&nbsp;<span class='cmd_stdlib'>appendString</span>:<span class='cmd_string'>@"&nbsp;world"</span>];<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;non-destructive</span><br><span class='cmd_stdlib'>NSString</span>&nbsp;*s1&nbsp;=&nbsp;<span class='cmd_string'>@"hello"</span>;<br><span class='cmd_stdlib'>NSString</span>&nbsp;*s2&nbsp;=&nbsp;[s1&nbsp;<span class='cmd_stdlib'>stringByAppendingString</span>:<span class='cmd_string'>@"&nbsp;world"</span>];
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;.&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;.&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
+  </div>
+</div>
+
+</div>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2014-12-23-1-iphone-ppi/'>iPhone PPI와 논리 픽셀에 대응하는 물리 크기</a></h2>
           <p class='posts-date'>23 Dec 2014</p>
         </div>
@@ -127,36 +232,6 @@ iPhone 6 / 6 Plus의 확대됨 모드에서는 약 16%~17%가 더 크게 표시�
 </code></pre><h3 id="참고">참고</h3>
 <ul>
 <li><a href="http://blog.pagebakers.nl/2009/01/29/git-ignoring-changes-in-tracked-files/">GIT: ignoring changes in tracked files « Pagebakers</a></li>
-</ul>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2014-09-25-1-split-nginx-log/'>쉘에서 Nginx(Apache) 로그를 시간별로 분리하기</a></h2>
-          <p class='posts-date'>25 Sep 2014</p>
-        </div>
-        <div class='panel-body'>
-          <p>Nginx 로그 분석을 위해 시간별로 나누고 싶었습니다.
-스크립트를 짜도 오래 걸리는 일은 아니겠지만, 쉘에서 하는 방법을 한번 찾아봤습니다.</p>
-<p>Nginx 로그는 다음과 같은 형태를 가집니다.</p>
-<pre tabindex="0"><code>xx.xx.xx.xx - - [25/Sep/2014:06:54:29 +0000] &#34;GET /blahblah HTTP/1.1&#34; 200 130 &#34;-&#34; &#34;User-Agent&#34;
-</code></pre><p>다음 명령은 공백으로 나눠진 토큰 중 4번째, 즉 시간을 표시합니다.</p>
-<pre tabindex="0"><code>awk &#39;{ print $4 }&#39; access.log
-awk &#39;{ print substr($4,2) }&#39; access.log # 앞의 [ 제거
-</code></pre><p>여기에 split 함수를 써서 날짜와 시간을 얻을 수 있습니다.</p>
-<pre tabindex="0"><code>awk &#39;{ split(substr($4,2),array,&#34;[/:]&#34;); print array[1], array[4] }&#39; access.log
-</code></pre><p>필요한 정보를 알았으니 각 줄을 적절한 파일에 쓰도록 하면 됩니다.</p>
-<pre tabindex="0"><code>awk &#39;{ split(substr($4,2),array,&#34;[/:]&#34;); print &gt; (array[1] &#34;-&#34; array[4] &#34;.log&#34;) }&#39; access.log
-</code></pre><p>갱신:</p>
-<p>좀 더 큰 데이터에 해보니 too many open files 에러가 발생합니다.
-awk가 좀 오래된 도구다 보니 열린 파일 수 제한이 낮은 듯 합니다. (MacOSX 기준으로 채 20개를 넘지 못하네요.)</p>
-<p>이 경우 파일을 계속 닫아주면 됩니다. 대신 &lsquo;&raquo;&lsquo;를 써줘야 정상적으로 추출됩니다.</p>
-<pre tabindex="0"><code>awk &#39;{ split(substr($4,2),array,&#34;[/:]&#34;); fn = array[1] &#34;-&#34; array[4] &#34;.log&#34;; print &gt;&gt; fn; close(fn) }&#39; access.log
-</code></pre><h3 id="참고">참고</h3>
-<ul>
-<li><a href="http://stackoverflow.com/questions/11713978/how-to-split-existing-apache-logfile-by-month/11714105#11714105">How to split existing apache logfile by month?</a></li>
 </ul>
 
         </div>

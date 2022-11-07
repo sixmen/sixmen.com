@@ -55,6 +55,136 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2022-11-07-1-understanding-graphql-2-execution/'>GraphQL 이해하기: (2) 실행 및 전송</a></h2>
+          <p class='posts-date'>07 Nov 2022</p>
+        </div>
+        <div class='panel-body'>
+          <p><a href="/ko/tech/2022-10-04-1-understanding-graphql-1-schema/">이전 글</a>에서 GraphQL 스키마를 정의했습니다. 이제 이 스키마에 질의를 하고 그 결과를 받을 수 있습니다.</p>
+<h2 id="실행">실행</h2>
+<h3 id="graphqljs">GraphQL.js</h3>
+<p>graphql 메소드를 써서 질의를 할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">graphql</span><span class="p">,</span> <span class="nx">GraphQLList</span><span class="p">,</span> <span class="nx">GraphQLNonNull</span><span class="p">,</span> <span class="nx">GraphQLObjectType</span><span class="p">,</span> <span class="nx">GraphQLSchema</span><span class="p">,</span> <span class="nx">GraphQLString</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;graphql&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">User</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GraphQLObjectType</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;User&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fields</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kr">type</span><span class="o">:</span> <span class="k">new</span> <span class="nx">GraphQLNonNull</span><span class="p">(</span><span class="nx">GraphQLString</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">schema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GraphQLSchema</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">query</span>: <span class="kt">new</span> <span class="nx">GraphQLObjectType</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Query&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fields</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">users</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">type</span><span class="o">:</span> <span class="k">new</span> <span class="nx">GraphQLNonNull</span><span class="p">(</span><span class="k">new</span> <span class="nx">GraphQLList</span><span class="p">(</span><span class="k">new</span> <span class="nx">GraphQLNonNull</span><span class="p">(</span><span class="nx">User</span><span class="p">))),</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">resolve</span><span class="o">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">[{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Johnny&#39;</span> <span class="p">}],</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}),</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="kr">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">graphql</span><span class="p">({</span> <span class="nx">schema</span><span class="p">,</span> <span class="nx">source</span><span class="o">:</span> <span class="s1">&#39;query { users { name } }&#39;</span> <span class="p">});</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">})();</span>
+</span></span></code></pre></div><p>실행시 다음과 같은 결과를 얻을 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;users&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;Johnny&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="graphql-java">GraphQL Java</h3>
+<p>GraphQL 클래스의 execute 메소드를 써서 질의를 할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-kotlin" data-lang="kotlin"><span class="line"><span class="cl"><span class="k">data</span> <span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="k">val</span> <span class="py">name</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">val</span> <span class="py">userType</span> <span class="p">=</span> <span class="n">GraphQLObjectType</span><span class="p">.</span><span class="n">newObject</span><span class="p">().</span><span class="n">name</span><span class="p">(</span><span class="s2">&#34;User&#34;</span><span class="p">).</span><span class="k">field</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">GraphQLFieldDefinition</span><span class="p">.</span><span class="n">newFieldDefinition</span><span class="p">().</span><span class="n">name</span><span class="p">(</span><span class="s2">&#34;name&#34;</span><span class="p">).</span><span class="n">type</span><span class="p">(</span><span class="n">GraphQLNonNull</span><span class="p">(</span><span class="n">GraphQLString</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">).</span><span class="n">build</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">val</span> <span class="py">usersFetcher</span> <span class="p">=</span> <span class="n">DataFetcher</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">listOf</span><span class="p">(</span><span class="n">User</span><span class="p">(</span><span class="s2">&#34;Johnny&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">val</span> <span class="py">codeRegistry</span> <span class="p">=</span>
+</span></span><span class="line"><span class="cl">    <span class="n">GraphQLCodeRegistry</span><span class="p">.</span><span class="n">newCodeRegistry</span><span class="p">().</span><span class="n">dataFetcher</span><span class="p">(</span><span class="n">FieldCoordinates</span><span class="p">.</span><span class="n">coordinates</span><span class="p">(</span><span class="s2">&#34;Query&#34;</span><span class="p">,</span> <span class="s2">&#34;users&#34;</span><span class="p">),</span> <span class="n">usersFetcher</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span><span class="n">build</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">val</span> <span class="py">schema</span> <span class="p">=</span> <span class="n">GraphQLSchema</span><span class="p">.</span><span class="n">newSchema</span><span class="p">().</span><span class="n">query</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">GraphQLObjectType</span><span class="p">.</span><span class="n">newObject</span><span class="p">().</span><span class="n">name</span><span class="p">(</span><span class="s2">&#34;Query&#34;</span><span class="p">).</span><span class="k">field</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GraphQLFieldDefinition</span><span class="p">.</span><span class="n">newFieldDefinition</span><span class="p">().</span><span class="n">name</span><span class="p">(</span><span class="s2">&#34;users&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">.</span><span class="n">type</span><span class="p">(</span><span class="n">GraphQLNonNull</span><span class="p">(</span><span class="n">GraphQLList</span><span class="p">(</span><span class="n">GraphQLNonNull</span><span class="p">(</span><span class="n">userType</span><span class="p">))))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">).</span><span class="n">codeRegistry</span><span class="p">(</span><span class="n">codeRegistry</span><span class="p">).</span><span class="n">build</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">val</span> <span class="py">graphql</span> <span class="p">=</span> <span class="n">GraphQL</span><span class="p">.</span><span class="n">newGraphQL</span><span class="p">(</span><span class="n">schema</span><span class="p">).</span><span class="n">build</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">println</span><span class="p">(</span><span class="n">graphql</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;query { users { name } }&#34;</span><span class="p">).</span><span class="n">toString</span><span class="p">())</span>
+</span></span></code></pre></div><p>다음은 그 결과입니다</p>
+<pre tabindex="0"><code>ExecutionResultImpl{errors=[], data={users=[{name=Johnny}]}, dataPresent=true, extensions=null}
+</code></pre><h2 id="전송">전송</h2>
+<p>GraphQL.js는 한 프로세스 안에서 질의만 처리하고, 서버-클라이언트 구조에 대해서 해주는 것은 아무 것도 없습니다. API를 클라이언트에 전송하려면 별도의 라이브러리가 필요합니다. <a href="https://github.com/graphql/express-graphql">express-graphql</a> 이나 <a href="https://www.apollographql.com/docs/apollo-server/">Apollo Server</a>를 통해 보통 사용되는 HTTP 프로토콜을 통한 GraphQL API 서빙이 가능합니다.</p>
+<p>비슷하게 GraphQL Java도 질의 처리만 담당합니다. HTTP를 통해 서빙하려면 <a href="https://spring.io/projects/spring-graphql">Spring for GraphQL</a> 같은 모듈이 필요합니다. (<a href="https://www.graphql-java.com/tutorials/getting-started-with-spring-boot/">Tutorial with Spring Boot | GraphQL Java</a> 참고)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="nx">express</span> <span class="kr">from</span> <span class="s1">&#39;express&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">graphqlHTTP</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;express-graphql&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/graphql&#39;</span><span class="p">,</span> <span class="nx">graphqlHTTP</span><span class="p">({</span> <span class="nx">schema</span> <span class="p">}));</span>
+</span></span><span class="line"><span class="cl"><span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">4567</span><span class="p">);</span>
+</span></span></code></pre></div><p>내부 코드를 보면 그다지 복잡하지 않습니다. HTTP 프로토콜에 맞춰 URL이나 body에서 query, variables등을 얻어, GraphQL.js 라이브러리로 질의하고(graphql 메소드 대신, parse, validate, execute로 나눠진 메소드를 사용하긴 합니다), HTTP 프로토콜에 맞춰 결과를 반환합니다.</p>
+<p>HTTP 전송은 GraphQL 스펙에 의해 커버되지 않습니다. (<a href="https://github.com/graphql/graphql-over-http">GraphQL over HTTP</a> 저장소에서 논의가 진행되고는 있습니다) 그래도 express-graphql 이라는 표준 구현과 <a href="https://graphql.org/learn/serving-over-http/">Serving over HTTP</a> 문서에 의해 큰 틀은 정의가 되어 있습니다.</p>
+<h2 id="http-프로토콜-서빙시-이슈">HTTP 프로토콜 서빙시 이슈</h2>
+<h3 id="상태-코드">상태 코드</h3>
+<p>HTTP 프로토콜에는 상태 코드가 있습니다. 하지만 GraphQL 특성상 그 실행 결과를 HTTP 상태 코드에 매칭하는 것은 큰 의미가 없습니다. 예를 들어 두 개의 리소스를 요청했는데 하나만 없는 경우 404 Not Found일까요, 아닐까요? 두 개의 Mutation을 실행하는데 하나는 리소스 생성, 하나는 수정일 수도 있는데 201 Create를 반환해야 할까요?</p>
+<p>그래서 GraphQL은 보통 최소한의 상태 코드만 사용합니다.</p>
+<ul>
+<li>200: 요청 성공</li>
+<li>400: 요청에 문제가 있음 (문법 오류, 유호성 오류등)</li>
+<li>500: 서버에 문제가 있음</li>
+</ul>
+<p>여기까지는 비교적 명확하지만 어플리케이션 로직 수행 중 에러가 난 경우(즉 errors 객체가 있는 경우)가 애매합니다. 또 GraphQL은 부분 성공이라는 개념도 있습니다. (일부만 성공해서 data에 값이 있지만, errors도 있는 경우)</p>
+<p>express-graphql은 data가 없는 경우 500을 반환하게 되어 있습니다. 반면에 <a href="https://www.apollographql.com/docs/apollo-server/data/errors/#setting-http-status-code-and-headers">Apollo Server는 순 에러인 경우에도 200을 반환</a>합니다.</p>
+<p>200 성공이 아닌 경우, GraphQL 응답이 아닐 수도 있습니다. (예를 들어 중간에 거치는 로드 밸러서에서 타임아웃 발생시 JSON이 아니였습니다) 400, 500 시 GraphQL errors 객체로 간주하고 처리하려고 했더니, JSON이 아니여서 의미 없는 에러(SyntaxError)를 보게 되는 경우를 겪었습니다.</p>
+<p>그래서 400, 500 에러는 취급하지 못하는 에러(클라이언트를 잘못 작성했거나, 서버 접근이 안 되는 등 사용자가 처리할 수 없는 에러)인 경우로 정의했습니다. (많은 HTTP 클라이언트가 400, 500 에러시 예외를 던집니다) 반면 어플리케이션 오류(사용자 행동에 문제가 있고, 사용자가 알아야 하는 - 예를 들어 비밀번호가 틀림 -)는 일단 호출 자체는 성공으로 간주할 수 있도록 200을 반환하는 것을 규칙으로 정했습니다. 어플리케이션 오류는 그 이후에 errors 필드 존재 여부로 판단합니다.</p>
+<p>다만 이렇게 처리한 경우 호출 자체는 성공이기 때문에 대부분의 모니터링 툴에서 에러로 잡히지 않습니다. 그래서 저희는 모니터링 툴에 던지는 데이터를 커스터마이즈 해서 이 문제를 피했습니다. (Node.js의 경우고 Java에서는 해결하지 못했습니다.) 상태 코드는 200인데 에러로 나오는 것이라서 좀 어색합니다. (이 이슈로 차후에는 규칙을 바꿀 가능성도 있습니다.)</p>
+<h3 id="엔드포인트">엔드포인트</h3>
+<p>GraphQL은 엔드포인트를 하나로 정의하고 있습니다. 기능상에 문제는 없지만 모니터링에 문제가 있습니다. 기능별로 latency나 에러율 판단이 불가능합니다.</p>
+<p>Node.js에서 모니터링 툴을 커스터마이즈 해서 회피해보긴 했지만, 그게 불가능한 경우도 있어 완전한 해결책은 아닙니다. 또한 건드릴 수 없는 부분(예 AWS 로드 밸런서)에서의 로그 확인/모니터링이 불가능합니다.</p>
+<p>그래서 카카오스타일에서는 클라이언트가 엔드포인트를 다르게 호출하는 것을 컨벤션으로 잡았습니다. <code>/graphql/&lt;operation name&gt;</code> 형태로 호출하면 되고, 주요 GraphQL 서버 프레임워크는 뒤에 문자열을 무시하고 동일하게 처리할 수 있습니다.</p>
+<p>여기에 더해 마이크로서비스 간의 호출에서 operation name이 겹치는 경우도 있습니다. (예 GetProductList) 이 경우 어느 마이크로서비스에서 호출한 건지 알 수 없습니다. 그래서 마이크로서비스 간의 호출에서는 서비스명을 추가하도록 컨벤션을 정했습니다. <code>/graphql/&lt;service name&gt;__&lt;operation name&gt;</code></p>
+<p>더 복잡한 케이스도 있습니다. 저희는 API gateway 패턴을 사용하고 있는데, API gateway에서 여러 서비스를 호출할 수 있습니다. 예를 들어 클라이언트가 다음과 같이 요청했을 때</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-graphql" data-lang="graphql"><span class="line"><span class="cl"><span class="kd">query</span><span class="w"> </span><span class="nc">GetUserOrderList</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="py">user</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="py">name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="py">order_list</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="py">order_number</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>user와 order라는 서비스에 각각 요청을 하게 됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-graphql" data-lang="graphql"><span class="line"><span class="cl"><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="py">user</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="py">id</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="py">name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-graphql" data-lang="graphql"><span class="line"><span class="cl"><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="py">order_list</span><span class="p">(</span><span class="py">user_id</span><span class="p">:</span><span class="w"> </span><span class="s">&#34;1234&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nc">order_number</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>이때 각 마이크로서비스에서 어떤 식으로 요청이 온 건지 구분하기 위해서 각각 <code>api__GetUserOrderList__user</code>, <code>api__GetUserOrderList__order_list</code> 라는 경로와 operation name을 갖도록 컨벤션을 정해서 운영하고 있습니다.</p>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2022-10-04-1-understanding-graphql-1-schema/'>GraphQL 이해하기: (1) 스키마 정의</a></h2>
           <p class='posts-date'>04 Oct 2022</p>
         </div>
@@ -279,262 +409,6 @@
 </span></span></span></code></pre></div><h2 id="결론">결론</h2>
 <p>몇 줄 안 되는 코드지만, 일반적으로 겪는 문제가 아니다보니 잠깐 검색해본 것으로는 잘 나오지 않는 내용이였습니다. 그러다보니 해결책을 찾는게 많이 미뤄진 것 같습니다. 하지만 마음 먹고 작업하니 하루에 끝날 정도의 분량이였고, 이게 적용되면 많은 시간 낭비를 없앨 것으로 기대됩니다.</p>
 <p>이번에 작업한 내용과 유사하게 실수를 방지 하기 위한 조치를 하는 것을 <a href="https://ko.wikipedia.org/wiki/%ED%8F%AC%EC%B9%B4_%EC%9A%94%EC%BC%80">포카 요케</a>라고 부릅니다. 카카오스타일에서는 실수를 반복하지 않게 하기 위해 포카 요케 목록을 만들어 해결하는데 최근 많은 시간을 투자하고 있습니다.</p>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2022-04-09-1-esm-problem/'>ESM 삽질기</a></h2>
-          <p class='posts-date'>09 Apr 2022</p>
-        </div>
-        <div class='panel-body'>
-          <p>저희는 주기적으로 Node.js 모듈을 최신 버전으로 업데이트하고 있습니다.
-Node.js를 10년째 사용 중인데, CoffeeScript → TypeScript, 콜백 → Async.js → Promise(&amp; async, await) 전환 하면서 몇 번 혼란의 시기가 있었습니다.
-하지만 모듈 시스템은 쭉 이어져왔습니다.
-그런데 최근에 이 모듈 시스템에 큰 변화가 생겼고 기존 변화와 다르게 양립이 잘 안 되서 모듈 업데이트를 제대로 못 하고 있습니다.
-이 문제를 일으킨 ESM이 뭐고 어떤 작업이 필요한지 알아보려고 합니다. (개인적으로 만족하는 깔끔한 해결책이 나오지 못했습니다)</p>
-<h2 id="발생하는-문제">발생하는 문제</h2>
-<p><a href="https://www.npmjs.com/package/chalk">chalk</a> 란 모듈이 5.0으로 가면서 Pure ESM 모듈이 됐습니다. 이를 가져다 쓰면 다음과 같은 에러가 발생합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="nx">chalk</span> <span class="kr">from</span> <span class="s1">&#39;chalk&#39;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">chalk</span><span class="p">.</span><span class="nx">yellow</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">));</span>
-</span></span></code></pre></div><pre tabindex="0"><code>Error [ERR_REQUIRE_ESM]: require() of ES Module /a/node_modules/chalk/source/index.js from /a/a.ts not supported.
-Instead change the require of index.js in /a/a.ts to a dynamic import() which is available in all CommonJS modules.
-</code></pre><h2 id="esm이란-무엇인가">ESM이란 무엇인가?</h2>
-<p>초기 JavaScript는 모듈 시스템이 없었습니다.
-클라이언트쪽에서는 <a href="https://requirejs.org/">Require.js</a>란 것이 많이 쓰였습니다.
-한편 서버(Node.js)에서는 CommonJS가 적용되어 따로 발전을 했습니다.
-라이브러리가 클라이언트, 서버를 모두 지원하기 위한 <a href="https://stackoverflow.com/questions/16521471/relation-between-commonjs-amd-and-requirejs">패턴들이 개발</a>되어 적용됐던 기억이 나네요.
-그후 <a href="https://browserify.org/">Browserify</a>, <a href="https://webpack.js.org/">webpack</a> 같은 번들 시스템이 나오면서 CommonJS 쪽으로 통일되었습니다.</p>
-<p>대부분의 경우 잘 동작하지만 뭔가 문제가 있으시까 새로운 시스템이 나왔겠죠? 상세한 히스토리는 잘 모르지만 제가 아는 CommonJS의 가장 큰 문제는 런타임에 모듈을 읽는 다는 것입니다.
-다음 예를 보겠습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="c1">// a.js
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a1&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./b&#39;</span><span class="p">).</span><span class="nx">b</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a2&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// b.js
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b1&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./a&#39;</span><span class="p">).</span><span class="nx">a</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b2&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ node a.js 
-</span></span><span class="line"><span class="cl">a1
-</span></span><span class="line"><span class="cl">b1
-</span></span><span class="line"><span class="cl">undefined
-</span></span><span class="line"><span class="cl">b2
-</span></span><span class="line"><span class="cl"><span class="m">2</span>
-</span></span><span class="line"><span class="cl">a2
-</span></span></code></pre></div><p>위의 예에서 보다시피 require는 그 줄에 다다를 때 실행됩니다.
-순환 참조가 발생하는 경우(<code>require('./a')</code>) 모듈을 다시 읽지는 않습니다.
-이때문에 주의를 기울이지 않으면 위 예처럼 모듈이 내보낸 값이 얻어지지 않는 문제가 발생할 수 있습니다.</p>
-<p>TypeScript의 import문은 사실 require로 변환되는 코드이기 때문에 기존 컴파일 언어에 익숙하신 분이 보면 당황할만한 부분이 좀 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="c1">// a.ts
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a1&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">b</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./b&#39;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;a2&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="kr">export</span> <span class="kr">const</span> <span class="nx">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// b.ts
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b1&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">a</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;./a&#39;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;b2&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="kr">export</span> <span class="kr">const</span> <span class="nx">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-</span></span></code></pre></div><pre tabindex="0"><code>$ ts-node a.ts 
-a1
-b1
-undefined
-b2
-2
-a2
-</code></pre><p>아마 이런 저런 이유 때문에 <a href="https://nodejs.org/api/esm.html">ESM</a>이란 것이 나왔으리라 생각합니다.
-(몇년전에 <code>.cjs</code>, <code>.mjs</code> 확장자 얘기가 나오는 글들 보면서 무슨 얘기가 진행되는 거야 라고 넘어간 기억이 있습니다.)</p>
-<p>async/await 문법이 나온 이후에 가장 아쉬운 점 중 하나가 최상위 단계에서 await가 불가능하다는 것입니다.</p>
-<pre tabindex="0"><code>$ cat a.js                                                                                                                                                                         1 ↵
-await Promise.resolve(1);
-$ node a.js 
-/a/a.js:1
-await Promise.resolve(1);
-^^^^^
-
-SyntaxError: await is only valid in async functions and the top level bodies of modules
-</code></pre><p>따라서 함수를 만들거나 <a href="https://developer.mozilla.org/ko/docs/Glossary/IIFE">IIFE</a>를 사용해야 했습니다.
-이것은 CommonJS의 한계로 인한 것이고 ESM에서는 가능해졌습니다.
-이런 이유도 있어서 CommonJS에서 ESM 모듈을 require 하는 것이 불가능합니다.
-반대로 ESM 모듈에서 CommonJS 모듈을 읽는 것은 가능하지만 신경써야 할 것들이 있습니다.</p>
-<p>이렇게 ESM이 만들어진 후에 Sindre Sorhus란 분이 <a href="https://blog.sindresorhus.com/get-ready-for-esm-aa53530b3f77">ESM 전환을 선언</a>했습니다.
-그리고 이 분이 만드는 많은 모듈들(예 <a href="https://www.npmjs.com/package/file-type">file-type</a>.
-<a href="https://www.npmjs.com/~sindresorhus">npm 개인 홈</a>에 들어가보면 1165개의 모듈에 관여하고 있다고 나오네요)이 <a href="https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c">Pure ESM</a> 모듈로 전환됐습니다.
-Pure ESM은 모듈이 CommonJS/ESM 양쪽을 지원하도록 구성할 수도 있지만, 굳이 ESM만 제공한다는 뜻입니다.</p>
-<p>문제는 CommonJS 프로젝트에서는 ESM 모듈을 불러오는 것이 불가능하다는 것에 있습니다.
-따라서 프로젝트가 ESM으로 전환해야지만 Pure ESM 모듈을 사용할 수 있습니다.</p>
-<h2 id="무엇이-문제인가">무엇이 문제인가?</h2>
-<h3 id="typescript에서-원인-찾기">TypeScript에서 원인 찾기</h3>
-<p>위 예제에서 다시 시작하겠습니다</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="nx">chalk</span> <span class="kr">from</span> <span class="s1">&#39;chalk&#39;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">chalk</span><span class="p">.</span><span class="nx">yellow</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">));</span>
-</span></span></code></pre></div><p>ts-node로 실행해보면 다음과 같은 에러가 발생합니다.</p>
-<pre tabindex="0"><code>$ ts-node a.ts 
-Error [ERR_REQUIRE_ESM]: require() of ES Module /a/node_modules/chalk/source/index.js from /a/a.ts not supported.
-Instead change the require of index.js in /a/a.ts to a dynamic import() which is available in all CommonJS modules.
-</code></pre><p>컴파일된 JavaScript 결과물을 보면 원인을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="s2">&#34;use strict&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">exports</span><span class="p">.</span><span class="nx">__esModule</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">chalk_1</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&#34;chalk&#34;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">chalk_1</span><span class="p">[</span><span class="s2">&#34;default&#34;</span><span class="p">].</span><span class="nx">yellow</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">));</span>
-</span></span></code></pre></div><p>ESM 모듈은 require가 아니라 import를 해야 합니다.</p>
-<h3 id="javascript에서-문제-해결">JavaScript에서 문제 해결</h3>
-<p>TypeScript가 아니라 JavaScript로 import 구문을 사용해 작성해 봅니다. 이번에는 다른 에러가 납니다.</p>
-<pre tabindex="0"><code>$ cat a.js 
-import chalk from &#39;chalk&#39;;
-console.log(chalk.yellow(&#39;Hello&#39;));
-$ node a.js
-(node:72179) Warning: To load an ES module, set &#34;type&#34;: &#34;module&#34; in the package.json or use the .mjs extension.
-/a/a.js:1
-import chalk from &#39;chalk&#39;;
-^^^^^^
-
-SyntaxError: Cannot use import statement outside a module
-</code></pre><p>파일명을 <code>.mjs</code>로 바꾸면 잘 실행됩니다.</p>
-<pre tabindex="0"><code>$ node a.mjs 
-Hello
-</code></pre><p>파일명을 바꾸는 대신 전체 프로젝트를 ESM을 사용하는 것으로 선언할 수 있습니다. package.json에 <code>&quot;type&quot;: &quot;module&quot;</code>을 추가합니다.</p>
-<pre tabindex="0"><code>$ cat a.js 
-import chalk from &#39;chalk&#39;;
-console.log(chalk.yellow(&#39;Hello&#39;));
-$ cat package.json 
-{
-  &#34;type&#34;: &#34;module&#34;,
-  &#34;dependencies&#34;: {
-    &#34;chalk&#34;: &#34;^5.0.1&#34;
-  }
-}
-$ node a.js 
-Hello
-</code></pre><p>또는 TypeScript 실행시 보여준 에러 처럼 dynamic import를 사용할 수 있습니다.</p>
-<pre tabindex="0"><code>$ cat a.js 
-(async () =&gt; {
-  const chalk = await import(&#39;chalk&#39;);
-  console.log(chalk.default.yellow(&#39;Hello&#39;));
-})();
-$ node a.js 
-Hello
-</code></pre><p>정리하면 JavaScript에서 Pure ESM 모듈을 읽기 위해서는 다음 세가지 방법이 있습니다.</p>
-<ul>
-<li><code>.mjs</code> 확장자 사용</li>
-<li>전체 프로젝트를 ESM으로 전환</li>
-<li>dynamic import 사용</li>
-</ul>
-<h3 id="typescript로-되돌아-가서">TypeScript로 되돌아 가서</h3>
-<p><code>.mts</code> 란 확장자도 인식하고, tsc로 컴파일 해보면 <code>.mjs</code>로 나오긴 하지만 적절한 변환은 안 됩니다.</p>
-<p>dynamic import 구문을 사용해도 여전히 실행이 안 됩니다.
-컴파일된 결과물을 보면 여전히 require로 변환이 됩니다.
-이를 해결하려면 모듈시스템을 ES 것을 사용한다고 선언해야 합니다.
-tsconfig에서 <a href="https://www.typescriptlang.org/tsconfig#module">module 설정</a>을 적절히 해줘야 합니다.</p>
-<pre tabindex="0"><code>$ cat a.ts 
-(async () =&gt; {
-  const chalk = await import(&#39;chalk&#39;);
-  console.log(chalk.default.yellow(&#39;Hello&#39;));
-})();
-$ cat tsconfig.json 
-{
-  &#34;compilerOptions&#34;: {
-    &#34;target&#34;: &#34;es2017&#34;,
-    &#34;module&#34;: &#34;es2020&#34;,
-    &#34;moduleResolution&#34;: &#34;node&#34;
-  }
-}
-$ ts-node a.ts 
-Hello
-</code></pre><p>import를 require로 변환하지 않고 그대로 두는 건 module 설정이지만, Node.js에서 import 구문을 이해하는 것을 별개입니다.
-package.json에 <code>&quot;type&quot;: &quot;module&quot;</code> 도 추가하면 일반 import 구문도 동작합니다.
-ts-node로 실행시에는 <code>--esm</code> 옵션을 줘야 동작합니다.</p>
-<pre tabindex="0"><code>$ cat a.ts 
-import chalk from &#39;chalk&#39;;
-console.log(chalk.yellow(&#39;Hello&#39;));
-$ cat package.json 
-{
-  &#34;type&#34;: &#34;module&#34;,
-  &#34;dependencies&#34;: {...}
-}
-$ ts-node --esm a
-Hello
-$ tsc --module es2020 
-$ cat a.js
-import chalk from &#39;chalk&#39;;
-console.log(chalk.yellow(&#39;Hello&#39;));
-</code></pre><h2 id="실전-적용">실전 적용</h2>
-<p>이제 ESM의 동작 원리에 대해 약간 감이 옵니다. (저는 이 글을 쓰면서 정리하는데도 아직도 헷갈립니다) 이제 실전 적용을 해봅니다.</p>
-<p>JavaScript에서는 require와 dynamic import를 혼합해서 쓸 수 있습니다.
-다시 말해 ESM 전환(<code>&quot;type&quot;: &quot;module&quot;</code>)을 하지 않아도 ESM 모듈을 쓰는 것이 가능합니다.
-(static import가 안 되므로 코드를 다르게 작성하는 불편함은 있습니다.)</p>
-<p>하지만 TypeScript에서는 import를 require로 변환 또는 모드 import로 유지, 두 가지 선택지 밖에 없습니다.
-require로는 ESM 모듈을 쓸 수 없으므로 import 유지(<code>&quot;module&quot;: &quot;es2020&quot;</code>)를 해야 합니다.
-이 경우 Node.js에서 import 구문을 사용하므로 ESM 전환(<code>&quot;type&quot;: &quot;module&quot;</code>)도 해야 합니다.</p>
-<p>단순히 import 구문만 쓰면 되는게 아닙니다.
-<a href="https://nodejs.org/api/esm.html#mandatory-file-extensions">불러올 파일의 확장자를 모두 기술</a>해줘야 합니다.
-TypeScript 임에도 불구하고 <code>.js</code> 확장자를 써줘야 합니다.
-또 저는 디렉토리명으로 import 하는 것을 종종 사용하는데 모두 파일명으로 바꿔줘야 합니다.
-(<code>from './services' → from '.services/index.js'</code>) 이 과정을 도와주는 도구(<a href="https://www.npmjs.com/package/fix-esm-import-path">fix-esm-import-path</a>)도 있습니다.</p>
-<p>샘플로 만들어본 프로젝트에서는 이걸로 동작했습니다.
-하지만 실제 프로젝트로 가니 또 다른 이슈가 있었습니다.
-<code>__dirname</code> 을 쓸 수 없다고 해서 변환을 해야 했습니다.
-(예 <code>loadSchemaSync(join(__dirname, './index.graphql')</code>)</p>
-<p>이제 컴파일도 되고 구동해봅니다. 안 됩니다. ESM 모듈에서는 require 구문을 쓰는게 아예 안 됩니다.</p>
-<pre tabindex="0"><code>$ node a.js 
-file:///a/a.js:1
-const http = require(&#39;http&#39;);
-             ^
-
-ReferenceError: require is not defined in ES module scope, you can use import instead
-This file is being treated as an ES module because it has a &#39;.js&#39; file extension and &#39;/a/package.json&#39; contains &#34;type&#34;: &#34;module&#34;. To treat it as a CommonJS script, rename it to use the &#39;.cjs&#39; file extension.
-</code></pre><p>그런데 저희 주요 프로젝트 구조에는 TypeScript 내에서 require를 의존하는 곳이 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="c1">// tools/server.js
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TZ</span> <span class="o">=</span> <span class="s1">&#39;Etc/UTC&#39;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;ts-node/register/transpile-only&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../app/server&#39;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1">// config/index.ts
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">function</span> <span class="nx">loadConfig</span><span class="p">&lt;</span><span class="nt">T</span><span class="p">&gt;(</span><span class="nx">dir</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span> <span class="nx">env</span><span class="o">?:</span> <span class="nx">string</span><span class="p">)</span><span class="o">:</span> <span class="nx">T</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">base</span> <span class="o">=</span> <span class="nx">cloneDeep</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">dir</span><span class="si">}</span><span class="sb">/default`</span><span class="p">).</span><span class="k">default</span> <span class="nx">as</span> <span class="nx">T</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl">  <span class="p">...</span>
-</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">base</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>다른 건 몰라도 config는 당장 고치기 어려워 보였습니다.
-또 즐겨쓰고 있는 <a href="https://github.com/croquiscom/rinore">REPL</a>도 제대로 동작을 안 하는 건 좀 심각했습니다.</p>
-<h2 id="그래서-해결책은">그래서 해결책은?</h2>
-<p>결국 이 이상 시간을 쏟기는 어려워서 어플리케이션을 ESM 모드로 전환하는 것은 포기했습니다.
-하지만 ESM 모듈은 여전히 필요했습니다.</p>
-<p>다행히 이번에 조사할 때는 저번에 찾지 못했던 <a href="https://github.com/TypeStrong/ts-node/discussions/1290">회피 방법</a>을 찾았습니다.
-TypeScript가 변환하지 않도록 import 문을 감추는 것입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-jsx" data-lang="jsx"><span class="line"><span class="cl"><span class="k">new</span> <span class="nb">Function</span><span class="p">(</span><span class="s1">&#39;specifier&#39;</span><span class="p">,</span> <span class="s1">&#39;return import(specifier)&#39;</span><span class="p">)</span>
-</span></span></code></pre></div><p><a href="https://stackoverflow.com/a/70546326/3239514">eval도 가능</a>하다는데 테스트해보진 않았습니다.</p>
-<p>다만 위 코드보다는 라이브러리를 활용하는 솔루션이 더 직관적인 것 같아서 이 방법을 사용했습니다.
-<a href="https://www.npmjs.com/package/tsimportlib">tsimportlib</a> 라이브러리를 사용하면 됩니다.</p>
-<p>아쉬운 대로 동작합니다만 나중에 프로젝트가 ESM으로 전환됐을 때 dynamic import를 static import로 바꿔줘야 할 것 같아 꼭 필요한 곳에만 쓰는 것으로 생각하고 있습니다.</p>
-<p>다행히 dynamic import는 서버에서만 필요했고, 프론트엔드 코드에서는 Next.js등이 잘 처리해주는지 static import로도 잘 동작했습니다.</p>
-<h2 id="마무리">마무리</h2>
-<p>개인적인 느낌으로 ESM은 Python2 → Python3를 전환시의 혼란을 보는 것 같습니다.
-저를 포함해 많은 사람들이 당황해하고 불만을 터트리네요</p>
-<p><img src="/img/ko/tech/2022-04-09-1-01.png" alt="https://github.com/sindresorhus/meta/discussions/15#discussioncomment-2495719">
-<a href="https://github.com/sindresorhus/meta/discussions/15#discussioncomment-2495719">https://github.com/sindresorhus/meta/discussions/15#discussioncomment-2495719</a></p>
-<p>하지만 좋은 싫든 ESM으로의 전환은 시작된 것 같습니다.
-조금 더 생태계가 안정되면 다시 전환 시도를 해야 할 것 같습니다.</p>
-<h2 id="appendix">Appendix</h2>
-<ul>
-<li><a href="https://nodejs.org/api/esm.html">Modules: ECMAScript modules | Node.js Documentation</a></li>
-<li><a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Guide/Modules">JavaScript modules - JavaScript | MDN</a></li>
-<li><a href="https://redfin.engineering/node-modules-at-war-why-commonjs-and-es-modules-cant-get-along-9617135eeca1">Node Modules at War: Why CommonJS and ES Modules Can’t Get Along</a> (<a href="https://roseline.oopy.io/dev/translation-why-cjs-and-esm-cannot-get-along">번역</a>, <a href="https://yceffort.kr/2020/08/commonjs-esmodules">요약</a>)</li>
-<li><a href="https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c">Pure ESM package</a></li>
-<li><a href="https://blog.sindresorhus.com/get-ready-for-esm-aa53530b3f77">Get Ready For ESM. JavaScript Modules will soon be a… | by Sindre Sorhus | 🦄 Sindre Sorhus’ blog</a></li>
-<li><a href="https://docs.joshuatz.com/cheatsheets/node-and-npm/node-esm/">ES Modules in NodeJS - Troubleshooting Resources</a></li>
-<li><a href="https://github.com/TypeStrong/ts-node/discussions/1290">Dynamic `import()` with `&ldquo;module&rdquo;: &ldquo;commonjs&rdquo;`</a></li>
-<li><a href="https://typestrong.org/ts-node/docs/imports/">CommonJS vs native ECMAScript modules | ts-node</a></li>
-<li><a href="https://www.npmjs.com/package/tsimportlib">tsimportlib</a></li>
-</ul>
 
         </div>
       </div>

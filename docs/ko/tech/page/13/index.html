@@ -55,6 +55,131 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-14-1-language-comparison-regular-expression-capturing-group/'>언어 비교 - 정규식 캡쳐링 그룹</a></h2>
+          <p class='posts-date'>14 Dec 2016</p>
+        </div>
+        <div class='panel-body'>
+          
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*str&nbsp;=&nbsp;<span class='cmd_string'>"2016-12-05"</span>;<br><span class='cmd_stdlib'>regex_t</span>&nbsp;rx;<br><span class='cmd_keyword'>if</span>&nbsp;(<span class='cmd_stdlib'>regcomp</span>(&amp;rx,&nbsp;"([[:digit:]]{4})-([[:digit:]]{2})-([[:digit:]]{2})",&nbsp;<span class='cmd_stdlib'>REG_EXTENDED</span>)==0)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_stdlib'>regmatch_t</span>&nbsp;m[<span class='cmd_number'>4</span>];<br>&nbsp;&nbsp;if&nbsp;(<span class='cmd_stdlib'>regexec</span>(&amp;rx,&nbsp;str,&nbsp;<span class='cmd_number'>4</span>,&nbsp;m,&nbsp;<span class='cmd_number'>0</span>)==<span class='cmd_number'>0</span>)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;year&nbsp;=&nbsp;str2int(str+m[<span class='cmd_number'>1</span>].<span class='cmd_stdlib'>rm_so</span>,&nbsp;m[<span class='cmd_number'>1</span>].<span class='cmd_stdlib'>rm_eo</span>&nbsp;-&nbsp;m[<span class='cmd_number'>1</span>].<span class='cmd_stdlib'>rm_so</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;month&nbsp;=&nbsp;str2int(str+m[<span class='cmd_number'>2</span>].<span class='cmd_stdlib'>rm_so</span>,&nbsp;m[<span class='cmd_number'>2</span>].<span class='cmd_stdlib'>rm_eo</span>&nbsp;-&nbsp;m[<span class='cmd_number'>2</span>].<span class='cmd_stdlib'>rm_so</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;day&nbsp;=&nbsp;str2int(str+m[<span class='cmd_number'>3</span>].<span class='cmd_stdlib'>rm_so</span>,&nbsp;m[<span class='cmd_number'>3</span>].<span class='cmd_stdlib'>rm_eo</span>&nbsp;-&nbsp;m[<span class='cmd_number'>3</span>].<span class='cmd_stdlib'>rm_so</span>);<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;<span class='cmd_stdlib'>regfree</span>(&amp;rx);<br>}
+  </div>
+  <div class='panel-footer'>
+    #include &lt;regex.h&gt;<br>
+int str2int(const char *str, int len) {<br>
+  int value = 0;<br>
+  char *tmp = strndup(str, len);<br>
+  value = strtol(tmp, (char **)NULL, 10);<br>
+  free(tmp);<br>
+  return value;<br>
+}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>string</span>&nbsp;str(<span class='cmd_string'>"2016-12-05"</span>);<br><span class='cmd_stdlib'>regex</span>&nbsp;rx(<span class='cmd_string'>"(\\d{4})-(\\d{2})-(\\d{2})"</span>);<br><span class='cmd_stdlib'>smatch</span>&nbsp;m;<br><span class='cmd_keyword'>if</span>&nbsp;(<span class='cmd_stdlib'>regex_match</span>(str,&nbsp;m,&nbsp;rx))&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;year&nbsp;=&nbsp;<span class='cmd_stdlib'>stoi</span>(m.<span class='cmd_stdlib'>str</span>(<span class='cmd_number'>1</span>));<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;month&nbsp;=&nbsp;<span class='cmd_stdlib'>stoi</span>(m.<span class='cmd_stdlib'>str</span>(<span class='cmd_number'>2</span>));<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>stoi</span>(m.<span class='cmd_stdlib'>str</span>(<span class='cmd_number'>3</span>));<br>}
+  </div>
+  <div class='panel-footer'>
+    #include &lt;regex&gt;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span><br><span class='cmd_keyword'>if</span>&nbsp;/(\d{4})-(\d{2})-(\d{2})/.<span class='cmd_stdlib'>test</span>&nbsp;str<br>&nbsp;&nbsp;year&nbsp;=&nbsp;<span class='cmd_stdlib'>Number</span>&nbsp;<span class='cmd_stdlib'>RegExp</span>.<span class='cmd_stdlib'>$1</span><br>&nbsp;&nbsp;month&nbsp;=&nbsp;<span class='cmd_stdlib'>Number</span>&nbsp;<span class='cmd_stdlib'>RegExp</span>.<span class='cmd_stdlib'>$2</span><br>&nbsp;&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>Number</span>&nbsp;<span class='cmd_stdlib'>RegExp</span>.<span class='cmd_stdlib'>$3</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>String</span>&nbsp;str&nbsp;=&nbsp;<span class='cmd_string'>"2016-12-05"</span>;<br><span class='cmd_stdlib'>Pattern</span>&nbsp;rx&nbsp;=&nbsp;<span class='cmd_stdlib'>Pattern</span>.<span class='cmd_stdlib'>compile</span>(<span class='cmd_string'>"(\\d{4})-(\\d{2})-(\\d{2})"</span>);<br><span class='cmd_stdlib'>Matcher</span>&nbsp;m&nbsp;=&nbsp;rx.<span class='cmd_stdlib'>matcher</span>(str);<br><span class='cmd_keyword'>if</span>&nbsp;(m.<span class='cmd_stdlib'>matches</span>())&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;year&nbsp;=&nbsp;<span class='cmd_stdlib'>Integer</span>.<span class='cmd_stdlib'>parseInt</span>(m.<span class='cmd_stdlib'>group</span>(<span class='cmd_number'>1</span>));<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;month&nbsp;=&nbsp;<span class='cmd_stdlib'>Integer</span>.<span class='cmd_stdlib'>parseInt</span>(m.<span class='cmd_stdlib'>group</span>(<span class='cmd_number'>2</span>));<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>Integer</span>.<span class='cmd_stdlib'>parseInt</span>(m.<span class='cmd_stdlib'>group</span>(<span class='cmd_number'>3</span>));<br>}
+  </div>
+  <div class='panel-footer'>
+    import java.util.regex.Matcher;<br>
+import java.util.regex.Pattern;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>var</span>&nbsp;str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span>;<br><span class='cmd_keyword'>if</span>&nbsp;(/(\d{4})-(\d{2})-(\d{2})/.<span class='cmd_stdlib'>test</span>(str))&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>var</span>&nbsp;year&nbsp;=&nbsp;<span class='cmd_stdlib'>Number</span>(<span class='cmd_stdlib'>RegExp</span>.<span class='cmd_stdlib'>$1</span>);<br>&nbsp;&nbsp;<span class='cmd_keyword'>var</span>&nbsp;month&nbsp;=&nbsp;<span class='cmd_stdlib'>Number</span>(<span class='cmd_stdlib'>RegExp</span>.<span class='cmd_stdlib'>$2</span>);<br>&nbsp;&nbsp;<span class='cmd_keyword'>var</span>&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>Number</span>(<span class='cmd_stdlib'>RegExp</span>.<span class='cmd_stdlib'>$3</span>);<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>val</span>&nbsp;str&nbsp;=&nbsp;<span class='cmd_string'>"2016-12-05"</span><br><span class='cmd_keyword'>val</span>&nbsp;rx&nbsp;=&nbsp;<span class='cmd_string'>"(\\d{4})-(\\d{2})-(\\d{2})"</span>.<span class='cmd_stdlib'>toRegex</span>()<br><span class='cmd_keyword'>val</span>&nbsp;m&nbsp;=&nbsp;rx.<span class='cmd_stdlib'>matchEntire</span>(str)<br><span class='cmd_keyword'>if</span>&nbsp;(m!=null)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>val</span>&nbsp;year&nbsp;=&nbsp;m.<span class='cmd_stdlib'>groups</span>[<span class='cmd_number'>1</span>]!!.<span class='cmd_stdlib'>value</span>.<span class='cmd_stdlib'>toInt</span>()<br>&nbsp;&nbsp;<span class='cmd_keyword'>val</span>&nbsp;month&nbsp;=&nbsp;m.<span class='cmd_stdlib'>groups</span>[<span class='cmd_number'>2</span>]!!.<span class='cmd_stdlib'>value</span>.<span class='cmd_stdlib'>toInt</span>()<br>&nbsp;&nbsp;<span class='cmd_keyword'>val</span>&nbsp;day&nbsp;=&nbsp;m.<span class='cmd_stdlib'>groups</span>[<span class='cmd_number'>3</span>]!!.<span class='cmd_stdlib'>value</span>.<span class='cmd_stdlib'>toInt</span>()<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span><br>rx&nbsp;=&nbsp;<span class='cmd_string'>'(%d%d%d%d)-(%d%d)-(%d%d)'</span><br>year,&nbsp;month,&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>string</span>.<span class='cmd_stdlib'>match</span>(str,&nbsp;rx)<br>year&nbsp;=&nbsp;<span class='cmd_stdlib'>tonumber</span>(year)<br>month&nbsp;=&nbsp;<span class='cmd_stdlib'>tonumber</span>(month)<br>day&nbsp;=&nbsp;<span class='cmd_stdlib'>tonumber</span>(day)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>NSString</span>&nbsp;*str&nbsp;=&nbsp;<span class='cmd_string'>@"2016-12-05"</span>;<br><span class='cmd_stdlib'>NSRegularExpression</span>&nbsp;*rx&nbsp;=&nbsp;[<span class='cmd_stdlib'>NSRegularExpression</span>&nbsp;<span class='cmd_stdlib'>regularExpressionWithPattern</span>:<span class='cmd_string'>@"(\\d{4})-(\\d{2})-(\\d{2})"</span>&nbsp;<span class='cmd_stdlib'>options</span>:<span class='cmd_number'>0</span>&nbsp;<span class='cmd_stdlib'>error</span>:<span class='cmd_keyword'>nil</span>];<br><span class='cmd_stdlib'>NSTextCheckingResult</span>&nbsp;*m&nbsp;=&nbsp;[rx&nbsp;<span class='cmd_stdlib'>firstMatchInString</span>:str&nbsp;<span class='cmd_stdlib'>options</span>:<span class='cmd_number'>0</span>&nbsp;<span class='cmd_stdlib'>range</span>:<span class='cmd_stdlib'>NSMakeRange</span>(<span class='cmd_number'>0</span>,&nbsp;[str&nbsp;<span class='cmd_stdlib'>length</span>])];<br><span class='cmd_keyword'>if</span>&nbsp;(m!=<span class='cmd_keyword'>nil</span>)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>NSInteger</span>&nbsp;year&nbsp;=&nbsp;[[str&nbsp;<span class='cmd_stdlib'>substringWithRange</span>:[m&nbsp;<span class='cmd_stdlib'>rangeAtIndex</span>:<span class='cmd_number'>1</span>]]&nbsp;<span class='cmd_stdlib'>integerValue</span>];<br>&nbsp;&nbsp;<span class='cmd_keyword'>NSInteger</span>&nbsp;month&nbsp;=&nbsp;[[str&nbsp;<span class='cmd_stdlib'>substringWithRange</span>:[m&nbsp;<span class='cmd_stdlib'>rangeAtIndex</span>:<span class='cmd_number'>2</span>]]&nbsp;<span class='cmd_stdlib'>integerValue</span>];<br>&nbsp;&nbsp;<span class='cmd_keyword'>NSInteger</span>&nbsp;day&nbsp;=&nbsp;[[str&nbsp;<span class='cmd_stdlib'>substringWithRange</span>:[m&nbsp;<span class='cmd_stdlib'>rangeAtIndex</span>:<span class='cmd_number'>3</span>]]&nbsp;<span class='cmd_stdlib'>integerValue</span>];<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    $str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span>;<br>$rx&nbsp;=&nbsp;<span class='cmd_keyword'>qr</span>/(\d{4})-(\d{2})-(\d{2})/;<br><span class='cmd_keyword'>if</span>&nbsp;($str&nbsp;=~&nbsp;$rx)&nbsp;{<br>&nbsp;&nbsp;($year,&nbsp;$month,&nbsp;$day)&nbsp;=&nbsp;(<span class='cmd_keyword'>int</span>&nbsp;$1,&nbsp;<span class='cmd_keyword'>int</span>&nbsp;$2,&nbsp;<span class='cmd_keyword'>int</span>&nbsp;$3);<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    $str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span>;<br>$rx&nbsp;=&nbsp;<span class='cmd_string'>'/(\d{4})-(\d{2})-(\d{2})/'</span>;<br><span class='cmd_keyword'>if</span>&nbsp;(<span class='cmd_stdlib'>preg_match</span>($rx,&nbsp;$str,&nbsp;$m))&nbsp;{<br>&nbsp;&nbsp;$year&nbsp;=&nbsp;(<span class='cmd_keyword'>int</span>)$m[<span class='cmd_number'>1</span>];<br>&nbsp;&nbsp;$month&nbsp;=&nbsp;(<span class='cmd_keyword'>int</span>)$m[<span class='cmd_number'>2</span>];<br>&nbsp;&nbsp;$day&nbsp;=&nbsp;(<span class='cmd_keyword'>int</span>)$m[<span class='cmd_number'>3</span>];<br>&nbsp;&nbsp;<span class='cmd_comment'>//&nbsp;if&nbsp;you&nbsp;don't&nbsp;need&nbsp;integers</span><br>&nbsp;&nbsp;<span class='cmd_keyword'>list</span>($_,&nbsp;$year,&nbsp;$month,&nbsp;$day)&nbsp;=&nbsp;$m;<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span><br>rx&nbsp;=&nbsp;<span class='cmd_string'>'(\\d{4})-(\\d{2})-(\\d{2})'</span><br>m&nbsp;=&nbsp;<span class='cmd_stdlib'>re</span>.<span class='cmd_stdlib'>search</span>(rx,&nbsp;str)<br><span class='cmd_keyword'>if</span>&nbsp;m:<br>&nbsp;&nbsp;year&nbsp;=&nbsp;<span class='cmd_stdlib'>int</span>(m.<span class='cmd_stdlib'>group</span>(<span class='cmd_number'>1</span>))<br>&nbsp;&nbsp;month&nbsp;=&nbsp;<span class='cmd_stdlib'>int</span>(m.<span class='cmd_stdlib'>group</span>(<span class='cmd_number'>2</span>))<br>&nbsp;&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>int</span>(m.<span class='cmd_stdlib'>group</span>(<span class='cmd_number'>3</span>))<br>&nbsp;&nbsp;<span class='cmd_comment'>//&nbsp;if&nbsp;you&nbsp;don't&nbsp;need&nbsp;integers</span><br>&nbsp;&nbsp;year,&nbsp;month,&nbsp;day&nbsp;=&nbsp;m.<span class='cmd_stdlib'>groups</span>()
+  </div>
+  <div class='panel-footer'>
+    import re
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;using&nbsp;method</span><br>str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span><br>rx&nbsp;=&nbsp;/(\d{4})-(\d{2})-(\d{2})/<br>m&nbsp;=&nbsp;rx.<span class='cmd_stdlib'>match</span>(str)<br><span class='cmd_keyword'>if</span>&nbsp;m<br>&nbsp;&nbsp;year&nbsp;=&nbsp;m[<span class='cmd_number'>1</span>].<span class='cmd_stdlib'>to_i</span><br>&nbsp;&nbsp;month&nbsp;=&nbsp;m[<span class='cmd_number'>2</span>].<span class='cmd_stdlib'>to_i</span><br>&nbsp;&nbsp;day&nbsp;=&nbsp;m[<span class='cmd_number'>3</span>].<span class='cmd_stdlib'>to_i</span><br>&nbsp;&nbsp;<span class='cmd_comment'>//&nbsp;if&nbsp;you&nbsp;don't&nbsp;need&nbsp;integers</span><br>&nbsp;&nbsp;year,&nbsp;month,&nbsp;day&nbsp;=&nbsp;m[<span class='cmd_number'>1</span>..<span class='cmd_number'>3</span>]<br>end<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;using&nbsp;pattern-matching&nbsp;operator</span><br>str&nbsp;=&nbsp;<span class='cmd_string'>'2016-12-05'</span><br>rx&nbsp;=&nbsp;/(\d{4})-(\d{2})-(\d{2})/<br><span class='cmd_keyword'>if</span>&nbsp;rx&nbsp;=~&nbsp;str<br>&nbsp;&nbsp;year&nbsp;=&nbsp;$~[<span class='cmd_number'>1</span>].<span class='cmd_stdlib'>to_i</span><br>&nbsp;&nbsp;month&nbsp;=&nbsp;$~[<span class='cmd_number'>2</span>].<span class='cmd_stdlib'>to_i</span><br>&nbsp;&nbsp;day&nbsp;=&nbsp;$~[<span class='cmd_number'>3</span>].<span class='cmd_stdlib'>to_i</span><br>&nbsp;&nbsp;<span class='cmd_comment'>//&nbsp;if&nbsp;you&nbsp;don't&nbsp;need&nbsp;integers</span><br>&nbsp;&nbsp;year,&nbsp;month,&nbsp;day&nbsp;=&nbsp;$~[<span class='cmd_number'>1</span>..<span class='cmd_number'>3</span>]<br>end
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>let</span>&nbsp;str&nbsp;=&nbsp;<span class='cmd_string'>"2016-12-05"</span><br><span class='cmd_keyword'>let</span>&nbsp;rx&nbsp;=&nbsp;<span class='cmd_keyword'>try!</span>&nbsp;<span class='cmd_stdlib'>NSRegularExpression</span>(<span class='cmd_stdlib'>pattern</span>:&nbsp;<span class='cmd_string'>"(\\d{4})-(\\d{2})-(\\d{2})"</span>,&nbsp;<span class='cmd_stdlib'>options</span>:&nbsp;[])<br><span class='cmd_keyword'>if</span>&nbsp;<span class='cmd_keyword'>let</span>&nbsp;m&nbsp;=&nbsp;rx.<span class='cmd_stdlib'>firstMatch</span>(<span class='cmd_stdlib'>in</span>:&nbsp;str,&nbsp;<span class='cmd_stdlib'>options</span>:&nbsp;[],&nbsp;<span class='cmd_stdlib'>range</span>:&nbsp;<span class='cmd_stdlib'>NSRange</span>(<span class='cmd_stdlib'>location</span>:&nbsp;<span class='cmd_number'>0</span>,&nbsp;<span class='cmd_stdlib'>length</span>:&nbsp;(str&nbsp;<span class='cmd_keyword'>as</span>&nbsp;<span class='cmd_stdlib'>NSString</span>).<span class='cmd_stdlib'>length</span>))&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>let</span>&nbsp;year&nbsp;=&nbsp;<span class='cmd_stdlib'>Int</span>((str&nbsp;<span class='cmd_keyword'>as</span>&nbsp;<span class='cmd_stdlib'>NSString</span>).<span class='cmd_stdlib'>substring</span>(<span class='cmd_stdlib'>with</span>:&nbsp;m.<span class='cmd_stdlib'>rangeAt</span>(<span class='cmd_number'>1</span>)))<br>&nbsp;&nbsp;<span class='cmd_keyword'>let</span>&nbsp;month&nbsp;=&nbsp;<span class='cmd_stdlib'>Int</span>((str&nbsp;<span class='cmd_keyword'>as</span>&nbsp;<span class='cmd_stdlib'>NSString</span>).<span class='cmd_stdlib'>substring</span>(<span class='cmd_stdlib'>with</span>:&nbsp;m.<span class='cmd_stdlib'>rangeAt</span>(<span class='cmd_number'>2</span>)))<br>&nbsp;&nbsp;<span class='cmd_keyword'>let</span>&nbsp;day&nbsp;=&nbsp;<span class='cmd_stdlib'>Int</span>((str&nbsp;<span class='cmd_keyword'>as</span>&nbsp;<span class='cmd_stdlib'>NSString</span>).<span class='cmd_stdlib'>substring</span>(<span class='cmd_stdlib'>with</span>:&nbsp;m.<span class='cmd_stdlib'>rangeAt</span>(<span class='cmd_number'>3</span>)))<br>}
+  </div>
+</div>
+
+</div>
+
+        </div>
+      </div>
+      
+      <div class='panel panel-default'>
+        <div class='panel-heading'>
           <h2 class='posts-title'><a href='/ko/tech/2016-12-12-1-language-comparison-variable-swap/'>언어 비교 - 변수 값 교환</a></h2>
           <p class='posts-date'>12 Dec 2016</p>
         </div>
@@ -264,111 +389,6 @@
   <div class='panel-heading'>Swift</div>
   <div class='panel-body'>
     <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joined</span>(<span class='cmd_stdlib'>separator</span>:&nbsp;<span class='cmd_string'>","</span>)
-  </div>
-</div>
-
-</div>
-
-        </div>
-      </div>
-      
-      <div class='panel panel-default'>
-        <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2016-12-07-1-language-comparison-string-concatenate/'>언어 비교 - 문자열 연결</a></h2>
-          <p class='posts-date'>07 Dec 2016</p>
-        </div>
-        <div class='panel-body'>
-          
-<div class='langsheet'>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>C</div>
-  <div class='panel-body'>
-    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br><span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*s2&nbsp;=&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;<br><span class='cmd_keyword'>char</span>&nbsp;*s3&nbsp;=&nbsp;(<span class='cmd_keyword'>char</span>&nbsp;*)<span class='cmd_stdlib'>malloc</span>(<span class='cmd_stdlib'>strlen</span>(s1)+<span class='cmd_stdlib'>strlen</span>(s2)+<span class='cmd_number'>1</span>);<br><span class='cmd_stdlib'>strcpy</span>(s3,&nbsp;s1);<br><span class='cmd_stdlib'>strcat</span>(s3,&nbsp;s2);
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>C++</div>
-  <div class='panel-body'>
-    <span class='cmd_comment'>//&nbsp;destructive</span><br><span class='cmd_stdlib'>string</span>&nbsp;s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br>s1&nbsp;+=&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;non-destructive</span><br><span class='cmd_stdlib'>string</span>&nbsp;s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br><span class='cmd_stdlib'>string</span>&nbsp;s2&nbsp;=&nbsp;s1&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>CoffeeScript</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Java</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>JavaScript</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Kotlin</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Lua</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;..&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Objective-C</div>
-  <div class='panel-body'>
-    <span class='cmd_comment'>//&nbsp;destructive</span><br><span class='cmd_stdlib'>NSMutableString</span>&nbsp;*s1&nbsp;=&nbsp;[<span class='cmd_string'>@"hello"</span>&nbsp;<span class='cmd_stdlib'>mutableCopy</span>];<br>[s1&nbsp;<span class='cmd_stdlib'>appendString</span>:<span class='cmd_string'>@"&nbsp;world"</span>];<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;non-destructive</span><br><span class='cmd_stdlib'>NSString</span>&nbsp;*s1&nbsp;=&nbsp;<span class='cmd_string'>@"hello"</span>;<br><span class='cmd_stdlib'>NSString</span>&nbsp;*s2&nbsp;=&nbsp;[s1&nbsp;<span class='cmd_stdlib'>stringByAppendingString</span>:<span class='cmd_string'>@"&nbsp;world"</span>];
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Perl</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;.&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>PHP</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;.&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Python</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Ruby</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
-  </div>
-</div>
-
-<div class='panel panel-info'>
-  <div class='panel-heading'>Swift</div>
-  <div class='panel-body'>
-    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
   </div>
 </div>
 
