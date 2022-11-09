@@ -5,7 +5,16 @@
     <link>http://sixmen.com/ko/tech/</link>
     <description>Recent content in Teches on sixmen.com</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 07 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tech/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 09 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://sixmen.com/ko/tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GraphQL 이해하기: (3) 리졸버의 이해</title>
+      <link>http://sixmen.com/ko/tech/2022-11-09-1-understanding-graphql-3-understanding-resolver/</link>
+      <pubDate>Wed, 09 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://sixmen.com/ko/tech/2022-11-09-1-understanding-graphql-3-understanding-resolver/</guid>
+      <description>GraphQL 스키마를 정의했고, 클라이언트에서 온 요청을 서버가 처리하기 위해 필요한 기술을 알아봤습니다. 이제 클라이언트에서 온 요청에 따라 적절한 데이터를 반환하는 과</description>
+    </item>
+    
     <item>
       <title>GraphQL 이해하기: (2) 실행 및 전송</title>
       <link>http://sixmen.com/ko/tech/2022-11-07-1-understanding-graphql-2-execution/</link>
