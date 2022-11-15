@@ -55,109 +55,324 @@
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2014-12-23-1-iphone-ppi/'>iPhone PPI와 논리 픽셀에 대응하는 물리 크기</a></h2>
-          <p class='posts-date'>23 Dec 2014</p>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-12-1-language-comparison-variable-swap/'>언어 비교 - 변수 값 교환</a></h2>
+          <p class='posts-date'>12 Dec 2016</p>
         </div>
         <div class='panel-body'>
-          <p>앱을 iPhone 6 / 6 Plus에 맞추는 작업을 하던 중에 PPI에 혼란이 와서 직접 계산해 봤습니다.</p>
-<p>우선 오리지널 iPhone의 물리적 스크린 크기는 가로 1.94 인치(4.93cm), 세로 2.91 인치(7.4cm)입니다.<!-- raw HTML omitted -->1<!-- raw HTML omitted -->
-해상도(resolution)는 320x480이므로 PPI는 약 163입니다.
-(위 수치로 계산하면 165가 되는데 대부분 163으로 표시해서 이를 기준으로 합니다.)
-PPI가 163라는 것은 64x64 픽셀의 이미지가 물리적으로 0.4인치 x 0.4인치 = 1cm x 1cm 정도의
-크기가 된다는 것을 의미합니다. (64/163=0.39in=1cm)</p>
-<p>iPhone 4로 넘어오면서 물리적인 크기는 유지하면서 해상도를 두배(640x960)로 만들었습니다.
-따라서 PPI는 약 326(계산으로는 330)이 되었습니다.
-iPhone 4에서 1cm x 1cm로 이미지를 표현하려면 128x128 픽셀이 필요합니다. (1/2.54*326=128)
-하지만 프로그래밍시에는 scale factor를 도입해서(UIScreen의 scale 속성)
-논리적인 좌표는 오리지널 iPhone과 동일하게 64x64를 갖도록 해서
-iPhone 4를 지원하기 위해 별도의 작업이 필요없도록 했습니다.
-(대신 hairline을 표현하기가 까다로워 졌습니다.)</p>
-<p>iPhone 5에서는 해상도가 640x1152(논리적 해상도 320x568)로 켜졌지만, 물리적 크기도 1.94 인치 x 3.49 인치로 늘어서
-PPI는 iPhone 4와 동일하게 326입니다.</p>
-<p>이제 iPhone 6를 보겠습니다.
-iPhone 6의 물리적 스크린 크기는 가로 2.3 인치(5.8cm), 세로 4.1 인치(10.4cm)이고,
-해상도는 750x1334(논리적 해상도 375x667)입니다.<!-- raw HTML omitted -->2<!-- raw HTML omitted -->
-PPI를 계산해보면 326으로 iPhone 4, iPhone 5와 동일합니다.
-즉, iPhone 4, iPhone 5에서와 동일한 논리적 픽셀 값을 사용하면 사용자에게 같은 크기로 보인다는 얘기입니다.
-대신 스크린 크기가 커졌으므로 더 많은 1cm x 1cm 이미지를 표시할 수 있겠죠.</p>
-<p>그런데 여기서 하나 새로운 개념이 추가됩니다. 디스플레이 확대/축소(Display Zoome)에서 확대됨(Zoomed)를 설정하면
-이미지, 글씨등이 크게 표시됩니다. 기술적으로는 논리적 해상도로 375x667 대신 320x568을 기준으로 작업함을 의미합니다.
-이 상태에서 iPhone 4와 동일하게 64x64 픽셀로 이미지를 위치시키면 물리적 크기가 1.17cm x 1.17cm가 됩니다.</p>
-<p>마지막으로 iPhone 6 Plus는 가로 2.7 인치(6.8cm), 세로 4.8 인치(12.2cm), 해상도 1080x1920을 갖습니다.
-PPI는 400이 되겠네요. 그런데 iPhone 6 Plus는 특이하게 414x736의 논리적 해상도를 갖습니다.
-(scale factor는 3으로 1242x2208 캔버스에 그려집니다.)
-실 해상도와 정수로 대응하지 않습니다. 왜 이렇게 했을까요?</p>
-<p>만약 논리적 해상도를 360x640으로 했다면, iPhone 4에 맞춰 64x64로 작업한 이미지는 1.2cmx1.2cm로 표시됩니다.
-반면 414x736인 경우 1.05cmx1.05cm로 나머지 기종에서 기대하는 크기와 비슷합니다.
-(어짜피 물리적 해상도와 다른데 정확히 맞추지 않은 이유는 모르겠습니다.)</p>
-<p>마지막으로 iPhone 6 Plus에서 확대됨을 선택하면 iPhone 6의 논리적 해상도인 375x667로 동작합니다.
-이 경우 64x64로 작업한 이미지(scale factor는 3x이므로 192x192 픽셀의 이미지가 필요)는 1.16cm x 1.16cm로
-iPhone 6의 확대됨 모드와 비슷한 크기로 표시됩니다.</p>
-<p>요약하면 코드 작성시 같은 픽셀 크기로 작업하면 iPhone 종류와 상관없이 같은 물리적 크기로 표시됩니다.
-다만 한 화면에서 표시되는 양만 달라집니다.
-iPhone 6 / 6 Plus의 확대됨 모드에서는 약 16%~17%가 더 크게 표시됩니다.</p>
-<hr>
-<ol>
-<li><a href="http://www.theverge.com/2012/4/9/2937265/the-4-inch-iphone-5">http://www.theverge.com/2012/4/9/2937265/the-4-inch-iphone-5</a></li>
-<li><a href="http://stackoverflow.com/questions/25756087/detecting-iphone-6-6-screen-sizes-in-point-values">http://stackoverflow.com/questions/25756087/detecting-iphone-6-6-screen-sizes-in-point-values</a></li>
-</ol>
+          
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;basic</span><br>tmp&nbsp;=&nbsp;x;<br>x&nbsp;=&nbsp;y;<br>y&nbsp;=&nbsp;tmp;<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;function</span><br><span class='cmd_keyword'>void</span>&nbsp;swap(<span class='cmd_keyword'>int</span>&nbsp;*a,&nbsp;<span class='cmd_keyword'>int</span>&nbsp;*b)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>int</span>&nbsp;tmp;<br>&nbsp;&nbsp;tmp&nbsp;=&nbsp;*b;<br>&nbsp;&nbsp;*b&nbsp;=&nbsp;*a;<br>&nbsp;&nbsp;*a&nbsp;=&nbsp;tmp;<br>}<br>swap(&amp;x,&nbsp;&amp;y);<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;no&nbsp;temporary&nbsp;variable</span><br>x&nbsp;=&nbsp;x&nbsp;+&nbsp;y;<br>y&nbsp;=&nbsp;x&nbsp;-&nbsp;y;<br>x&nbsp;=&nbsp;x&nbsp;-&nbsp;y;<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;no&nbsp;temporary&nbsp;variable&nbsp;2</span><br>x&nbsp;=&nbsp;x&nbsp;^&nbsp;y;<br>y&nbsp;=&nbsp;x&nbsp;^&nbsp;y;<br>x&nbsp;=&nbsp;x&nbsp;^&nbsp;y;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>swap</span>(x,&nbsp;y);
+  </div>
+  <div class='panel-footer'>
+    #include &lt;algorithm&gt;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    [x,&nbsp;y]&nbsp;=&nbsp;[y,&nbsp;x]
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    tmp&nbsp;=&nbsp;x;<br>x&nbsp;=&nbsp;y;<br>y&nbsp;=&nbsp;tmp;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;basic</span><br>tmp&nbsp;=&nbsp;x;<br>x&nbsp;=&nbsp;y;<br>y&nbsp;=&nbsp;tmp;<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;tricky&nbsp;one-line</span><br>x&nbsp;=&nbsp;[y,&nbsp;y&nbsp;=&nbsp;x][<span class='cmd_number'>0</span>];<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;ES2015&nbsp;(ES6)</span><br>[x,&nbsp;y]&nbsp;=&nbsp;[y,&nbsp;x]
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    tmp&nbsp;=&nbsp;x<br>x&nbsp;=&nbsp;y<br>y&nbsp;=&nbsp;tmp
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    x,&nbsp;y&nbsp;=&nbsp;y,&nbsp;x
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    tmp&nbsp;=&nbsp;x;<br>x&nbsp;=&nbsp;y;<br>y&nbsp;=&nbsp;tmp;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    ($x,&nbsp;$y)&nbsp;=&nbsp;($y,&nbsp;$x);
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;basic</span><br><span class='cmd_keyword'>list</span>($x,&nbsp;$y)&nbsp;=&nbsp;<span class='cmd_keyword'>array</span>($y,&nbsp;$x);<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;function</span><br><span class='cmd_keyword'>function</span>&nbsp;swap(&amp;$x,&nbsp;&amp;$y)&nbsp;{<br>&nbsp;&nbsp;$tmp&nbsp;=&nbsp;$x;<br>&nbsp;&nbsp;$x&nbsp;=&nbsp;$y;<br>&nbsp;&nbsp;$y&nbsp;=&nbsp;$tmp;<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    x,&nbsp;y&nbsp;=&nbsp;y,&nbsp;x
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    x,&nbsp;y&nbsp;=&nbsp;y,&nbsp;x
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>swap</span>(&amp;x,&nbsp;&amp;y)
+  </div>
+</div>
+
+</div>
 
         </div>
       </div>
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2014-11-12-1-git-ignore-changes/'>Git에서 변경된 내용 무시하기</a></h2>
-          <p class='posts-date'>12 Nov 2014</p>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-09-1-language-comparison-string-join/'>언어 비교 - 문자열 배열 합치기</a></h2>
+          <p class='posts-date'>09 Dec 2016</p>
         </div>
         <div class='panel-body'>
-          <p>개발을 하다보면 몇몇 설정 파일을 수정한 채로 개발을 하는 경우가 있습니다.
-예를 들면 서버 주소를 개발용 서버로 변경해서 작업을 할 수 있겠죠.
-만약 개발용 서버가 명확히 정해져 있다면, 디버그 모드와 출시 모드를 구분하는 식으로 고정된 설정 파일을 만들 수 있겠지만,
-개발용 서버가 개발자 개인 컴퓨터인 경우는 이것도 쉽지 않습니다.</p>
-<p>이런 용도로 변경된 파일들은 당연히 주 저장소에 올라가면 안 되겠죠.
-(하지만 이 파일 자체는 주 저장소에 포함되어야 하기에 .gitignore를 쓸 수는 없습니다)
-저 같이 &lsquo;git commit -a&rsquo;을 실행하는데 익숙한 사람은 매번 커밋시 이 파일이 포함되지 않도록 신경써주는것이 꽤 큰 비용입니다.</p>
-<p>다행히 git는 이를 위한 해결책이 있습니다. 다음 명령을 실행하면 해당 파일에 대한 변경을 무시합니다.</p>
-<pre tabindex="0"><code>git update-index --assume-unchanged &lt;file&gt;
-</code></pre><p>다시 변경된 내역을 표시하려면 다음 명령을 실행합니다.</p>
-<pre tabindex="0"><code>git update-index --no-assume-unchanged &lt;file&gt;
-</code></pre><p>변경이 무시되고 있는 파일 목록은 다음 명령으로 확인할 수 있습니다.</p>
-<pre tabindex="0"><code>git ls-files -v | grep &#39;^h&#39;
-</code></pre><h3 id="참고">참고</h3>
-<ul>
-<li><a href="http://blog.pagebakers.nl/2009/01/29/git-ignoring-changes-in-tracked-files/">GIT: ignoring changes in tracked files « Pagebakers</a></li>
-</ul>
+          
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*<span class='cmd_keyword'>const</span>&nbsp;strs[]&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_keyword'>int</span>&nbsp;i&nbsp;=&nbsp;<span class='cmd_number'>0</span>;<br><span class='cmd_keyword'>int</span>&nbsp;size&nbsp;=&nbsp;<span class='cmd_number'>0</span>;<br><span class='cmd_keyword'>char</span>&nbsp;*out;<br><span class='cmd_keyword'>for</span>&nbsp;(i=<span class='cmd_number'>0</span>;i&lt;<span class='cmd_number'>3</span>;i++)&nbsp;{<br>&nbsp;&nbsp;size&nbsp;+=&nbsp;<span class='cmd_stdlib'>strlen</span>(strs[i])&nbsp;+&nbsp;<span class='cmd_number'>1</span>;<br>}<br>out&nbsp;=&nbsp;(<span class='cmd_keyword'>char</span>&nbsp;*)<span class='cmd_stdlib'>malloc</span>(size);<br><span class='cmd_stdlib'>strcpy</span>(out,&nbsp;strs[<span class='cmd_number'>0</span>]);<br><span class='cmd_keyword'>for</span>&nbsp;(i=<span class='cmd_number'>1</span>;i&lt;<span class='cmd_number'>3</span>;i++)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_stdlib'>strcat</span>(out,&nbsp;<span class='cmd_string'>","</span>);<br>&nbsp;&nbsp;<span class='cmd_stdlib'>strcat</span>(out,&nbsp;strs[i]);<br>}
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;one-liner</span><br><span class='cmd_stdlib'>vector</span>&lt;<span class='cmd_stdlib'>string</span>&gt;&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>string</span>&nbsp;out&nbsp;=&nbsp;<span class='cmd_stdlib'>accumulate</span>(<span class='cmd_stdlib'>next</span>(strs.<span class='cmd_stdlib'>begin</span>()),&nbsp;strs.<span class='cmd_stdlib'>end</span>(),&nbsp;strs[0],<br>&nbsp;&nbsp;[](<span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_stdlib'>string</span>&nbsp;&amp;a,&nbsp;<span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_stdlib'>string</span>&nbsp;&amp;b)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='cmd_keyword'>return</span>&nbsp;a&nbsp;+&nbsp;<span class='cmd_string'>","</span>&nbsp;+&nbsp;b;<br>&nbsp;&nbsp;});<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;prevent&nbsp;reallocation</span><br><span class='cmd_stdlib'>vector</span>&lt;<span class='cmd_stdlib'>string</span>&gt;&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>ostringstream</span>&nbsp;os;<br><span class='cmd_stdlib'>copy</span>(strs.<span class='cmd_stdlib'>begin</span>(),&nbsp;strs.<span class='cmd_stdlib'>end</span>()-1,&nbsp;<span class='cmd_stdlib'>ostream_iterator</span>&lt;<span class='cmd_stdlib'>string</span>&gt;(os,&nbsp;<span class='cmd_string'>","</span>));<br>os&nbsp;&lt;&lt;&nbsp;*strs.<span class='cmd_stdlib'>rbegin</span>();<br><span class='cmd_stdlib'>string</span>&nbsp;out&nbsp;=&nbsp;os.<span class='cmd_stdlib'>str</span>();
+  </div>
+  <div class='panel-footer'>
+    #include &lt;algorithm&gt; // copy<br>
+#include &lt;iterator&gt; // next, ostream_iterator<br>
+#include &lt;numeric&gt; // accumulate<br>
+#include &lt;sstream&gt; // ostringstream
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br>out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;Java&nbsp;8</span><br><span class='cmd_stdlib'>List</span>&lt;<span class='cmd_stdlib'>String</span>&gt;&nbsp;strs&nbsp;=&nbsp;<span class='cmd_stdlib'>Arrays</span>.<span class='cmd_stdlib'>asList</span>(<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>);<br><span class='cmd_stdlib'>String</span>&nbsp;out&nbsp;=&nbsp;<span class='cmd_stdlib'>String</span>.<span class='cmd_stdlib'>join</span>(<span class='cmd_string'>","</span>,&nbsp;strs);<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;Java&nbsp;7&nbsp;and&nbsp;below</span><br><span class='cmd_stdlib'>String</span>[]&nbsp;strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>};<br><span class='cmd_stdlib'>StringBuilder</span>&nbsp;sb&nbsp;=&nbsp;new&nbsp;<span class='cmd_stdlib'>StringBuilder</span>();<br><span class='cmd_keyword'>boolean</span>&nbsp;first&nbsp;=&nbsp;<span class='cmd_keyword'>true</span>;<br>for&nbsp;(<span class='cmd_stdlib'>String</span>&nbsp;str&nbsp;:&nbsp;strs)&nbsp;{<br>&nbsp;&nbsp;<span class='cmd_keyword'>if</span>&nbsp;(first)&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;first&nbsp;=&nbsp;<span class='cmd_keyword'>false</span>;<br>&nbsp;&nbsp;}&nbsp;<span class='cmd_keyword'>else</span>&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;sb.<span class='cmd_stdlib'>append</span>(<span class='cmd_string'>","</span>);<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;sb.<span class='cmd_stdlib'>append</span>(str);<br>}<br><span class='cmd_stdlib'>String</span>&nbsp;out&nbsp;=&nbsp;sb.<span class='cmd_stdlib'>toString</span>();
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>(<span class='cmd_string'>','</span>)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>val</span>&nbsp;strs&nbsp;=&nbsp;<span class='cmd_stdlib'>arrayOf</span>(<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>)<br><span class='cmd_keyword'>val</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joinToString</span>(<span class='cmd_string'>","</span>)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;{<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>}<br><span class='cmd_stdlib'>table</span>.<span class='cmd_stdlib'>concat</span>(strs,&nbsp;<span class='cmd_string'>","</span>)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    <span class='cmd_stdlib'>NSArray</span>&nbsp;*strs&nbsp;=&nbsp;@[<span class='cmd_string'>@"one"</span>,&nbsp;<span class='cmd_string'>@"two"</span>,&nbsp;<span class='cmd_string'>@"three"</span>];<br><span class='cmd_stdlib'>NSString</span>&nbsp;*out&nbsp;=&nbsp;[strs&nbsp;<span class='cmd_stdlib'>componentsJoinedByString</span>:<span class='cmd_string'>@","</span>];
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    @strs&nbsp;=&nbsp;<span class='cmd_keyword'>qw</span>(<span class='cmd_string'>one</span>&nbsp;<span class='cmd_string'>two</span>&nbsp;<span class='cmd_string'>three</span>);<br>$out&nbsp;=&nbsp;<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>,&nbsp;@strs;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    $strs&nbsp;=&nbsp;<span class='cmd_keyword'>array</span>(<span class='cmd_string'>'one'</span>,&nbsp;<span class='cmd_string'>'two'</span>,&nbsp;<span class='cmd_string'>'three'</span>);<br>$out&nbsp;=&nbsp;<span class='cmd_stdlib'>implode</span>(<span class='cmd_string'>','</span>,&nbsp;$strs);
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;[<span class='cmd_string'>'one'</span>,<span class='cmd_string'>'two'</span>,<span class='cmd_string'>'three'</span>]<br><span class='cmd_string'>','</span>.<span class='cmd_stdlib'>join</span>(strs)
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    strs&nbsp;=&nbsp;%w(<span class='cmd_string'>one</span>&nbsp;<span class='cmd_string'>two</span>&nbsp;<span class='cmd_string'>three</span>)<br>out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>join</span>&nbsp;<span class='cmd_string'>','</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>let</span>&nbsp;strs&nbsp;=&nbsp;[<span class='cmd_string'>"one"</span>,&nbsp;<span class='cmd_string'>"two"</span>,&nbsp;<span class='cmd_string'>"three"</span>]<br><span class='cmd_keyword'>let</span>&nbsp;out&nbsp;=&nbsp;strs.<span class='cmd_stdlib'>joined</span>(<span class='cmd_stdlib'>separator</span>:&nbsp;<span class='cmd_string'>","</span>)
+  </div>
+</div>
+
+</div>
 
         </div>
       </div>
       
       <div class='panel panel-default'>
         <div class='panel-heading'>
-          <h2 class='posts-title'><a href='/ko/tech/2014-09-25-1-split-nginx-log/'>쉘에서 Nginx(Apache) 로그를 시간별로 분리하기</a></h2>
-          <p class='posts-date'>25 Sep 2014</p>
+          <h2 class='posts-title'><a href='/ko/tech/2016-12-07-1-language-comparison-string-concatenate/'>언어 비교 - 문자열 연결</a></h2>
+          <p class='posts-date'>07 Dec 2016</p>
         </div>
         <div class='panel-body'>
-          <p>Nginx 로그 분석을 위해 시간별로 나누고 싶었습니다.
-스크립트를 짜도 오래 걸리는 일은 아니겠지만, 쉘에서 하는 방법을 한번 찾아봤습니다.</p>
-<p>Nginx 로그는 다음과 같은 형태를 가집니다.</p>
-<pre tabindex="0"><code>xx.xx.xx.xx - - [25/Sep/2014:06:54:29 +0000] &#34;GET /blahblah HTTP/1.1&#34; 200 130 &#34;-&#34; &#34;User-Agent&#34;
-</code></pre><p>다음 명령은 공백으로 나눠진 토큰 중 4번째, 즉 시간을 표시합니다.</p>
-<pre tabindex="0"><code>awk &#39;{ print $4 }&#39; access.log
-awk &#39;{ print substr($4,2) }&#39; access.log # 앞의 [ 제거
-</code></pre><p>여기에 split 함수를 써서 날짜와 시간을 얻을 수 있습니다.</p>
-<pre tabindex="0"><code>awk &#39;{ split(substr($4,2),array,&#34;[/:]&#34;); print array[1], array[4] }&#39; access.log
-</code></pre><p>필요한 정보를 알았으니 각 줄을 적절한 파일에 쓰도록 하면 됩니다.</p>
-<pre tabindex="0"><code>awk &#39;{ split(substr($4,2),array,&#34;[/:]&#34;); print &gt; (array[1] &#34;-&#34; array[4] &#34;.log&#34;) }&#39; access.log
-</code></pre><p>갱신:</p>
-<p>좀 더 큰 데이터에 해보니 too many open files 에러가 발생합니다.
-awk가 좀 오래된 도구다 보니 열린 파일 수 제한이 낮은 듯 합니다. (MacOSX 기준으로 채 20개를 넘지 못하네요.)</p>
-<p>이 경우 파일을 계속 닫아주면 됩니다. 대신 &lsquo;&raquo;&lsquo;를 써줘야 정상적으로 추출됩니다.</p>
-<pre tabindex="0"><code>awk &#39;{ split(substr($4,2),array,&#34;[/:]&#34;); fn = array[1] &#34;-&#34; array[4] &#34;.log&#34;; print &gt;&gt; fn; close(fn) }&#39; access.log
-</code></pre><h3 id="참고">참고</h3>
-<ul>
-<li><a href="http://stackoverflow.com/questions/11713978/how-to-split-existing-apache-logfile-by-month/11714105#11714105">How to split existing apache logfile by month?</a></li>
-</ul>
+          
+<div class='langsheet'>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C</div>
+  <div class='panel-body'>
+    <span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br><span class='cmd_keyword'>const</span>&nbsp;<span class='cmd_keyword'>char</span>&nbsp;*s2&nbsp;=&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;<br><span class='cmd_keyword'>char</span>&nbsp;*s3&nbsp;=&nbsp;(<span class='cmd_keyword'>char</span>&nbsp;*)<span class='cmd_stdlib'>malloc</span>(<span class='cmd_stdlib'>strlen</span>(s1)+<span class='cmd_stdlib'>strlen</span>(s2)+<span class='cmd_number'>1</span>);<br><span class='cmd_stdlib'>strcpy</span>(s3,&nbsp;s1);<br><span class='cmd_stdlib'>strcat</span>(s3,&nbsp;s2);
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>C++</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;destructive</span><br><span class='cmd_stdlib'>string</span>&nbsp;s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br>s1&nbsp;+=&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;non-destructive</span><br><span class='cmd_stdlib'>string</span>&nbsp;s1&nbsp;=&nbsp;<span class='cmd_string'>"hello"</span>;<br><span class='cmd_stdlib'>string</span>&nbsp;s2&nbsp;=&nbsp;s1&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>;
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>CoffeeScript</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Java</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>JavaScript</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Kotlin</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Lua</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;..&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Objective-C</div>
+  <div class='panel-body'>
+    <span class='cmd_comment'>//&nbsp;destructive</span><br><span class='cmd_stdlib'>NSMutableString</span>&nbsp;*s1&nbsp;=&nbsp;[<span class='cmd_string'>@"hello"</span>&nbsp;<span class='cmd_stdlib'>mutableCopy</span>];<br>[s1&nbsp;<span class='cmd_stdlib'>appendString</span>:<span class='cmd_string'>@"&nbsp;world"</span>];<br><span class='cmd_hr'></span><br><span class='cmd_comment'>//&nbsp;non-destructive</span><br><span class='cmd_stdlib'>NSString</span>&nbsp;*s1&nbsp;=&nbsp;<span class='cmd_string'>@"hello"</span>;<br><span class='cmd_stdlib'>NSString</span>&nbsp;*s2&nbsp;=&nbsp;[s1&nbsp;<span class='cmd_stdlib'>stringByAppendingString</span>:<span class='cmd_string'>@"&nbsp;world"</span>];
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Perl</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;.&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>PHP</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;.&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Python</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Ruby</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>'hello'</span>&nbsp;+&nbsp;<span class='cmd_string'>'&nbsp;world'</span>
+  </div>
+</div>
+
+<div class='panel panel-info'>
+  <div class='panel-heading'>Swift</div>
+  <div class='panel-body'>
+    <span class='cmd_string'>"hello"</span>&nbsp;+&nbsp;<span class='cmd_string'>"&nbsp;world"</span>
+  </div>
+</div>
+
+</div>
 
         </div>
       </div>
@@ -262,13 +477,19 @@ awk가 좀 오래된 도구다 보니 열린 파일 수 제한이 낮은 듯 합
     <li><a href='/ko/tech/page/16/'>16</a></li>
     
     
+    
+    
+    
+    <li><a href='/ko/tech/page/17/'>17</a></li>
+    
+    
 
     
     
 
     
     <li><a href='/ko/tech/page/16/'>다음 &gt;</a></li>
-    <li><a href='/ko/tech/page/16/'>끝 &raquo;</a></li>
+    <li><a href='/ko/tech/page/17/'>끝 &raquo;</a></li>
     
   </ul>
   

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang='ko'>
+
+<head>
+  <meta charset='utf-8'>
+
+  
+  <title>sixmen.com: GraphQL 이해하기: (4) 리졸버 인자 - 3. context</title>
+  
+  
+  <meta name='author' content='Sangmin Yoon'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+  <link href='/css/style.css?body=1' rel='stylesheet' type='text/css' media='all'>
+  <link href='/css/syntax.css?body=1' rel='stylesheet' type='text/css' media='all'>
+
+  <!--[if lt IE 9]>
+  <script src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js'></script>
+  <script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script>
+  <![endif]-->
+</head>
+
+<body>
+<div class='hp-navbar'>
+  <div class='container-fluid'>
+    <div class='row'>
+      <div class='col-xs-12'>
+        
+        <nav class='hp-nav'>
+          <a class='hp-nav-item'
+            href='/ko/'>Home</a>
+          <a class='hp-nav-item'
+            href='/ko/mylife/'>MyLife</a>
+          <a class='hp-nav-item'
+            href='/ko/travel/'>Travel</a>
+          <a class='hp-nav-item active'
+            href='/ko/tech/'>Tech</a>
+          <a class='hp-nav-item'
+            href='/ko/tags/'>Tags</a>
+          <a class='hp-nav-item pull-right' href='/en/'>English</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='container'>
+
+  <div class='row'>
+    <div class='col-xs-12'>
+      <div class='page-header'>
+        <h1>GraphQL 이해하기: (4) 리졸버 인자 - 3. context</h1>
+      </div>
+    </div>
+
+    <div class='col-xs-12 col-sm-9'>
+      <p>GraphQL.js 리졸버의 세번째 인자는 context입니다. 이 인자는 온전히 사용자가 설정하는 것으로 매 요청마다 새로 생성되며 같은 요청을 처리하는 리졸버가 상태를 공유하기 위해 사용합니다.</p>
+<p>다음과 같이 적당한 값을 넣어서 한번 실행해보면 동작 방식을 금방 이해할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">makeExecutableSchema</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;@graphql-tools/schema&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">graphql</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;graphql&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">type_defs</span> <span class="o">=</span> <span class="sb">`
+</span></span></span><span class="line"><span class="cl"><span class="sb">type User {
+</span></span></span><span class="line"><span class="cl"><span class="sb">  id: ID!
+</span></span></span><span class="line"><span class="cl"><span class="sb">  name: String!
+</span></span></span><span class="line"><span class="cl"><span class="sb">}
+</span></span></span><span class="line"><span class="cl"><span class="sb">
+</span></span></span><span class="line"><span class="cl"><span class="sb">type Query {
+</span></span></span><span class="line"><span class="cl"><span class="sb">  users: [User!]!
+</span></span></span><span class="line"><span class="cl"><span class="sb">}`</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">users</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Francisco&#39;</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Alexander&#39;</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">interface</span> <span class="nx">Context</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">foo</span>: <span class="kt">number</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">bar?</span>: <span class="kt">number</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">resolvers</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">Query</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">users</span><span class="o">:</span> <span class="p">(</span><span class="nx">_source</span>: <span class="kt">unknown</span><span class="p">,</span> <span class="nx">_args</span>: <span class="kt">unknown</span><span class="p">,</span> <span class="nx">context</span>: <span class="kt">Context</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">context</span><span class="p">.</span><span class="nx">bar</span> <span class="o">=</span> <span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">bar</span> <span class="o">||</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="nx">users</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">User</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span><span class="o">:</span> <span class="p">(</span><span class="nx">source</span>: <span class="kt">any</span><span class="p">,</span> <span class="nx">_args</span>: <span class="kt">unknown</span><span class="p">,</span> <span class="nx">context</span>: <span class="kt">Context</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">context</span><span class="p">.</span><span class="nx">bar</span> <span class="o">=</span> <span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">bar</span> <span class="o">||</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="nx">source</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">schema</span> <span class="o">=</span> <span class="nx">makeExecutableSchema</span><span class="p">({</span> <span class="nx">typeDefs</span>: <span class="kt">type_defs</span><span class="p">,</span> <span class="nx">resolvers</span> <span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="kr">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">await</span> <span class="nx">graphql</span><span class="p">({</span> <span class="nx">schema</span><span class="p">,</span> <span class="nx">source</span><span class="o">:</span> <span class="sb">`query { users { id name } }`</span><span class="p">,</span> <span class="nx">contextValue</span><span class="o">:</span> <span class="p">{</span> <span class="nx">foo</span>: <span class="kt">1</span> <span class="p">}</span> <span class="p">});</span>
+</span></span><span class="line"><span class="cl">  <span class="k">await</span> <span class="nx">graphql</span><span class="p">({</span> <span class="nx">schema</span><span class="p">,</span> <span class="nx">source</span><span class="o">:</span> <span class="sb">`query { users { id name } }`</span><span class="p">,</span> <span class="nx">contextValue</span><span class="o">:</span> <span class="p">{</span> <span class="nx">foo</span>: <span class="kt">100</span><span class="p">,</span> <span class="nx">bar</span>: <span class="kt">10</span> <span class="p">}</span> <span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="p">})();</span>
+</span></span></code></pre></div><p>실행 결과는 다음과 같습니다.</p>
+<pre tabindex="0"><code>users { foo: 1 }
+name { foo: 1, bar: 1 }
+name { foo: 1, bar: 2 }
+users { foo: 100, bar: 10 }
+name { foo: 100, bar: 11 }
+name { foo: 100, bar: 12 }
+</code></pre><p>컨텍스트의 가장 일반적인 사용예는 클라이언트 요청의 부가 정보를 담는 것입니다. 요청시 준 HTTP 헤더, 로그인 상태인 경우 로그인 한 사용자 정보 같은 것들이 있습니다.</p>
+<p>다음은 실제 클라이언트 요청을 처리하는 프레임워크인 <a href="https://www.apollographql.com/docs/apollo-server/">Apollo Server</a>에서 컨텍스트를 설정해 본 예제입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">IncomingMessage</span><span class="p">,</span> <span class="nx">ServerResponse</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;http&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">ApolloServer</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;@apollo/server&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">startStandaloneServer</span> <span class="p">}</span> <span class="kr">from</span> <span class="s1">&#39;@apollo/server/standalone&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">interface</span> <span class="nx">Context</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">req</span>: <span class="kt">IncomingMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">res</span>: <span class="kt">ServerResponse</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">resolvers</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">Query</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">getUser</span><span class="o">:</span> <span class="p">(</span><span class="nx">_source</span>: <span class="kt">any</span><span class="p">,</span> <span class="nx">args</span>: <span class="kt">any</span><span class="p">,</span> <span class="nx">context</span>: <span class="kt">Context</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">context</span><span class="p">));</span> <span class="c1">// [ &#39;req&#39;, &#39;res&#39; ]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">);</span> <span class="c1">// { host: &#39;localhost:4000&#39;, &#39;content-type&#39;: &#39;application/json&#39;, ... }
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="k">return</span> <span class="nx">users</span><span class="p">[</span><span class="nx">args</span><span class="p">.</span><span class="nx">id</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">server</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ApolloServer</span><span class="p">({</span> <span class="nx">typeDefs</span><span class="p">,</span> <span class="nx">resolvers</span> <span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="kr">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">await</span> <span class="nx">startStandaloneServer</span><span class="p">&lt;</span><span class="nt">Context</span><span class="p">&gt;(</span><span class="nx">server</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">context</span>: <span class="kt">async</span> <span class="p">({</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">})</span> <span class="o">=&gt;</span> <span class="p">({</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">}),</span>
+</span></span><span class="line"><span class="cl">  <span class="p">});</span>
+</span></span><span class="line"><span class="cl"><span class="p">})();</span>
+</span></span></code></pre></div><p>GraphQL Java의 경우 GraphQLContext라는 속성으로 제공합니다. DGS Framework의 경우 HTTP 요청을 처리해주는데 이를 제공하기 위해 GraphQLContext를 감싼 DgsContext를 제공합니다. <code>println(dfe.getDgsContext().requestData)</code> 로 내용을 출력해보면 <code>DgsWebMvcRequestData(extensions={}, headers=[host:&quot;localhost:8080&quot;, accept:&quot;application/json&quot;, ...], webRequest=ServletWebRequest: uri=/graphql;client=127.0.0.1)</code> 와 같은 결과를 볼 수 있습니다.</p>
+<h2 id="dataloader와-컨텍스트">DataLoader와 컨텍스트</h2>
+<p>앞선 글에서 얘기했듯이 리졸버는 독립적으로 동작하는 것이 좋습니다. 그렇다보니 한번에 요청할 수 있는 것을 나눠서 요청하는 N+1 쿼리 문제가 발생합니다. 이를 해결해주는 라이브러리로 <a href="https://github.com/graphql/dataloader">DataLoader</a>가 있습니다. 그런데 이 DataLoader는 요청별로 생성하는 것이 좋습니다. 즉 요청별로 다른 값을 가지는 컨텍스트를 사용할 필요가 있습니다.</p>
+<blockquote>
+<p>In many applications, a web server using DataLoader serves requests to many different users with different access permissions. It may be dangerous to use one cache across many users, and is encouraged to create a new DataLoader per request:</p>
+</blockquote>
+<p>필요할 때 DataLoader 인스턴스를 생성하기 위해 카카오스타일에서는 컨텍스트를 활용한 다음 패턴을 주로 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-tsx" data-lang="tsx"><span class="line"><span class="cl"><span class="kr">interface</span> <span class="nx">Context</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">loader</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">loader_name</span>: <span class="kt">string</span><span class="p">]</span><span class="o">:</span> <span class="nx">DataLoader</span><span class="p">&lt;</span><span class="nt">any</span><span class="err">,</span> <span class="na">any</span><span class="p">&gt;</span> <span class="o">|</span> <span class="kc">undefined</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// for Apollo Server
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">context</span>: <span class="kt">async</span> <span class="p">({</span> <span class="nx">req</span><span class="p">,</span> <span class="nx">res</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">({</span> <span class="nx">loader</span><span class="o">:</span> <span class="p">{}</span> <span class="p">}),</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// resolver
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">my_field</span><span class="p">(</span><span class="nx">soruce</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span>: <span class="kt">Context</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">const</span> <span class="nx">loader_name</span> <span class="o">=</span> <span class="s1">&#39;MyType.my_field&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">let</span> <span class="nx">loader</span>: <span class="kt">DataLoader</span><span class="p">&lt;</span><span class="nt">string</span><span class="err">,</span> <span class="na">MyFieldType</span><span class="p">&gt;</span> <span class="o">|</span> <span class="kc">undefined</span> <span class="o">=</span> <span class="nx">context</span><span class="p">.</span><span class="nx">loader</span><span class="p">[</span><span class="nx">loader_name</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">loader</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">loader</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DataLoader</span><span class="p">&lt;</span><span class="nt">string</span><span class="err">,</span> <span class="na">MyFieldType</span><span class="p">&gt;(</span><span class="kr">async</span> <span class="p">(</span><span class="nx">keys</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// return Array&lt;MyFieldType&gt; for keys
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">});</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">context</span><span class="p">.</span><span class="nx">loader</span><span class="p">[</span><span class="nx">loader_name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">loader</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">loader</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">key_for_my_field</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>참고로 <a href="https://www.graphql-java.com/documentation/batching">GraphQL Java</a>는 DataLoader에 대한 처리가 라이브러리 내부에 들어와 있습니다. DataLoaderRegistry 클래스를 생성해 ExecutionInput으로 주면 DataFetchingEnvironment.getDataLoader를 통해 DataLoader를 얻을 수 있습니다. <a href="https://netflix.github.io/dgs/data-loaders/">DGS Framework</a>에서는 DgsDataLoader 어노테이션을 통해 등록하면 됩니다.</p>
+
+    </div>
+
+    <div class='col-xs-12 col-sm-3'>
+      <div class='post-date'>
+        <i class='glyphicon glyphicon-pencil'></i>
+        <span>15 November 2022</span>
+      </div>
+
+      
+
+<ul class='tag_box inline'>
+  <li><i class='glyphicon glyphicon-tags'></i></li>
+  
+  <li><a href='/ko/tags/graphql'>
+      GraphQL
+      <span>9</span>
+    </a></li>
+  
+</ul>
+
+    </div>
+
+    <div class='col-xs-12'>
+      <hr>
+
+      <ul class='pager'>
+        
+        <li class='previous'><a href='/ko/tech/2022-11-15-1-understanding-graphql-4-resolver-arguments-2-args/' title='GraphQL 이해하기: (4) 리졸버 인자 - 2. args'>&larr; 이전
+            글</a></li>
+        
+        
+        <li class='next'><a href='/ko/tech/2022-11-15-3-understanding-graphql-4-resolver-arguments-4-info/' title='GraphQL 이해하기: (4) 리졸버 인자 - 4. info'>다음 글 &rarr;</a>
+        </li>
+        
+      </ul>
+      <hr>
+      <div class='text-center'>
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "sixmen-blog" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class='container-fluid'>
+  <hr>
+  <footer>
+    <p>
+      &copy; 2014-2021 Sangmin Yoon
+      <span class='pull-right text-muted'>
+        powered by
+        <a href='https://gohugo.io/' target='_blank'>Hugo</a>
+        ,
+        <a href='http://getbootstrap.com/' target='_blank'>Bootstrap</a>
+        ,
+        <a href='http://www.dnsever.com' target='dnsever'><img src='http://banner.dnsever.com/dnsever-banner_62x15.gif'
+            border='0' alt='DNS server, DNS service '></a>
+      </span>
+    </p>
+  </footer>
+</div>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-48366784-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+
+</body>
+
+</html>
